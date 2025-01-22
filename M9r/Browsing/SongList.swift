@@ -1,16 +1,26 @@
-//
-//  SongList.swift
-//  M9r
-//
-//  Created by P. Kevin Contreras on 1/22/25.
-//  Copyright © 2025 M9r Project. All rights reserved.
-//
+/*
+ * M9r
+ * Copyright (C) 2025  MAINTAINERS
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 
 import SwiftUI
 
 struct SongList: View {
-    @Environment(PlaybackController.self) var playbackController
-    @Binding var library: Library
+    @Environment(PlayQueue.self) var playQueue
+    @Environment(\.library) var library
     @State private var selectedSongs = Set<LibraryID>()
     
     var body: some View {
@@ -32,20 +42,19 @@ struct SongList: View {
                 }
             }
         } primaryAction: { selection in
-            guard let songID = selection.first else {
+            guard let songID = selection.first,
+                  let toPlay = library.allSongs.firstIndex(where: { $0.id == songID }) else {
                 return
             }
-            guard let toPlay = library.allSongs.first(where: { $0.id == songID }) else {
-                return
-            }
-            try! playbackController.play(toPlay)
+            try! playQueue.play(library.allSongs, startingAt: toPlay)
         }
         .onDrop(of: [.fileURL], isTargeted: nil) { providers in
             for provider in providers {
                 let progress = provider.loadTransferable(type: URL.self) { result in
                     let url = try! result.get()
                     Task {
-                        try await library.importSongs([url])
+                        let toAdd = try collectSongFiles(at: url)
+                        try await library.importSongs(toAdd)
                     }
                 }
                 if progress.isCancelled {

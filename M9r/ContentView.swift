@@ -19,15 +19,14 @@
 import SwiftUI
 
 struct ContentView: View {
-    @Binding var library: Library
-    
     var body: some View {
         NavigationSplitView {
             SourceList()
         } detail: {
-            SongList(library: $library)
+            SongList()
         }
         .toolbar {
+            NowPlaying()
             PlaybackControls()
         }
     }

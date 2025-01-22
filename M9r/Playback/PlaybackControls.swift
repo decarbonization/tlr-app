@@ -1,32 +1,50 @@
-//
-//  PlaybackControls.swift
-//  M9r
-//
-//  Created by P. Kevin Contreras on 1/22/25.
-//  Copyright © 2025 M9r Project. All rights reserved.
-//
+/*
+ * M9r
+ * Copyright (C) 2025  MAINTAINERS
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 
 import SwiftUI
 import SFBAudioEngine
 
 struct PlaybackControls: View {
-    @Environment(PlaybackController.self) var playbackController
+    @Environment(PlayQueue.self) var playQueue
+    @Environment(\.library) var library
     
     var body: some View {
         HStack {
             Button {
-                switch playbackController.playbackState {
+                try! playQueue.previousTrack()
+            } label: {
+                Label("Previous Track", systemImage: "backward.end.alt.fill")
+            }
+            .disabled(!playQueue.canSkipPreviousTrack)
+            .keyboardShortcut(.leftArrow, modifiers: .command)
+            Button {
+                switch playQueue.playbackState {
                 case .stopped:
-                    break
+                    try! playQueue.play(library.allSongs)
                 case .paused:
-                    playbackController.resume()
+                    playQueue.resume()
                 case .playing:
-                    playbackController.pause()
+                    playQueue.pause()
                 @unknown default:
                     fatalError()
                 }
             } label: {
-                switch playbackController.playbackState {
+                switch playQueue.playbackState {
                 case .stopped:
                     Label("Play", systemImage: "play.fill")
                 case .paused:
@@ -37,7 +55,15 @@ struct PlaybackControls: View {
                     EmptyView()
                 }
             }
-            .labelStyle(.iconOnly)
+            .keyboardShortcut(.space)
+            Button {
+                try! playQueue.nextTrack()
+            } label: {
+                Label("Previous Track", systemImage: "forward.end.alt.fill")
+            }
+            .disabled(!playQueue.canSkipNextTrack)
+            .keyboardShortcut(.rightArrow, modifiers: .command)
         }
+        .labelStyle(.iconOnly)
     }
 }

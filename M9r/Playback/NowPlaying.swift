@@ -18,16 +18,17 @@
 
 import SwiftUI
 
-@main
-struct M9rApp: App {
-    @State var library: Library = TransientLibrary()
-    @State var playQueue = PlayQueue()
+struct NowPlaying: View {
+    @Environment(PlayQueue.self) var playQueue
     
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
+    var body: some View {
+        VStack(alignment: .leading) {
+            Text(verbatim: playQueue.playingItem?.title ?? "--")
+                .font(.headline)
+                .foregroundStyle(.primary)
+            Text(verbatim: playQueue.playingItem?.artist ?? "--")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
         }
-        .environment(\.library, library)
-        .environment(playQueue)
     }
 }
