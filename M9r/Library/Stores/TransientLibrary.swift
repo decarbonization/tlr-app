@@ -9,7 +9,7 @@
 import Foundation
 
 /// Q&D placeholder library implementation
-@MainActor @Observable final class TransientLibrary: Library {
+@Observable final class TransientLibrary: Library {
     init() {
         allSongs = []
     }
@@ -37,10 +37,10 @@ import Foundation
         }
     }
     
-    func deleteSongs(_ songs: some Sequence<LibrarySong>) async throws -> Set<LibraryID> {
+    func deleteSongs(_ songIDs: some Sequence<LibraryID>) async throws -> Set<LibraryID> {
         let toRemove = try await Task {
-            IndexSet(try songs.lazy.map { song in
-                guard let toRemove = allSongs.firstIndex(where: { $0.id == song.id }) else {
+            IndexSet(try songIDs.lazy.map { songID in
+                guard let toRemove = allSongs.firstIndex(where: { $0.id == songID }) else {
                     throw CocoaError(.fileNoSuchFile)
                 }
                 return toRemove

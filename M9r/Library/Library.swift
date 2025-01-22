@@ -8,7 +8,7 @@
 
 import Foundation
 
-@MainActor protocol Library: Observable {
+@MainActor protocol Library: AnyObject, Observable {
     /// All songs known to the library.
     var allSongs: [LibrarySong] { get }
     
@@ -31,8 +31,8 @@ import Foundation
     
     /// Delete a given collection of songs from the library.
     ///
-    /// - parameter songs: A collection of songs to delete.
+    /// - parameter songIDs: A collection of identifiers specifying the songs to delete.
     /// - returns: The identifiers of the songs that were removed.
     /// - throws: An error if the library could not be updated.
-    func deleteSongs(_ songs: some Sequence<LibrarySong>) async throws -> Set<LibraryID>
+    func deleteSongs(_ songIDs: some Sequence<LibraryID>) async throws -> Set<LibraryID>
 }

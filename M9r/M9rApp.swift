@@ -20,9 +20,11 @@ import SwiftUI
 
 @main
 struct M9rApp: App {
+    @State var library: Library = TransientLibrary()
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(library: $library)
         }
     }
 }

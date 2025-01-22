@@ -9,12 +9,12 @@
 import Foundation
 import SFBAudioEngine
 
-struct LibrarySong: Equatable {
+struct LibrarySong: Identifiable {
     static func importing(contentsOf fileURL: URL) throws -> Self {
         let audioFile = try AudioFile(url: fileURL)
         return Self(id: .unique,
                     file: audioFile.url,
-                    title: audioFile.metadata.title,
+                    title: audioFile.metadata.title ?? fileURL.lastPathComponent,
                     artist: audioFile.metadata.artist,
                     album: audioFile.metadata.albumTitle)
     }

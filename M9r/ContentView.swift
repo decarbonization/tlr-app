@@ -19,17 +19,16 @@
 import SwiftUI
 
 struct ContentView: View {
+    @Binding var library: Library
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        NavigationSplitView {
+            SourceList()
+        } detail: {
+            SongList(library: $library)
         }
-        .padding()
+        .toolbar {
+            PlaybackControls()
+        }
     }
-}
-
-#Preview {
-    ContentView()
 }

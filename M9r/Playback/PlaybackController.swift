@@ -9,7 +9,9 @@
 import SwiftUI
 import SFBAudioEngine
 
-@MainActor @Observable final class PlaybackController {
+@Observable final class PlaybackController: @unchecked Sendable {
+    static let shared = PlaybackController()
+    
     init() {
         audioPlayer = AudioPlayer()
         delegate = .init()
@@ -53,4 +55,8 @@ import SFBAudioEngine
     func stop() {
         audioPlayer.stop()
     }
+}
+
+extension EnvironmentValues {
+    @Entry var playbackController: PlaybackController = .shared
 }
