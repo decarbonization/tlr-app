@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		463A9F582D413F2E00ABF576 /* SFBAudioEngine in Frameworks */ = {isa = PBXBuildFile; productRef = 463A9F572D413F2E00ABF576 /* SFBAudioEngine */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		463A9F272D413AFF00ABF576 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -54,6 +58,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				463A9F582D413F2E00ABF576 /* SFBAudioEngine in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -82,6 +87,7 @@
 				463A9F172D413AFF00ABF576 /* M9r */,
 				463A9F292D413AFF00ABF576 /* M9rTests */,
 				463A9F332D413AFF00ABF576 /* M9rUITests */,
+				463A9F562D413F2E00ABF576 /* Frameworks */,
 				463A9F162D413AFF00ABF576 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -94,6 +100,13 @@
 				463A9F302D413AFF00ABF576 /* M9rUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		463A9F562D413F2E00ABF576 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -110,12 +123,14 @@
 			buildRules = (
 			);
 			dependencies = (
+				463A9F5A2D413F3200ABF576 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				463A9F172D413AFF00ABF576 /* M9r */,
 			);
 			name = M9r;
 			packageProductDependencies = (
+				463A9F572D413F2E00ABF576 /* SFBAudioEngine */,
 			);
 			productName = M9r;
 			productReference = 463A9F152D413AFF00ABF576 /* M9r.app */;
@@ -200,6 +215,9 @@
 			);
 			mainGroup = 463A9F0C2D413AFF00ABF576;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				463A9F552D413F2000ABF576 /* XCRemoteSwiftPackageReference "SFBAudioEngine" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 463A9F162D413AFF00ABF576 /* Products */;
 			projectDirPath = "";
@@ -270,6 +288,10 @@
 			isa = PBXTargetDependency;
 			target = 463A9F142D413AFF00ABF576 /* M9r */;
 			targetProxy = 463A9F312D413AFF00ABF576 /* PBXContainerItemProxy */;
+		};
+		463A9F5A2D413F3200ABF576 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = 463A9F592D413F3200ABF576 /* SFBAudioEngine */;
 		};
 /* End PBXTargetDependency section */
 
@@ -550,6 +572,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		463A9F552D413F2000ABF576 /* XCRemoteSwiftPackageReference "SFBAudioEngine" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sbooth/SFBAudioEngine";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.6.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		463A9F572D413F2E00ABF576 /* SFBAudioEngine */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 463A9F552D413F2000ABF576 /* XCRemoteSwiftPackageReference "SFBAudioEngine" */;
+			productName = SFBAudioEngine;
+		};
+		463A9F592D413F3200ABF576 /* SFBAudioEngine */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 463A9F552D413F2000ABF576 /* XCRemoteSwiftPackageReference "SFBAudioEngine" */;
+			productName = SFBAudioEngine;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 463A9F0D2D413AFF00ABF576 /* Project object */;
 }
