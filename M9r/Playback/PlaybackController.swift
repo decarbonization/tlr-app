@@ -8,36 +8,55 @@
 
 import SwiftUI
 import SFBAudioEngine
+import os
 
 @Observable final class PlaybackController: @unchecked Sendable {
-    static let shared = PlaybackController()
+    private enum DelegateEvent: @unchecked Sendable {
+        case playbackStateChanged(AudioPlayer.PlaybackState)
+        case nowPlayingChanged((any PCMDecoding)?)
+    }
+    
+    private final class Delegate: NSObject, AudioPlayer.Delegate {
+        init(_ observer: @escaping @Sendable (DelegateEvent) -> Void) {
+            self.observer = observer
+        }
+        
+        private let observer: @Sendable (DelegateEvent) -> Void
+        
+        // MARK: - AudioPlayer.Delegate
+        
+        func audioPlayer(_ audioPlayer: AudioPlayer,
+                         playbackStateChanged playbackState: AudioPlayer.PlaybackState) {
+            observer(.playbackStateChanged(playbackState))
+        }
+        
+        func audioPlayer(_ audioPlayer: AudioPlayer,
+                         nowPlayingChanged nowPlaying: (any PCMDecoding)?) {
+            observer(.nowPlayingChanged(nowPlaying))
+        }
+    }
+    
+    private static let logger = Logger()
     
     init() {
         audioPlayer = AudioPlayer()
-        delegate = .init()
+        delegate = Delegate { [weak self] event in
+            self?.consumeDelegateEvent(event)
+        }
         audioPlayer.delegate = delegate
     }
     
     private let audioPlayer: AudioPlayer
-    private let delegate: PlaybackEvent.DelegateAdapter
-    
-    var events: some AsyncSequence<PlaybackEvent, Never> {
-        AsyncStream { [delegate = self.delegate] continuation in
-            let consumer = delegate.addConsumer { event in
-                continuation.yield(event)
-            }
-            continuation.onTermination = { _ in
-                delegate.removeConsumer(consumer)
-            }
-        }
-    }
+    private var delegate: Delegate?
     
     var playbackState: AudioPlayer.PlaybackState {
-        audioPlayer.playbackState
+        access(keyPath: \.playbackState)
+        return audioPlayer.playbackState
     }
     
     var nowPlaying: (any PCMDecoding)? {
-        audioPlayer.nowPlaying
+        access(keyPath: \.nowPlaying)
+        return audioPlayer.nowPlaying
     }
     
     func play(_ song: LibrarySong) throws {
@@ -55,8 +74,17 @@ import SFBAudioEngine
     func stop() {
         audioPlayer.stop()
     }
-}
-
-extension EnvironmentValues {
-    @Entry var playbackController: PlaybackController = .shared
+    
+    private func consumeDelegateEvent(_ event: DelegateEvent) {
+        switch event {
+        case .playbackStateChanged(let newPlaybackState):
+            withMutation(keyPath: \.playbackState) {
+                Self.logger.info("\(String(describing: self)).playbackState = \(newPlaybackState.rawValue)")
+            }
+        case .nowPlayingChanged(let newNowPlaying):
+            withMutation(keyPath: \.nowPlaying) {
+                Self.logger.info("\(String(describing: self)).nowPlaying = \(String(describing: newNowPlaying))")
+            }
+        }
+    }
 }

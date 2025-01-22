@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct SongList: View {
-    @Environment(\.playbackController) var playbackController
+    @Environment(PlaybackController.self) var playbackController
     @Binding var library: Library
     @State private var selectedSongs = Set<LibraryID>()
     

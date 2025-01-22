@@ -10,14 +10,12 @@ import SwiftUI
 import SFBAudioEngine
 
 struct PlaybackControls: View {
-    @State var playbackState: AudioPlayer.PlaybackState = .stopped
-    @State var nowPlaying: (any PCMDecoding)?
-    @Environment(\.playbackController) var playbackController
+    @Environment(PlaybackController.self) var playbackController
     
     var body: some View {
         HStack {
             Button {
-                switch playbackState {
+                switch playbackController.playbackState {
                 case .stopped:
                     break
                 case .paused:
@@ -28,7 +26,7 @@ struct PlaybackControls: View {
                     fatalError()
                 }
             } label: {
-                switch playbackState {
+                switch playbackController.playbackState {
                 case .stopped:
                     Label("Play", systemImage: "play.fill")
                 case .paused:
@@ -40,16 +38,6 @@ struct PlaybackControls: View {
                 }
             }
             .labelStyle(.iconOnly)
-        }
-        .task {
-            for await event in playbackController.events {
-                switch event {
-                case .playbackStateChanged(let newPlaybackState):
-                    playbackState = newPlaybackState
-                case .nowPlayingChanged(let newNowPlaying):
-                    nowPlaying = newNowPlaying
-                }
-            }
         }
     }
 }

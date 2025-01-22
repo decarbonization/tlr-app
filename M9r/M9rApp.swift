@@ -21,10 +21,12 @@ import SwiftUI
 @main
 struct M9rApp: App {
     @State var library: Library = TransientLibrary()
+    @State var playbackController = PlaybackController()
     
     var body: some Scene {
         WindowGroup {
             ContentView(library: $library)
         }
+        .environment(playbackController)
     }
 }
