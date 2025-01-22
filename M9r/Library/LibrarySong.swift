@@ -22,6 +22,7 @@ import SFBAudioEngine
 struct LibrarySong: Identifiable {
     static func importing(contentsOf fileURL: URL) throws -> Self {
         let audioFile = try AudioFile(url: fileURL)
+        try audioFile.readPropertiesAndMetadata()
         return Self(id: .unique,
                     file: audioFile.url,
                     title: audioFile.metadata.title ?? fileURL.lastPathComponent,
