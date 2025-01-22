@@ -19,6 +19,8 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State var isPresentingQueue = false
+    
     var body: some View {
         NavigationSplitView {
             SourceList()
@@ -28,6 +30,12 @@ struct ContentView: View {
         .toolbar {
             NowPlaying()
             PlaybackControls()
+            Button("Queue") {
+                isPresentingQueue = true
+            }
+            .popover(isPresented: $isPresentingQueue) {
+                QueueList()
+            }
         }
     }
 }

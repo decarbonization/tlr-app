@@ -143,6 +143,20 @@ import SwiftUI
         playingIndex = nil
     }
     
+    func relativeItemPosition(_ item: LibrarySong) -> ComparisonResult? {
+        guard let playingIndex,
+              let itemIndex = items.firstIndex(where: { $0.id == item.id }) else {
+            return nil
+        }
+        if itemIndex < playingIndex {
+            return .orderedAscending
+        } else if itemIndex > playingIndex {
+            return .orderedDescending
+        } else {
+            return .orderedSame
+        }
+    }
+    
     private func consumeDelegateEvent(_ event: DelegateEvent) {
         switch event {
         case .playbackStateChanged(let newPlaybackState):
