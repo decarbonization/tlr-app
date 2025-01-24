@@ -16,25 +16,26 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import SwiftData
 import SwiftUI
 
 struct QueueList: View {
     @Environment(PlayQueue.self) var playQueue
-    @State private var selectedItems = Set<LibraryID>()
+    @State private var selectedItems = Set<PersistentIdentifier>()
     
     var body: some View {
         @Bindable var playQueue = playQueue
         
         List(playQueue.items, selection: $selectedItems) { item in
             let position = playQueue.relativeItemPosition(item)
-            Text(verbatim: item.title ?? item.file.lastPathComponent)
+            Text(verbatim: item.title ?? "")
                 .foregroundStyle(
                     position == .orderedSame ? .primary :
                     position == .orderedAscending ? .tertiary
                     : .secondary
                 )
         }
-        .contextMenu(forSelectionType: LibraryID.self) { selection in
+        .contextMenu(forSelectionType: PersistentIdentifier.self) { selection in
             
         } primaryAction: { selection in
             guard let songID = selection.first,

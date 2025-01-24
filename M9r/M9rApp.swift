@@ -16,18 +16,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import SwiftData
 import SwiftUI
 
 @main
 struct M9rApp: App {
-    @State var library: Library = TransientLibrary()
     @State var playQueue = PlayQueue()
     
     var body: some Scene {
         WindowGroup {
             ContentView()
         }
-        .environment(\.library, library)
         .environment(playQueue)
+        .modelContainer(for: [Song.self],
+                        inMemory: true,
+                        isAutosaveEnabled: true,
+                        isUndoEnabled: false,
+                        onSetup: { _ in })
     }
 }

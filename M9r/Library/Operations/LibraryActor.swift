@@ -16,23 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import Foundation
-import SFBAudioEngine
+import SwiftData
 
-struct LibrarySong: Identifiable {
-    static func importing(contentsOf fileURL: URL) throws -> Self {
-        let audioFile = try AudioFile(url: fileURL)
-        try audioFile.readPropertiesAndMetadata()
-        return Self(id: .unique,
-                    file: audioFile.url,
-                    title: audioFile.metadata.title ?? fileURL.lastPathComponent,
-                    artist: audioFile.metadata.artist,
-                    album: audioFile.metadata.albumTitle)
-    }
+@ModelActor actor LibraryActor {
     
-    let id: LibraryID
-    let file: URL
-    var title: String?
-    var artist: String?
-    var album: String?
 }

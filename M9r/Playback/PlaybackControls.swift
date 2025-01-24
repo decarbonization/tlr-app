@@ -21,7 +21,6 @@ import SFBAudioEngine
 
 struct PlaybackControls: View {
     @Environment(PlayQueue.self) var playQueue
-    @Environment(\.library) var library
     
     var body: some View {
         HStack {
@@ -35,7 +34,8 @@ struct PlaybackControls: View {
             Button {
                 switch playQueue.playbackState {
                 case .stopped:
-                    try! playQueue.play(library.allSongs)
+                    break
+                    // try! playQueue.play(library.allSongs)
                 case .paused:
                     playQueue.resume()
                 case .playing:

@@ -65,9 +65,9 @@ import SwiftUI
     private let audioPlayer: AudioPlayer
     private var delegate: Delegate?
     
-    private(set) var items: [LibrarySong]
+    private(set) var items: [Song]
     private var playingIndex: Int?
-    var playingItem: LibrarySong? {
+    var playingItem: Song? {
         guard let playingIndex else {
             return nil
         }
@@ -81,11 +81,11 @@ import SwiftUI
     
     private func play(itemAt index: Int) throws {
         let item = items[index]
-        try audioPlayer.play(item.file)
+        try audioPlayer.play(item.fileURL)
         playingIndex = index
     }
     
-    func play(_ newItems: [LibrarySong],
+    func play(_ newItems: [Song],
               startingAt startIndex: Int = 0) throws {
         stop()
         items = newItems
@@ -143,7 +143,7 @@ import SwiftUI
         playingIndex = nil
     }
     
-    func relativeItemPosition(_ item: LibrarySong) -> ComparisonResult? {
+    func relativeItemPosition(_ item: Song) -> ComparisonResult? {
         guard let playingIndex,
               let itemIndex = items.firstIndex(where: { $0.id == item.id }) else {
             return nil

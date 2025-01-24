@@ -19,10 +19,14 @@
 import SwiftUI
 
 struct SourceList: View {
+    @Binding var songsFilter: Predicate<Song>?
+    
     var body: some View {
         List {
             Section("Library") {
-                
+                Button("All Songs") {
+                    songsFilter = nil
+                }
             }
             Section("Playlists") {
                 

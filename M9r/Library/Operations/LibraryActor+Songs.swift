@@ -17,11 +17,14 @@
  */
 
 import Foundation
+import SwiftData
 
-struct LibraryID: RawRepresentable, Hashable, Codable {
-    static var unique: Self {
-        Self(rawValue: UUID().uuidString)
+extension LibraryActor {
+    func addSongs(_ fileURLs: some Sequence<URL>) throws {
+        for fileURL in fileURLs {
+            let newSong = try Song(importing: fileURL)
+            modelContext.insert(newSong)
+        }
+        try modelContext.save()
     }
-    
-    var rawValue: String
 }

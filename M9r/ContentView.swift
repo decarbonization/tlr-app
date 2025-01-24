@@ -16,16 +16,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import SwiftData
 import SwiftUI
 
 struct ContentView: View {
+    @State var songsFilter: Predicate<Song>?
     @State var isPresentingQueue = false
     
     var body: some View {
         NavigationSplitView {
-            SourceList()
+            SourceList(songsFilter: $songsFilter)
         } detail: {
-            SongList()
+            SongList(filter: songsFilter)
         }
         .toolbar {
             NowPlaying()

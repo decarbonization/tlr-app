@@ -16,45 +16,51 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import SwiftData
 import SwiftUI
 
 struct SongList: View {
-    @Environment(PlayQueue.self) var playQueue
-    @Environment(\.library) var library
-    @State private var selectedSongs = Set<LibraryID>()
+    init(filter: Predicate<Song>?) {
+        _songs = .init(filter: filter)
+    }
+    
+    @Query var songs: [Song]
+    @Environment(\.modelContext) private var modelContext
+    @Environment(PlayQueue.self) private var playQueue
+    @State private var selection = Set<PersistentIdentifier>()
+    @State private var sortOrder = [KeyPathComparator(\Song.title)]
     
     var body: some View {
-        Table(library.allSongs, selection: $selectedSongs) {
-            TableColumn("Title") { song in
+        Table(songs, selection: $selection, sortOrder: $sortOrder) {
+            TableColumn("Title", sortUsing: KeyPathComparator(\Song.title)) { song in
                 Text(verbatim: song.title ?? "")
             }
-            TableColumn("Album") { song in
+            TableColumn("Album", sortUsing: KeyPathComparator(\Song.album)) { song in
                 Text(verbatim: song.album ?? "")
             }
-            TableColumn("Artist") { song in
+            TableColumn("Artist", sortUsing: KeyPathComparator(\Song.artist)) { song in
                 Text(verbatim: song.artist ?? "")
             }
         }
-        .contextMenu(forSelectionType: LibraryID.self) { selection in
+        .contextMenu(forSelectionType: PersistentIdentifier.self) { selection in
             Button("Remove") {
-                Task {
-                    try await library.deleteSongs(selection)
-                }
+                
             }
         } primaryAction: { selection in
             guard let songID = selection.first,
-                  let toPlay = library.allSongs.firstIndex(where: { $0.id == songID }) else {
+                  let songPosition = songs.firstIndex(where: { $0.id == songID }) else {
                 return
             }
-            try! playQueue.play(library.allSongs, startingAt: toPlay)
+            try! playQueue.play(songs, startingAt: songPosition)
         }
         .onDrop(of: [.fileURL], isTargeted: nil) { providers in
+            let library = LibraryActor(modelContainer: modelContext.container)
             for provider in providers {
                 let progress = provider.loadTransferable(type: URL.self) { result in
                     let url = try! result.get()
                     Task {
                         let toAdd = try collectSongFiles(at: url)
-                        try await library.importSongs(toAdd)
+                        try await library.addSongs(toAdd)
                     }
                 }
                 if progress.isCancelled {
