@@ -26,14 +26,22 @@ struct QueueList: View {
     var body: some View {
         @Bindable var playQueue = playQueue
         
-        List(playQueue.items, selection: $selectedItems) { item in
-            let position = playQueue.relativeItemPosition(item)
-            Text(verbatim: item.title ?? "")
-                .foregroundStyle(
-                    position == .orderedSame ? .primary :
-                    position == .orderedAscending ? .tertiary
-                    : .secondary
-                )
+        List(selection: $selectedItems) {
+            ForEach(playQueue.items) { item in
+                let position = playQueue.relativeItemPosition(item)
+                Text(verbatim: item.title ?? "")
+                    .foregroundStyle(
+                        position == .orderedSame ? .primary :
+                            position == .orderedAscending ? .tertiary
+                        : .secondary
+                    )
+            }
+            .onDelete { toRemove in
+                playQueue.removeItems(atOffsets: toRemove)
+            }
+            .onMove { source, destination in
+                playQueue.moveItems(fromOffsets: source, toOffset: destination)
+            }
         }
         .contextMenu(forSelectionType: PersistentIdentifier.self) { selection in
             

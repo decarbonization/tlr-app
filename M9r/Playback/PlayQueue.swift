@@ -157,6 +157,22 @@ import SwiftUI
         }
     }
     
+    func moveItems(fromOffsets source: IndexSet, toOffset destination: Int) {
+        let playingItem = playingItem
+        items.move(fromOffsets: source, toOffset: destination)
+        if let playingItem {
+            playingIndex = items.firstIndex(where: { $0.id == playingItem.id })
+        }
+    }
+    
+    func removeItems(atOffsets toRemove: IndexSet) {
+        if let playingIndex,
+           toRemove.contains(playingIndex) {
+            stop()
+        }
+        items.remove(atOffsets: toRemove)
+    }
+    
     private func consumeDelegateEvent(_ event: DelegateEvent) {
         switch event {
         case .playbackStateChanged(let newPlaybackState):
