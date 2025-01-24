@@ -26,11 +26,19 @@ struct ContentView: View {
         NavigationSplitView {
             List {
                 Section("Library") {
+                    NavigationLink("All Albums", value: AllAlbumsDestination())
+                    NavigationLink("All Artists", value: AllArtistsDestination())
                     NavigationLink("All Songs", value: AllSongsDestination())
                 }
                 Section("Playlists") {
                     
                 }
+            }
+            .navigationDestination(for: AllAlbumsDestination.self) { _ in
+                AlbumList()
+            }
+            .navigationDestination(for: AllArtistsDestination.self) { _ in
+                ArtistList()
             }
             .navigationDestination(for: AllSongsDestination.self) { _ in
                 SongList()
