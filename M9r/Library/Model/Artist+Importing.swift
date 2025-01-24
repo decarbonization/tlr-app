@@ -16,19 +16,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import SwiftUI
+import Foundation
+import SwiftData
 
-struct NowPlaying: View {
-    @Environment(PlayQueue.self) var playQueue
-    
-    var body: some View {
-        VStack(alignment: .leading) {
-            Text(verbatim: playQueue.playingItem?.title ?? "--")
-                .font(.headline)
-                .foregroundStyle(.primary)
-            Text(verbatim: playQueue.playingItem?.artist?.name ?? "--")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+extension Artist {
+    static func forName(_ artistName: String,
+                        in context: ModelContext) throws -> Artist {
+        var whatArtist = FetchDescriptor<Artist>(predicate: #Predicate { $0.name == artistName })
+        whatArtist.fetchLimit = 1
+        whatArtist.includePendingChanges = true
+        let existingArtist = try context.fetch(whatArtist)
+        if existingArtist.count == 1 {
+            return existingArtist[0]
+        } else {
+            let newArtist = Artist(name: artistName)
+            context.insert(newArtist)
+            return newArtist
         }
     }
 }

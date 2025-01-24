@@ -19,12 +19,22 @@
 import Foundation
 import SwiftData
 
-extension LibraryActor {
-    func addSongs(_ fileURLs: some Sequence<URL>) throws {
-        for fileURL in fileURLs {
-            let newSong = try Song(importing: fileURL)
-            modelContext.insert(newSong)
+extension Album {
+    static func forName(_ albumName: String,
+                        by artistName: String?,
+                        in context: ModelContext) throws -> Album {
+        var whatAlbum = FetchDescriptor<Album>(predicate: #Predicate { $0.name == albumName })
+        whatAlbum.fetchLimit = 1
+        whatAlbum.includePendingChanges = true
+        let existingAlbum = try context.fetch(whatAlbum)
+        if existingAlbum.count == 1 {
+            return existingAlbum[0]
+        } else {
+            let artist = try artistName.map { try Artist.forName($0, in: context) }
+            let newAlbum = Album(name: albumName,
+                                 artist: artist)
+            context.insert(newAlbum)
+            return newAlbum
         }
-        try modelContext.save()
     }
 }

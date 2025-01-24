@@ -40,9 +40,10 @@ import SwiftData
     var startTime: TimeInterval
     var endTime: TimeInterval
     
+    @Relationship var artist: Artist?
+    @Relationship var album: Album?
+    
     var title: String?
-    var artist: String?
-    var album: String?
     var composer: String?
     var genre: String?
     var releaseDate: String?

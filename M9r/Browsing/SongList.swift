@@ -31,11 +31,11 @@ struct SongList: View {
             TableColumn("Title", sortUsing: KeyPathComparator(\Song.title)) { song in
                 Text(verbatim: song.title ?? "")
             }
-            TableColumn("Album", sortUsing: KeyPathComparator(\Song.album)) { song in
-                Text(verbatim: song.album ?? "")
+            TableColumn("Album", sortUsing: KeyPathComparator(\Song.album?.name)) { song in
+                Text(verbatim: song.album?.name ?? "")
             }
-            TableColumn("Artist", sortUsing: KeyPathComparator(\Song.artist)) { song in
-                Text(verbatim: song.artist ?? "")
+            TableColumn("Artist", sortUsing: KeyPathComparator(\Song.artist?.name)) { song in
+                Text(verbatim: song.artist?.name ?? "")
             }
         }
         .contextMenu(forSelectionType: PersistentIdentifier.self) { selection in
@@ -55,8 +55,8 @@ struct SongList: View {
                 let progress = provider.loadTransferable(type: URL.self) { result in
                     let url = try! result.get()
                     Task {
-                        let toAdd = try collectSongFiles(at: url)
-                        try await library.addSongs(toAdd)
+                        let toAdd = try! collectSongFiles(at: url)
+                        try! await library.addSongs(toAdd)
                     }
                 }
                 if progress.isCancelled {

@@ -16,19 +16,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import SwiftUI
+import SwiftData
 
-struct NowPlaying: View {
-    @Environment(PlayQueue.self) var playQueue
-    
-    var body: some View {
-        VStack(alignment: .leading) {
-            Text(verbatim: playQueue.playingItem?.title ?? "--")
-                .font(.headline)
-                .foregroundStyle(.primary)
-            Text(verbatim: playQueue.playingItem?.artist?.name ?? "--")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-        }
+@Model final class Album {
+    init(name: String,
+         artist: Artist? = nil,
+         songs: [Song] = []) {
+        self.name = name
+        self.artist = artist
+        self.songs = songs
     }
+    
+    var name: String
+    @Relationship var artist: Artist?
+    @Relationship(inverse: \Song.album) var songs: [Song]
 }
