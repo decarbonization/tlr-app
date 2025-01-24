@@ -20,14 +20,25 @@ import SwiftData
 import SwiftUI
 
 struct ContentView: View {
-    @State var songsFilter: Predicate<Song>?
     @State var isPresentingQueue = false
     
     var body: some View {
         NavigationSplitView {
-            SourceList(songsFilter: $songsFilter)
+            List {
+                Section("Library") {
+                    NavigationLink("All Songs", value: AllSongsDestination())
+                }
+                Section("Playlists") {
+                    
+                }
+            }
+            .navigationDestination(for: AllSongsDestination.self) { _ in
+                SongList()
+            }
         } detail: {
-            SongList(filter: songsFilter)
+            NavigationStack {
+                EmptyView()
+            }
         }
         .toolbar {
             NowPlaying()

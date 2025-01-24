@@ -20,11 +20,7 @@ import SwiftData
 import SwiftUI
 
 struct SongList: View {
-    init(filter: Predicate<Song>?) {
-        _songs = .init(filter: filter)
-    }
-    
-    @Query var songs: [Song]
+    @Query private var songs: [Song]
     @Environment(\.modelContext) private var modelContext
     @Environment(PlayQueue.self) private var playQueue
     @State private var selection = Set<PersistentIdentifier>()
