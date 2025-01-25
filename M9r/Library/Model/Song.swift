@@ -20,12 +20,36 @@ import Foundation
 import SwiftData
 
 @Model final class Song {
+    struct Flags: OptionSet, Codable, CustomDebugStringConvertible {
+        var rawValue: UInt
+        
+        static let disabled = Self(rawValue: 1 << 0)
+        static let skipWhenShuffling = Self(rawValue: 1 << 1)
+        static let fromCueSheet = Self(rawValue: 1 << 2)
+        
+        var debugDescription: String {
+            var fields = [String]()
+            if contains(.disabled) {
+                fields.append(".disabled")
+            }
+            if contains(.skipWhenShuffling) {
+                fields.append(".skipWhenShuffling")
+            }
+            if contains(.fromCueSheet) {
+                fields.append(".fromCueSheet")
+            }
+            return "Flags(\(fields))"
+        }
+    }
+    
     init(fileBookmark: Data,
-         startTime: TimeInterval,
-         endTime: TimeInterval) {
+         startTime: TimeInterval = 0,
+         endTime: TimeInterval,
+         flags: Flags = []) {
         self.fileBookmark = fileBookmark
         self.startTime = startTime
         self.endTime = endTime
+        self.flags = flags
     }
     
     var fileBookmark: Data
@@ -39,6 +63,7 @@ import SwiftData
     }
     var startTime: TimeInterval
     var endTime: TimeInterval
+    var flags: Flags
     
     @Relationship var artist: Artist?
     @Relationship var album: Album?
