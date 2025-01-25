@@ -16,8 +16,24 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import Foundation
-import SwiftData
 
-struct AllSongsDestination: Hashable, Codable {
+import AppKit
+import Foundation
+import SwiftUI
+
+extension Artwork {
+    @MainActor private static var cachedNSImages: [String: Image] = [:]
+    
+    @MainActor var image: Image? {
+        if let existingImage = Self.cachedNSImages[imageHash] {
+            return existingImage
+        } else {
+            guard let nsImage = NSImage(data: imageData) else {
+                return nil
+            }
+            let newImage = Image(nsImage: nsImage)
+            Self.cachedNSImages[imageHash] = newImage
+            return newImage
+        }
+    }
 }

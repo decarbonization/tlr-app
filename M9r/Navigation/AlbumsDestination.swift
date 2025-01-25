@@ -19,5 +19,16 @@
 import Foundation
 import SwiftData
 
-struct AllAlbumsDestination: Hashable, Codable {
+enum AlbumsDestination: Hashable, Codable {
+    case all
+    case forArtist(PersistentIdentifier)
+    
+    var filter: Predicate<Album>? {
+        switch self {
+        case .all:
+            return nil
+        case .forArtist(let artistID):
+            return #Predicate<Album> { $0.artist?.persistentModelID == artistID }
+        }
+    }
 }

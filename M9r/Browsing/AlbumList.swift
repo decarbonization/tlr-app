@@ -35,10 +35,8 @@ struct AlbumList: View {
                     } label: {
                         VStack {
                             Group {
-                                if let imageData = album.songs.first?.artwork.first?.imageData,
-                                   let nsImage = NSImage(data: imageData) {
-                                    Image(nsImage: nsImage)
-                                        .resizable()
+                                if let image = album.songs.first?.artwork.first?.image {
+                                    image.resizable()
                                 } else {
                                     Color.gray
                                 }

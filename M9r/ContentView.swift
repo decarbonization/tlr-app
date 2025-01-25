@@ -26,27 +26,31 @@ struct ContentView: View {
         NavigationSplitView {
             List {
                 Section("Library") {
-                    NavigationLink("All Albums", value: AllAlbumsDestination())
-                    NavigationLink("All Artists", value: AllArtistsDestination())
-                    NavigationLink("All Songs", value: AllSongsDestination())
+                    NavigationLink(value: ArtistsDestination.all) {
+                        Label("All Artists", systemImage: "music.microphone")
+                    }
+                    NavigationLink(value: AlbumsDestination.all) {
+                        Label("All Albums", systemImage: "square.stack")
+                    }
+                    NavigationLink(value: SongsDestination.all) {
+                        Label("All Songs", systemImage: "music.note")
+                    }
                 }
                 Section("Playlists") {
                     
                 }
             }
-            .navigationDestination(for: AllAlbumsDestination.self) { _ in
-                AlbumList()
-            }
-            .navigationDestination(for: AllArtistsDestination.self) { _ in
-                ArtistList()
-            }
-            .navigationDestination(for: AllSongsDestination.self) { _ in
-                SongList()
-            }
+            .listStyle(.sidebar)
+            .allNavigationDestinations
         } detail: {
             NavigationStack {
-                EmptyView()
+                VStack {
+                    Text("No Selection")
+                        .font(.largeTitle)
+                        .foregroundStyle(.tertiary)
+                }
             }
+            .allNavigationDestinations
         }
         .toolbar {
             NowPlaying()

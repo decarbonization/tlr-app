@@ -19,5 +19,13 @@
 import Foundation
 import SwiftData
 
-struct AllArtistsDestination: Hashable, Codable {
+enum ArtistsDestination: Hashable, Codable {
+    case all
+    
+    var filter: Predicate<Artist>? {
+        switch self {
+        case .all:
+            return nil
+        }
+    }
 }

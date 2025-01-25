@@ -46,5 +46,5 @@ import SwiftData
     var kind: Kind
     var imageHash: String
     var imageData: Data // TODO: This should be stored outside the DB once the DB is persistent
-    @Relationship var songs: [Song]
+    @Relationship(inverse: \Song.artwork) var songs: [Song]
 }

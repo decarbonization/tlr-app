@@ -24,10 +24,8 @@ struct NowPlaying: View {
     var body: some View {
         HStack(alignment: .center) {
             Group {
-                if let imageData = playQueue.playingItem?.artwork.first?.imageData,
-                   let nsImage = NSImage(data: imageData) {
-                    Image(nsImage: nsImage)
-                        .resizable()
+                if let image = playQueue.playingItem?.artwork.first?.image {
+                    image.resizable()
                 } else {
                     Color.gray
                 }
