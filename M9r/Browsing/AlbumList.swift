@@ -27,10 +27,34 @@ struct AlbumList: View {
     @Query var albums: [Album]
     
     var body: some View {
-        List(albums) { album in
-            NavigationLink(album.name) {
-                SongList(filter: #Predicate { [albumID = album.id] in $0.album?.persistentModelID == albumID })
+        ScrollView {
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 128, maximum: 150))]) {
+                ForEach(albums) { album in
+                    NavigationLink {
+                        SongList(filter: #Predicate { [albumID = album.id] in $0.album?.persistentModelID == albumID })
+                    } label: {
+                        VStack {
+                            Group {
+                                if let imageData = album.songs.first?.artwork.first?.imageData,
+                                   let nsImage = NSImage(data: imageData) {
+                                    Image(nsImage: nsImage)
+                                        .resizable()
+                                } else {
+                                    Color.gray
+                                }
+                            }
+                            .frame(width: 128, height: 128)
+                            .clipShape(RoundedRectangle(cornerRadius: 3.0))
+                            Text(verbatim: album.name)
+                                .font(.body)
+                                .foregroundStyle(.primary)
+                        }
+                    }
+                    .buttonStyle(.borderless)
+                }
             }
+            .padding()
         }
+        .background(.background)
     }
 }
