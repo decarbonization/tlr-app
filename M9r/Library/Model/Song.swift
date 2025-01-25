@@ -43,13 +43,14 @@ import SwiftData
     }
     
     init(fileBookmark: Data,
-         startTime: TimeInterval = 0,
+         startTime: TimeInterval,
          endTime: TimeInterval,
-         flags: Flags = []) {
+         flags: Flags) {
         self.fileBookmark = fileBookmark
         self.startTime = startTime
         self.endTime = endTime
         self.flags = flags
+        self.artwork = []
     }
     
     var fileBookmark: Data
@@ -67,6 +68,7 @@ import SwiftData
     
     @Relationship var artist: Artist?
     @Relationship var album: Album?
+    @Relationship var artwork: [Artwork]
     
     var title: String?
     var composer: String?

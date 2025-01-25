@@ -21,6 +21,57 @@ import SFBAudioEngine
 import SwiftData
 
 extension LibraryActor {
+    func addOrGetAlbum(_ albumName: String,
+                       by artistName: String?) throws -> Album {
+        var whatAlbum = FetchDescriptor<Album>(predicate: #Predicate { $0.name == albumName })
+        whatAlbum.fetchLimit = 1
+        whatAlbum.includePendingChanges = true
+        let existingAlbum = try modelContext.fetch(whatAlbum)
+        if existingAlbum.count == 1 {
+            return existingAlbum[0]
+        } else {
+            let artist = try artistName.map { try addOrGetArtist($0) }
+            let newAlbum = Album(name: albumName,
+                                 artist: artist)
+            modelContext.insert(newAlbum)
+            return newAlbum
+        }
+    }
+    
+    func addOrGetArtist(_ artistName: String) throws -> Artist {
+        var whatArtist = FetchDescriptor<Artist>(predicate: #Predicate { $0.name == artistName })
+        whatArtist.fetchLimit = 1
+        whatArtist.includePendingChanges = true
+        let existingArtist = try modelContext.fetch(whatArtist)
+        if existingArtist.count == 1 {
+            return existingArtist[0]
+        } else {
+            let newArtist = Artist(name: artistName)
+            modelContext.insert(newArtist)
+            return newArtist
+        }
+    }
+    
+    func addOrGetArtwork(_ picture: AttachedPicture) throws -> Artwork? {
+        guard picture.type == .frontCover else {
+            // TODO: Support other kinds of artwork
+            return nil
+        }
+        let imageHash = Artwork.imageHash(for: picture.imageData)
+        var whatArtwork = FetchDescriptor<Artwork>(predicate: #Predicate { $0.imageHash == imageHash })
+        whatArtwork.fetchLimit = 1
+        whatArtwork.includePendingChanges = true
+        let existingArtwork = try modelContext.fetch(whatArtwork)
+        if existingArtwork.count == 1 {
+            return existingArtwork[0]
+        } else {
+            let newArtwork = Artwork(imageHash: imageHash,
+                                     imageData: picture.imageData)
+            modelContext.insert(newArtwork)
+            return newArtwork
+        }
+    }
+    
     func addSongs(_ fileURLs: some Sequence<URL>) throws {
         for fileURL in fileURLs {
             let audioFile = try AudioFile(url: fileURL)
@@ -30,15 +81,17 @@ extension LibraryActor {
             let fileBookmark = try fileURL.bookmarkData(options: [.withSecurityScope])
             let newSong = Song(fileBookmark: fileBookmark,
                                startTime: 0.0,
-                               endTime: audioFile.properties.duration ?? 0.0)
+                               endTime: audioFile.properties.duration ?? 0.0,
+                               flags: [])
             newSong.title = audioFileMetadata.title ?? fileURL.lastPathComponent
-            if let artist = audioFileMetadata.artist {
-                newSong.artist = try Artist.forName(artist, in: modelContext)
+            if let artistName = audioFileMetadata.artist {
+                newSong.artist = try addOrGetArtist(artistName)
             }
-            if let album = audioFileMetadata.albumTitle {
-                newSong.album = try Album.forName(album,
-                                                  by: audioFileMetadata.artist,
-                                                  in: modelContext)
+            if let albumTitle = audioFileMetadata.albumTitle {
+                newSong.album = try addOrGetAlbum(albumTitle, by: audioFileMetadata.artist)
+            }
+            newSong.artwork = try audioFileMetadata.attachedPictures.compactMap {
+                try addOrGetArtwork($0)
             }
             newSong.genre = audioFileMetadata.genre
             newSong.releaseDate = audioFileMetadata.releaseDate

@@ -22,13 +22,26 @@ struct NowPlaying: View {
     @Environment(PlayQueue.self) var playQueue
     
     var body: some View {
-        VStack(alignment: .leading) {
-            Text(verbatim: playQueue.playingItem?.title ?? "--")
-                .font(.headline)
-                .foregroundStyle(.primary)
-            Text(verbatim: playQueue.playingItem?.artist?.name ?? "--")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+        HStack(alignment: .center) {
+            Group {
+                if let imageData = playQueue.playingItem?.artwork.first?.imageData,
+                   let nsImage = NSImage(data: imageData) {
+                    Image(nsImage: nsImage)
+                        .resizable()
+                } else {
+                    Color.gray
+                }
+            }
+            .frame(width: 32, height: 32)
+            .clipShape(RoundedRectangle(cornerRadius: 3.0))
+            VStack(alignment: .leading) {
+                Text(verbatim: playQueue.playingItem?.title ?? "--")
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+                Text(verbatim: playQueue.playingItem?.artist?.name ?? "--")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
         }
     }
 }
