@@ -27,6 +27,7 @@ struct SongList: View {
     @Query private var songs: [Song]
     @Environment(\.modelContext) private var modelContext
     @Environment(PlayQueue.self) private var playQueue
+    @Environment(WorkCoordinator.self) private var workCoordinator
     @State private var selection = Set<PersistentIdentifier>()
     @State private var sortOrder = [KeyPathComparator(\Song.title)]
     
@@ -53,20 +54,10 @@ struct SongList: View {
             }
             try! playQueue.play(songs, startingAt: songPosition)
         }
-        .onDrop(of: [.fileURL], isTargeted: nil) { providers in
+        .onDrop(of: [.fileURL], isTargeted: nil) { itemProviders in
             let library = LibraryActor(modelContainer: modelContext.container)
-            for provider in providers {
-                let progress = provider.loadTransferable(type: URL.self) { result in
-                    let url = try! result.get()
-                    Task {
-                        let toAdd = try! collectSongFiles(at: url)
-                        try! await library.addSongs(toAdd)
-                    }
-                }
-                if progress.isCancelled {
-                    return false
-                }
-            }
+            workCoordinator.perform(ImportItems(library: library,
+                                                itemProviders: itemProviders))
             return true
         }
     }

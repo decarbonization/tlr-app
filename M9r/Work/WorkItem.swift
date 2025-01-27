@@ -16,10 +16,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import SwiftData
+import Foundation
 
-@ModelActor actor LibraryActor {
-    func save() throws {
-        try modelContext.save()
-    }
+protocol WorkItem<Result>: Sendable {
+    associatedtype Result: Sendable
+    
+    func makeConfiguredProgress() -> Progress
+    func perform(reportingTo progress: Progress) async throws -> Result
 }

@@ -72,38 +72,36 @@ extension LibraryActor {
         }
     }
     
-    func addSongs(_ fileURLs: some Sequence<URL>) throws {
-        for fileURL in fileURLs {
-            let audioFile = try AudioFile(url: fileURL)
-            try audioFile.readPropertiesAndMetadata()
-            let audioFileMetadata = audioFile.metadata
-            
-            let fileBookmark = try fileURL.bookmarkData(options: [.withSecurityScope])
-            let newSong = Song(fileBookmark: fileBookmark,
-                               startTime: 0.0,
-                               endTime: audioFile.properties.duration ?? 0.0,
-                               flags: [])
-            newSong.title = audioFileMetadata.title ?? fileURL.lastPathComponent
-            if let artistName = audioFileMetadata.artist {
-                newSong.artist = try addOrGetArtist(artistName)
-            }
-            if let albumTitle = audioFileMetadata.albumTitle {
-                newSong.album = try addOrGetAlbum(albumTitle, by: audioFileMetadata.artist)
-            }
-            newSong.artwork = try audioFileMetadata.attachedPictures.compactMap {
-                try addOrGetArtwork($0)
-            }
-            newSong.genre = audioFileMetadata.genre
-            newSong.releaseDate = audioFileMetadata.releaseDate
-            newSong.trackNumber = audioFileMetadata.trackNumber.map(UInt64.init(clamping:))
-            newSong.trackTotal = audioFileMetadata.trackTotal.map(UInt64.init(clamping:))
-            newSong.discNumber = audioFileMetadata.discNumber.map(UInt64.init(clamping:))
-            newSong.discTotal = audioFileMetadata.discTotal.map(UInt64.init(clamping:))
-            newSong.lyrics = audioFileMetadata.lyrics
-            newSong.bpm = audioFileMetadata.bpm.map(UInt64.init(clamping:))
-            newSong.comment = audioFileMetadata.comment
-            modelContext.insert(newSong)
+    func addSong(_ fileURL: URL) throws -> Song {
+        let audioFile = try AudioFile(url: fileURL)
+        try audioFile.readPropertiesAndMetadata()
+        let audioFileMetadata = audioFile.metadata
+        
+        let fileBookmark = try fileURL.bookmarkData(options: [.withSecurityScope])
+        let newSong = Song(fileBookmark: fileBookmark,
+                           startTime: 0.0,
+                           endTime: audioFile.properties.duration ?? 0.0,
+                           flags: [])
+        newSong.title = audioFileMetadata.title ?? fileURL.lastPathComponent
+        if let artistName = audioFileMetadata.artist {
+            newSong.artist = try addOrGetArtist(artistName)
         }
-        try modelContext.save()
+        if let albumTitle = audioFileMetadata.albumTitle {
+            newSong.album = try addOrGetAlbum(albumTitle, by: audioFileMetadata.artist)
+        }
+        newSong.artwork = try audioFileMetadata.attachedPictures.compactMap {
+            try addOrGetArtwork($0)
+        }
+        newSong.genre = audioFileMetadata.genre
+        newSong.releaseDate = audioFileMetadata.releaseDate
+        newSong.trackNumber = audioFileMetadata.trackNumber.map(UInt64.init(clamping:))
+        newSong.trackTotal = audioFileMetadata.trackTotal.map(UInt64.init(clamping:))
+        newSong.discNumber = audioFileMetadata.discNumber.map(UInt64.init(clamping:))
+        newSong.discTotal = audioFileMetadata.discTotal.map(UInt64.init(clamping:))
+        newSong.lyrics = audioFileMetadata.lyrics
+        newSong.bpm = audioFileMetadata.bpm.map(UInt64.init(clamping:))
+        newSong.comment = audioFileMetadata.comment
+        modelContext.insert(newSong)
+        return newSong
     }
 }

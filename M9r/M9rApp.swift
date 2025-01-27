@@ -22,12 +22,14 @@ import SwiftUI
 @main
 struct M9rApp: App {
     @State var playQueue = PlayQueue()
+    @State var workCoordinator = WorkCoordinator()
     
     var body: some Scene {
         WindowGroup {
             ContentView()
         }
         .environment(playQueue)
+        .environment(workCoordinator)
         .modelContainer(for: [Song.self],
                         inMemory: true,
                         isAutosaveEnabled: true,
