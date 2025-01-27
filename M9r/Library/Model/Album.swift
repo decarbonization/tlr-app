@@ -19,6 +19,9 @@
 import SwiftData
 
 @Model final class Album {
+    #Index([\Album.name])
+    #Unique([\Album.name])
+    
     init(name: String,
          artist: Artist? = nil,
          songs: [Song] = []) {

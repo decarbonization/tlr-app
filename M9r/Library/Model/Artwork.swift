@@ -21,6 +21,9 @@ import Foundation
 import SwiftData
 
 @Model final class Artwork {
+    #Index([\Artwork.imageHash])
+    #Unique([\Artwork.imageHash])
+    
     enum Kind: UInt64, Codable {
         // TODO: Support more kinds
         case frontCover
