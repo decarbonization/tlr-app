@@ -26,31 +26,34 @@ struct QueueList: View {
     var body: some View {
         @Bindable var playQueue = playQueue
         
-        List(selection: $selectedItems) {
-            ForEach(playQueue.items) { item in
-                let position = playQueue.relativeItemPosition(item)
-                Text(verbatim: item.title ?? "")
-                    .foregroundStyle(
-                        position == .orderedSame ? .primary :
-                            position == .orderedAscending ? .tertiary
-                        : .secondary
-                    )
+        VStack(spacing: 0) {
+            List(selection: $selectedItems) {
+                ForEach(playQueue.items) { item in
+                    let position = playQueue.relativeItemPosition(item)
+                    Text(verbatim: item.title ?? "")
+                        .foregroundStyle(
+                            position == .orderedSame ? .primary :
+                                position == .orderedAscending ? .tertiary
+                            : .secondary
+                        )
+                }
+                .onDelete { toRemove in
+                    playQueue.removeItems(atOffsets: toRemove)
+                }
+                .onMove { source, destination in
+                    playQueue.moveItems(fromOffsets: source, toOffset: destination)
+                }
             }
-            .onDelete { toRemove in
-                playQueue.removeItems(atOffsets: toRemove)
+            .contextMenu(forSelectionType: PersistentIdentifier.self) { selection in
+                
+            } primaryAction: { selection in
+                guard let songID = selection.first,
+                      let toPlay = playQueue.items.firstIndex(where: { $0.id == songID }) else {
+                    return
+                }
+                try! playQueue.play(playQueue.items, startingAt: toPlay)
             }
-            .onMove { source, destination in
-                playQueue.moveItems(fromOffsets: source, toOffset: destination)
-            }
-        }
-        .contextMenu(forSelectionType: PersistentIdentifier.self) { selection in
-            
-        } primaryAction: { selection in
-            guard let songID = selection.first,
-                  let toPlay = playQueue.items.firstIndex(where: { $0.id == songID }) else {
-                return
-            }
-            try! playQueue.play(playQueue.items, startingAt: toPlay)
+            NowPlaying()
         }
     }
 }

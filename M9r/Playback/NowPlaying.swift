@@ -22,24 +22,28 @@ struct NowPlaying: View {
     @Environment(PlayQueue.self) var playQueue
     
     var body: some View {
-        HStack(alignment: .center) {
-            Group {
-                if let image = playQueue.playingItem?.artwork.first?.image {
-                    image.resizable()
-                } else {
-                    Color.gray
+        VStack(alignment: .leading, spacing: 0) {
+            Divider()
+            HStack(alignment: .center) {
+                Group {
+                    if let image = playQueue.playingItem?.artwork.first?.image {
+                        image.resizable()
+                    } else {
+                        Color.gray
+                    }
+                }
+                .frame(width: 32, height: 32)
+                .clipShape(RoundedRectangle(cornerRadius: 3.0))
+                VStack(alignment: .leading) {
+                    Text(verbatim: playQueue.playingItem?.title ?? "--")
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+                    Text(verbatim: playQueue.playingItem?.artist?.name ?? "--")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
                 }
             }
-            .frame(width: 32, height: 32)
-            .clipShape(RoundedRectangle(cornerRadius: 3.0))
-            VStack(alignment: .leading) {
-                Text(verbatim: playQueue.playingItem?.title ?? "--")
-                    .font(.headline)
-                    .foregroundStyle(.primary)
-                Text(verbatim: playQueue.playingItem?.artist?.name ?? "--")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
+            .padding(8)
         }
     }
 }

@@ -20,47 +20,27 @@ import SwiftData
 import SwiftUI
 
 struct ContentView: View {
-    @State var isPresentingQueue = false
+    @State var searchText: String = ""
     
     var body: some View {
-        NavigationSplitView {
-            List {
-                Section("Library") {
-                    NavigationLink(value: ArtistsDestination.all) {
-                        Label("All Artists", systemImage: "music.microphone")
-                    }
-                    NavigationLink(value: AlbumsDestination.all) {
-                        Label("All Albums", systemImage: "square.stack")
-                    }
-                    NavigationLink(value: SongsDestination.all) {
-                        Label("All Songs", systemImage: "music.note")
+        HSplitView {
+            NavigationSplitView {
+                SourceList()
+            } detail: {
+                NavigationStack {
+                    VStack {
+                        Text("No Selection")
+                            .font(.largeTitle)
+                            .foregroundStyle(.tertiary)
                     }
                 }
-                Section("Playlists") {
-                    
+            }
+            QueueList()
+                .frame(minWidth: 100, idealWidth: 200, maxWidth: 250)
+                .toolbar {
+                    Spacer()
+                    PlaybackControls()
                 }
-            }
-            .listStyle(.sidebar)
-            .allNavigationDestinations
-        } detail: {
-            NavigationStack {
-                VStack {
-                    Text("No Selection")
-                        .font(.largeTitle)
-                        .foregroundStyle(.tertiary)
-                }
-            }
-            .allNavigationDestinations
-        }
-        .toolbar {
-            NowPlaying()
-            PlaybackControls()
-            Button("Queue") {
-                isPresentingQueue = true
-            }
-            .popover(isPresented: $isPresentingQueue) {
-                QueueList()
-            }
         }
     }
 }
