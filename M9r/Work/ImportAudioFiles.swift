@@ -8,18 +8,10 @@
 
 import Foundation
 
-struct ImportAudioFiles: WorkItem {
-    let library: LibraryActor
-    let toImport: [URL]
-    
-    func makeConfiguredProgress() -> Progress {
-        let progress = Progress(totalUnitCount: Int64(toImport.count))
-        progress.localizedDescription = NSLocalizedString("Importing Songs…", comment: "")
-        return progress
-        
-    }
-    
-    func perform(reportingTo progress: Progress) async throws -> [Song] {
+func importAudioFiles(_ toImport: [URL],
+                      into library: LibraryActor) async throws -> [Song] {
+    try await PendingTasks.current.start(totalUnitCount: toImport.count,
+                                         localizedDescription: NSLocalizedString("Importing Songs…", comment: "")) { progress in
         var songs = [Song]()
         for fileURL in toImport {
             songs.append(try await library.addSong(fileURL))

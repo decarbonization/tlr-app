@@ -18,20 +18,13 @@
 
 import Foundation
 
-struct CollectItemURLs: WorkItem {
-    let itemProviders: [NSItemProvider]
-    
-    func makeConfiguredProgress() -> Progress {
-        let progress = Progress(totalUnitCount: Int64(itemProviders.count))
-        progress.localizedDescription = NSLocalizedString("Analyzing…", comment: "")
-        return progress
-    }
-    
-    func perform(reportingTo progress: Progress) async throws -> [URL] {
+func loadItemURLs(_ itemProviders: [NSItemProvider]) async throws -> [URL] {
+    try await PendingTasks.current.start(totalUnitCount: itemProviders.count,
+                                         localizedDescription: NSLocalizedString("Loading…", comment: "")) { progress in
         try await withThrowingTaskGroup(of: URL.self) { group in
             for itemProvider in itemProviders {
                 group.addTask {
-                    try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<URL, any Error>) in
+                    try await withUnsafeThrowingContinuation { continuation in
                         let loadProgress = itemProvider.loadTransferable(type: URL.self) { result in
                             continuation.resume(with: result)
                         }

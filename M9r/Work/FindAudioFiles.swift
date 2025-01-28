@@ -19,43 +19,46 @@
 import Foundation
 import SFBAudioEngine
 
-struct FindAudioFiles: WorkItem {
-    let urls: [URL]
-    
-    func makeConfiguredProgress() -> Progress {
-        let progress = Progress(totalUnitCount: 0)
-        progress.localizedDescription = NSLocalizedString("Finding Audio Files…", comment: "")
-        return progress
-    }
-    
-    func perform(reportingTo progress: Progress) async throws -> [URL] {
-        return try urls.flatMap { url -> [URL] in
-            try Task.checkCancellation()
-            guard url.isFileURL else {
-                return []
-            }
-            var isDirectory: ObjCBool = false
-            guard FileManager.default.fileExists(atPath: url.path(percentEncoded: false), isDirectory: &isDirectory) else {
-                return []
-            }
-            guard isDirectory.boolValue else {
-                return [url]
-            }
-            guard let enumerator = FileManager.default.enumerator(at: url,
-                                                                  includingPropertiesForKeys: nil,
-                                                                  options: [.skipsHiddenFiles, .skipsPackageDescendants]) else {
-                return []
-            }
-            return try enumerator.compactMap { next in
-                try Task.checkCancellation()
-                guard let nextURL = next as? URL else {
-                    return nil
+func findAudioFiles(_ urls: [URL]) async throws -> [URL] {
+    try await PendingTasks.current.start(totalUnitCount: urls.count,
+                                         localizedDescription: NSLocalizedString("Finding Audio Files…", comment: "")) { progress in
+        try await withThrowingTaskGroup(of: [URL].self) { group in
+            for url in urls {
+                group.addTask {
+                    try Task.checkCancellation()
+                    progress.completedUnitCount += 1
+                    guard url.isFileURL else {
+                        return []
+                    }
+                    var isDirectory: ObjCBool = false
+                    guard FileManager.default.fileExists(atPath: url.path(percentEncoded: false), isDirectory: &isDirectory) else {
+                        return []
+                    }
+                    guard isDirectory.boolValue else {
+                        return [url]
+                    }
+                    guard let enumerator = FileManager.default.enumerator(at: url,
+                                                                          includingPropertiesForKeys: nil,
+                                                                          options: [.skipsHiddenFiles, .skipsPackageDescendants]) else {
+                        return []
+                    }
+                    return try enumerator.compactMap { next in
+                        try Task.checkCancellation()
+                        guard let nextURL = next as? URL else {
+                            return nil
+                        }
+                        guard AudioDecoder.handlesPaths(withExtension: nextURL.pathExtension) else {
+                            return nil
+                        }
+                        return nextURL
+                    }
                 }
-                guard AudioDecoder.handlesPaths(withExtension: nextURL.pathExtension) else {
-                    return nil
-                }
-                return nextURL
             }
+            var allURLs = [URL]()
+            for try await urls in group {
+                allURLs.append(contentsOf: urls)
+            }
+            return allURLs
         }
     }
 }

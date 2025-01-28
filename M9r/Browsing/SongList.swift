@@ -27,7 +27,6 @@ struct SongList: View {
     @Query private var songs: [Song]
     @Environment(\.modelContext) private var modelContext
     @Environment(PlayQueue.self) private var playQueue
-    @Environment(WorkCoordinator.self) private var workCoordinator
     @State private var selection = Set<PersistentIdentifier>()
     @State private var sortOrder = [KeyPathComparator(\Song.title)]
     
@@ -56,8 +55,9 @@ struct SongList: View {
         }
         .onDrop(of: [.fileURL], isTargeted: nil) { itemProviders in
             let library = LibraryActor(modelContainer: modelContext.container)
-            workCoordinator.perform(ImportItems(library: library,
-                                                itemProviders: itemProviders))
+            Task {
+                try await importItems(itemProviders, into: library)
+            }
             return true
         }
     }

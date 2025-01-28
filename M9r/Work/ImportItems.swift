@@ -18,30 +18,11 @@
 
 import Foundation
 
-struct ImportItems: WorkItem {
-    let library: LibraryActor
-    let itemProviders: [NSItemProvider]
-    
-    func makeConfiguredProgress() -> Progress {
-        let progress = Progress(totalUnitCount: 3)
-        progress.localizedDescription = NSLocalizedString("Importing…", comment: "")
-        return progress
-    }
-    
-    func perform(reportingTo progress: Progress) async throws -> [Song] {
-        let collectItemURLs = CollectItemURLs(itemProviders: itemProviders)
-        let phase0 = collectItemURLs.makeConfiguredProgress()
-        progress.addChild(phase0, withPendingUnitCount: 1)
-        let itemURLs = try await collectItemURLs.perform(reportingTo: phase0)
-        
-        let findAudioFiles = FindAudioFiles(urls: itemURLs)
-        let phase1 = findAudioFiles.makeConfiguredProgress()
-        progress.addChild(phase1, withPendingUnitCount: 1)
-        let fileURLs = try await findAudioFiles.perform(reportingTo: phase1)
-        
-        let importAudioFiles = ImportAudioFiles(library: library, toImport: fileURLs)
-        let phase2 = importAudioFiles.makeConfiguredProgress()
-        progress.addChild(phase2, withPendingUnitCount: 1)
-        return try await importAudioFiles.perform(reportingTo: phase2)
-    }
+@discardableResult func importItems(_ itemProviders: [NSItemProvider],
+                                    into library: LibraryActor) async throws -> [Song] {
+    let itemURLs = try await loadItemURLs(itemProviders)
+    let fileURLs = try await findAudioFiles(itemURLs)
+    let songs = try await importAudioFiles(fileURLs,
+                                           into: library)
+    return songs
 }
