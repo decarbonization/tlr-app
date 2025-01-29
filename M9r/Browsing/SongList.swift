@@ -35,8 +35,8 @@ struct SongList: View {
             TableColumn("Title", sortUsing: KeyPathComparator(\Song.title)) { song in
                 Text(verbatim: song.title ?? "")
             }
-            TableColumn("Album", sortUsing: KeyPathComparator(\Song.album?.name)) { song in
-                Text(verbatim: song.album?.name ?? "")
+            TableColumn("Album", sortUsing: KeyPathComparator(\Song.album?.title)) { song in
+                Text(verbatim: song.album?.title ?? "")
             }
             TableColumn("Artist", sortUsing: KeyPathComparator(\Song.artist?.name)) { song in
                 Text(verbatim: song.artist?.name ?? "")
@@ -54,7 +54,7 @@ struct SongList: View {
             try! playQueue.play(songs, startingAt: songPosition)
         }
         .onDrop(of: [.fileURL], isTargeted: nil) { itemProviders in
-            let library = LibraryActor(modelContainer: modelContext.container)
+            let library = Library(modelContainer: modelContext.container)
             Task {
                 try await importItems(itemProviders, into: library)
             }

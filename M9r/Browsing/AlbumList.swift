@@ -21,7 +21,7 @@ import SwiftData
 
 struct AlbumList: View {
     init(filter: Predicate<Album>? = nil) {
-        _albums = .init(filter: filter, sort: \Album.name)
+        _albums = .init(filter: filter, sort: \Album.title)
     }
     
     @Query var albums: [Album]
@@ -43,7 +43,7 @@ struct AlbumList: View {
                             }
                             .frame(width: 128, height: 128)
                             .clipShape(RoundedRectangle(cornerRadius: 3.0))
-                            Text(verbatim: album.name)
+                            Text(verbatim: album.title)
                                 .font(.body)
                                 .foregroundStyle(.primary)
                         }

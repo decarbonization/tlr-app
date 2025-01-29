@@ -16,10 +16,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import Foundation
 import SwiftData
 
-@ModelActor actor LibraryActor {
-    func save() throws {
-        try modelContext.save()
+extension Library {
+    func getOrInsertAlbum(named albumTitle: String,
+                          by artistName: String?) throws -> Album {
+        try getOrInsert(matching: #Predicate { $0.title == albumTitle }) {
+            Album(title: albumTitle,
+                  artist: try artistName.map { try getOrInsertArtist(named: $0) })
+        }
     }
 }

@@ -19,24 +19,29 @@
 import Foundation
 
 func loadItemURLs(_ itemProviders: [NSItemProvider]) async throws -> [URL] {
-    try await PendingTasks.current.start(totalUnitCount: itemProviders.count,
-                                         localizedDescription: NSLocalizedString("Loading…", comment: "")) { progress in
-        try await withThrowingTaskGroup(of: URL.self) { group in
-            for itemProvider in itemProviders {
-                group.addTask {
-                    try await withUnsafeThrowingContinuation { continuation in
-                        let loadProgress = itemProvider.loadTransferable(type: URL.self) { result in
-                            continuation.resume(with: result)
+    try await Progress.begin {
+        let progress = Progress(totalUnitCount: Int64(itemProviders.count))
+        progress.localizedDescription = NSLocalizedString("Loading…", comment: "")
+        return progress
+    } task: { progress in
+        Task(priority: .userInitiated) {
+            try await withThrowingTaskGroup(of: URL.self) { group in
+                for itemProvider in itemProviders {
+                    group.addTask {
+                        try await withUnsafeThrowingContinuation { continuation in
+                            let loadProgress = itemProvider.loadTransferable(type: URL.self) { result in
+                                continuation.resume(with: result)
+                            }
+                            progress.addChild(loadProgress, withPendingUnitCount: 1)
                         }
-                        progress.addChild(loadProgress, withPendingUnitCount: 1)
                     }
                 }
+                var urls = [URL]()
+                for try await url in group {
+                    urls.append(url)
+                }
+                return urls
             }
-            var urls = [URL]()
-            for try await url in group {
-                urls.append(url)
-            }
-            return urls
         }
-    }
+    }.value
 }

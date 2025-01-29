@@ -17,12 +17,12 @@
  */
 
 import Foundation
+import SwiftData
 
-@discardableResult func importItems(_ itemProviders: [NSItemProvider],
-                                    into library: Library) async throws -> [Song] {
-    let itemURLs = try await loadItemURLs(itemProviders)
-    let fileURLs = try await findAudioFiles(itemURLs)
-    let songs = try await importAudioFiles(fileURLs,
-                                           into: library)
-    return songs
+extension Library {
+    func getOrInsertArtist(named artistName: String) throws -> Artist {
+        try getOrInsert(matching: #Predicate { $0.name == artistName }) {
+            Artist(name: artistName)
+        }
+    }
 }

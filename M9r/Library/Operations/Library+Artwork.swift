@@ -17,12 +17,19 @@
  */
 
 import Foundation
+import SFBAudioEngine
+import SwiftData
 
-@discardableResult func importItems(_ itemProviders: [NSItemProvider],
-                                    into library: Library) async throws -> [Song] {
-    let itemURLs = try await loadItemURLs(itemProviders)
-    let fileURLs = try await findAudioFiles(itemURLs)
-    let songs = try await importAudioFiles(fileURLs,
-                                           into: library)
-    return songs
+extension Library {
+    func getOrInsertArtwork(copying picture: AttachedPicture) throws -> Artwork? {
+        guard picture.type == .frontCover else {
+            // TODO: Support other kinds of artwork
+            return nil
+        }
+        let imageHash = Artwork.imageHash(for: picture.imageData)
+        return try getOrInsert(matching: #Predicate { $0.imageHash == imageHash }) {
+            Artwork(imageHash: imageHash,
+                    imageData: picture.imageData)
+        }
+    }
 }

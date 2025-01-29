@@ -9,15 +9,20 @@
 import Foundation
 
 func importAudioFiles(_ toImport: [URL],
-                      into library: LibraryActor) async throws -> [Song] {
-    try await PendingTasks.current.start(totalUnitCount: toImport.count,
-                                         localizedDescription: NSLocalizedString("Importing Songs…", comment: "")) { progress in
-        var songs = [Song]()
-        for fileURL in toImport {
-            songs.append(try await library.addSong(fileURL))
-            progress.completedUnitCount += 1
+                      into library: Library) async throws -> [Song] {
+    try await Progress.begin {
+        let progress = Progress(totalUnitCount: Int64(toImport.count))
+        progress.localizedDescription = NSLocalizedString("Importing Songs…", comment: "")
+        return progress
+    } task: { progress in
+        Task(priority: .background) {
+            var songs = [Song]()
+            for fileURL in toImport {
+                songs.append(try await library.addSong(fileURL))
+                progress.completedUnitCount += 1
+            }
+            try await library.save()
+            return songs
         }
-        try await library.save()
-        return songs
-    }
+    }.value
 }

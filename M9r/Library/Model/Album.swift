@@ -19,18 +19,18 @@
 import SwiftData
 
 @Model final class Album {
-    #Index([\Album.name])
-    #Unique([\Album.name])
+    #Index([\Album.title])
+    #Unique([\Album.title])
     
-    init(name: String,
+    init(title: String,
          artist: Artist? = nil,
          songs: [Song] = []) {
-        self.name = name
+        self.title = title
         self.artist = artist
         self.songs = songs
     }
     
-    var name: String
+    var title: String
     @Relationship var artist: Artist?
     @Relationship(inverse: \Song.album) var songs: [Song]
 }
