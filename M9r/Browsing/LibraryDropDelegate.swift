@@ -23,6 +23,7 @@ import UniformTypeIdentifiers
 struct LibraryDropDelegate: DropDelegate {
     static let supportedContentTypes = [UTType.fileURL]
     
+    let tasks: Tasks
     let modelContext: ModelContext
     
     func validateDrop(info: DropInfo) -> Bool {
@@ -37,36 +38,44 @@ struct LibraryDropDelegate: DropDelegate {
         
         let library = Library(modelContainer: modelContext.container)
         let loadItemsProgress = loadAll(URL.self, from: itemProviders) { itemResults, loadItemsProgress in
-            library.tasks.remove(loadItemsProgress)
+            tasks.remove(loadItemsProgress)
             
             let discoveringProgress = Progress(totalUnitCount: Int64(itemResults.count))
             discoveringProgress.localizedDescription = NSLocalizedString("Discovering…", comment: "")
-            library.tasks.add(discoveringProgress)
-            var fileResults = [Result<URL, any Error>]()
-            for itemResult in itemResults {
+            tasks.add(discoveringProgress)
+            var fileURLs = [URL]()
+            for case .success(let url) in itemResults {
                 defer {
                     discoveringProgress.completedUnitCount += 1
                 }
-                switch itemResult {
-                case .success(let url):
-                    discoveringProgress.localizedAdditionalDescription = url.lastPathComponent
-                    for fileURL in findAudioFiles(at: url) {
-                        fileResults.append(.success(fileURL))
-                    }
-                case .failure(let error):
-                    fileResults.append(.failure(error))
-                }
+                discoveringProgress.localizedAdditionalDescription = url.lastPathComponent
+                fileURLs.append(contentsOf: findAudioFiles(at: url))
                 
             }
-            library.tasks.remove(discoveringProgress)
+            tasks.remove(discoveringProgress)
             
             Task(priority: .userInitiated) {
-                await library.addSongs(fromContentsOf: fileResults)
+                let progress = Progress(totalUnitCount: Int64(fileURLs.count))
+                progress.localizedDescription = NSLocalizedString("Importing Songs…", comment: "")
+                tasks.add(progress)
+                defer {
+                    tasks.remove(progress)
+                }
+                for fileURL in fileURLs {
+                    progress.localizedAdditionalDescription = fileURL.lastPathComponent
+                    do {
+                        try await library.addSong(fileURL)
+                    } catch {
+                        Library.log.error("Could not import \(fileURL), reason: \(error)")
+                    }
+                    progress.completedUnitCount += 1
+                }
+                
                 try await library.garbageCollect()
                 try await library.save()
             }
         }
-        library.tasks.add(loadItemsProgress)
+        tasks.add(loadItemsProgress)
         
         return true
     }

@@ -19,6 +19,8 @@
 import SwiftUI
 
 struct SourceList: View {
+    @Environment(Tasks.self) private var tasks
+    
     var body: some View {
         List {
             Section("Library") {
@@ -36,6 +38,13 @@ struct SourceList: View {
                     SongList()
                 } label: {
                     Label("All Songs", systemImage: "music.note")
+                }
+                if !tasks.inProgress.isEmpty {
+                    NavigationLink {
+                        TaskList()
+                    } label: {
+                        Label("Tasks", systemImage: "inset.filled.circle")
+                    }
                 }
             }
             Section("Playlists") {

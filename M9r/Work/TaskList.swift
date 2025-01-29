@@ -16,24 +16,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import SwiftData
 import SwiftUI
 
-@main
-struct M9rApp: App {
-    @State var playQueue = PlayQueue()
-    @State var tasks = Tasks()
+struct TaskList: View {
+    @Environment(Tasks.self) private var tasks
     
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
+    var body: some View {
+        List(tasks.inProgress, id: \.self) { progress in
+            VStack(alignment: .leading) {
+                Text(verbatim: progress.localizedDescription ?? "--")
+                Text(verbatim: progress.localizedAdditionalDescription ?? "--")
+                ProgressView(progress)
+            }
+            .padding()
         }
-        .environment(playQueue)
-        .environment(tasks)
-        .modelContainer(for: [Song.self],
-                        inMemory: true,
-                        isAutosaveEnabled: true,
-                        isUndoEnabled: false,
-                        onSetup: { _ in })
+        .progressViewStyle(.linear)
     }
 }

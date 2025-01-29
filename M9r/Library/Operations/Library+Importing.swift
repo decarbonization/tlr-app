@@ -20,7 +20,8 @@ import Foundation
 @preconcurrency import class Foundation.NSItemProvider
 
 extension Library {
-    @discardableResult func addSongs(fromContentsOf fileResults: [Result<URL, any Error>]) -> [Result<Song, any Error>] {
+    @discardableResult func addSongs(fromContentsOf fileResults: [Result<URL, any Error>],
+                                     reportingTo tasks: Tasks) -> [Result<Song, any Error>] {
         let progress = Progress(totalUnitCount: Int64(fileResults.count))
         progress.localizedDescription = NSLocalizedString("Importing Songs…", comment: "")
         tasks.add(progress)

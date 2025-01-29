@@ -27,6 +27,7 @@ struct SongList: View {
     @Query private var songs: [Song]
     @Environment(\.modelContext) private var modelContext
     @Environment(PlayQueue.self) private var playQueue
+    @Environment(Tasks.self) private var tasks
     @State private var selection = Set<PersistentIdentifier>()
     @State private var sortOrder = [KeyPathComparator(\Song.title)]
     
@@ -54,6 +55,6 @@ struct SongList: View {
             try! playQueue.play(songs, startingAt: songPosition)
         }
         .onDrop(of: LibraryDropDelegate.supportedContentTypes,
-                delegate: LibraryDropDelegate(modelContext: modelContext))
+                delegate: LibraryDropDelegate(tasks: tasks, modelContext: modelContext))
     }
 }

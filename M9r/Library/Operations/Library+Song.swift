@@ -21,7 +21,7 @@ import SFBAudioEngine
 import SwiftData
 
 extension Library {
-    func addSong(_ fileURL: URL) throws -> Song {
+    @discardableResult func addSong(_ fileURL: URL) throws -> Song {
         let audioFile = try AudioFile(url: fileURL)
         try audioFile.readPropertiesAndMetadata()
         
@@ -34,6 +34,7 @@ extension Library {
                  from: fileURL,
                  to: newSong)
         modelContext.insert(newSong)
+        Library.log.debug("Inserted \(fileURL): \(String(describing: newSong))")
         return newSong
     }
     
