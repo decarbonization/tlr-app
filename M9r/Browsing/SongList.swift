@@ -53,16 +53,7 @@ struct SongList: View {
             }
             try! playQueue.play(songs, startingAt: songPosition)
         }
-        .onDrop(of: [.fileURL], isTargeted: nil) { itemProviders in
-            let library = Library(modelContainer: modelContext.container)
-            Task(priority: .userInitiated) {
-                for itemProvider in itemProviders {
-                    await library.addSongs(fromItems: itemProvider)
-                }
-                try await library.garbageCollect()
-                try await library.save()
-            }
-            return true
-        }
+        .onDrop(of: LibraryDropDelegate.supportedContentTypes,
+                delegate: LibraryDropDelegate(modelContext: modelContext))
     }
 }

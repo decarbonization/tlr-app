@@ -20,35 +20,27 @@ import Foundation
 @preconcurrency import class Foundation.NSItemProvider
 
 extension Library {
-    func addSongs(fromItems itemProvider: NSItemProvider) async {
-        let loadResult = await withUnsafeContinuation { continuation in
-            _ = itemProvider.loadTransferable(type: URL.self) { loadResult in
-                continuation.resume(returning: loadResult)
-            }
-        }
-        guard case .success(let itemURL) = loadResult else {
-            return
-        }
-        let fileURLs = findAudioFiles(at: itemURL)
-        addSongs(fromFilesAt: fileURLs)
-    }
-    
-    @discardableResult func addSongs(fromFilesAt fileURLs: [URL]) -> [Result<Song, any Error>] {
-        let progress = Progress(totalUnitCount: Int64(fileURLs.count))
+    @discardableResult func addSongs(fromContentsOf fileResults: [Result<URL, any Error>]) -> [Result<Song, any Error>] {
+        let progress = Progress(totalUnitCount: Int64(fileResults.count))
         progress.localizedDescription = NSLocalizedString("Importing Songs…", comment: "")
         tasks.add(progress)
         defer {
             tasks.remove(progress)
         }
         var songs = [Result<Song, any Error>]()
-        songs.reserveCapacity(fileURLs.count)
-        for fileURL in fileURLs {
-            progress.localizedAdditionalDescription = fileURL.lastPathComponent
-            let song = Result {
-                try addSong(fileURL)
+        songs.reserveCapacity(fileResults.count)
+        for fileResult in fileResults {
+            switch fileResult {
+            case .success(let fileURL):
+                progress.localizedAdditionalDescription = fileURL.lastPathComponent
+                let song = Result {
+                    try addSong(fileURL)
+                }
+                Library.log.debug("Imported \(fileURL): \(String(describing: song))")
+                songs.append(song)
+            case .failure(let error):
+                songs.append(.failure(error))
             }
-            Library.log.debug("Imported \(fileURL): \(String(describing: song))")
-            songs.append(song)
             progress.completedUnitCount += 1
         }
         return songs

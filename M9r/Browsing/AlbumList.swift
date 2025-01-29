@@ -25,6 +25,7 @@ struct AlbumList: View {
     }
     
     @Query var albums: [Album]
+    @Environment(\.modelContext) private var modelContext
     
     var body: some View {
         ScrollView {
@@ -54,5 +55,7 @@ struct AlbumList: View {
             .padding()
         }
         .background(.background)
+        .onDrop(of: LibraryDropDelegate.supportedContentTypes,
+                delegate: LibraryDropDelegate(modelContext: modelContext))
     }
 }
