@@ -55,8 +55,12 @@ struct SongList: View {
         }
         .onDrop(of: [.fileURL], isTargeted: nil) { itemProviders in
             let library = Library(modelContainer: modelContext.container)
-            Task {
-                try await importItems(itemProviders, into: library)
+            Task(priority: .userInitiated) {
+                for itemProvider in itemProviders {
+                    await library.addSongs(fromItems: itemProvider)
+                }
+                try await library.garbageCollect()
+                try await library.save()
             }
             return true
         }

@@ -17,9 +17,46 @@
  */
 
 import Foundation
+import os
 import SwiftData
 
 @ModelActor actor Library {
+    @Observable final class Tasks: Sendable {
+        init() {
+            _inProgress = .init(initialState: [])
+        }
+        
+        private let _inProgress: OSAllocatedUnfairLock<[Progress]>
+        
+        var inProgress: [Progress] {
+            access(keyPath: \.inProgress)
+            return _inProgress.withLock { $0 }
+        }
+        
+        func add(_ newProgress: Progress) {
+            withMutation(keyPath: \.inProgress) {
+                _inProgress.withLock { active in
+                    active.append(newProgress)
+                }
+            }
+        }
+        
+        func remove(_ oldProgress: Progress) {
+            withMutation(keyPath: \.inProgress) {
+                _inProgress.withLock { active in
+                    guard let toRemove = active.firstIndex(of: oldProgress) else {
+                        return
+                    }
+                    active.remove(at: toRemove)
+                }
+            }
+        }
+    }
+    
+    static let log = Logger(subsystem: "io.github.decarbonization.M9r", category: "Library")
+    
+    nonisolated let tasks = Tasks()
+    
     func getOrInsert<Model: PersistentModel>(matching filter: Predicate<Model>,
                                              otherwise makeModel: () throws -> Model) throws -> Model {
         var what = FetchDescriptor<Model>(predicate: filter)
