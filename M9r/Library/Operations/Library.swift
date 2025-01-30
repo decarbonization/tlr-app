@@ -38,6 +38,21 @@ import SwiftData
         }
     }
     
+    static func performChanges(inContainerOf modelContext: ModelContext,
+                               _ changes: @escaping @Sendable (Library) async throws -> Void,
+                               catching onError: @escaping @Sendable (any Error) async -> Void) {
+        let library = Library(modelContainer: modelContext.container)
+        Task.detached(priority: .userInitiated) {
+            do {
+                try await changes(library)
+                try await library.garbageCollect()
+                try await library.save()
+            } catch {
+                await onError(error)
+            }
+        }
+    }
+    
     func garbageCollect() throws {
         try modelContext.delete(model: Album.self, where: #Predicate { $0.songs.isEmpty })
         try modelContext.delete(model: Artist.self, where: #Predicate { $0.songs.isEmpty })

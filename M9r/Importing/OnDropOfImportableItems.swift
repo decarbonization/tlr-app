@@ -56,31 +56,30 @@ private struct ImportDropDelegate: DropDelegate {
             return false
         }
         
-        let library = Library(modelContainer: modelContext.container)
         let loadItemsProgress = loadAll(URL.self, from: itemProviders) { itemResults, loadItemsProgress in
             tasks.remove(loadItemsProgress)
             
-            let discoveringProgress = Progress(totalUnitCount: Int64(itemResults.count))
-            discoveringProgress.localizedDescription = NSLocalizedString("Discovering…", comment: "")
-            tasks.add(discoveringProgress)
-            var fileResults = [Result<URL, any Error>]()
-            for itemResult in itemResults {
-                defer {
-                    discoveringProgress.completedUnitCount += 1
+            Library.performChanges(inContainerOf: modelContext) { library in
+                let discoveringProgress = Progress(totalUnitCount: Int64(itemResults.count))
+                discoveringProgress.localizedDescription = NSLocalizedString("Discovering…", comment: "")
+                tasks.add(discoveringProgress)
+                var fileResults = [Result<URL, any Error>]()
+                for itemResult in itemResults {
+                    defer {
+                        discoveringProgress.completedUnitCount += 1
+                    }
+                    switch itemResult {
+                    case .success(let url):
+                        discoveringProgress.localizedAdditionalDescription = url.lastPathComponent
+                        fileResults.append(contentsOf: findAudioFiles(at: url))
+                    case .failure(let error):
+                        discoveringProgress.localizedAdditionalDescription = error.localizedDescription
+                        fileResults.append(.failure(error))
+                    }
+                    
                 }
-                switch itemResult {
-                case .success(let url):
-                    discoveringProgress.localizedAdditionalDescription = url.lastPathComponent
-                    fileResults.append(contentsOf: findAudioFiles(at: url))
-                case .failure(let error):
-                    discoveringProgress.localizedAdditionalDescription = error.localizedDescription
-                    fileResults.append(.failure(error))
-                }
+                tasks.remove(discoveringProgress)
                 
-            }
-            tasks.remove(discoveringProgress)
-            
-            Task(priority: .userInitiated) {
                 let progress = Progress(totalUnitCount: Int64(fileResults.count))
                 progress.localizedDescription = NSLocalizedString("Importing Songs…", comment: "")
                 tasks.add(progress)
@@ -106,20 +105,15 @@ private struct ImportDropDelegate: DropDelegate {
                     }
                 }
                 
-                do {
-                    try await library.garbageCollect()
-                    try await library.save()
-                    
-                    let errors = addResults.compactMap { result -> (any Error)? in
-                        guard case .failure(let error) = result else {
-                            return nil
-                        }
-                        return error
+                let errors = addResults.compactMap { result -> (any Error)? in
+                    guard case .failure(let error) = result else {
+                        return nil
                     }
-                    presentErrors(errors)
-                } catch {
-                    Library.log.error("Could not save library, reason: \(error)")
+                    return error
                 }
+                await presentErrors(errors)
+            } catching: { error in
+                await presentErrors(error)
             }
         }
         tasks.add(loadItemsProgress)

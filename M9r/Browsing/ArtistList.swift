@@ -25,11 +25,22 @@ struct ArtistList: View {
     }
     
     @Query(sort: \Artist.name) var artists: [Artist]
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.presentErrors) private var presentErrors
     
     var body: some View {
         List(artists) { artist in
             NavigationLink(artist.name) {
                 AlbumList(filter: #Predicate { [artistID = artist.id] in $0.artist?.persistentModelID == artistID })
+            }
+            .contextMenu {
+                Button("Remove from Library") {
+                    Library.performChanges(inContainerOf: modelContext) { library in
+                        try await library.deleteArtists(withIDs: [artist.persistentModelID])
+                    } catching: { error in
+                        await presentErrors(error)
+                    }
+                }
             }
         }
         .onDropOfImportableItems()

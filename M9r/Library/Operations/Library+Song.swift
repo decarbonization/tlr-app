@@ -21,6 +21,17 @@ import SFBAudioEngine
 import SwiftData
 
 extension Library {
+    func deleteSongs(withIDs ids: Set<PersistentIdentifier>) throws {
+        let whatSongs = FetchDescriptor<Song>(predicate: #Predicate { ids.contains($0.persistentModelID) })
+        let toDelete = try modelContext.fetch(whatSongs)
+        for song in toDelete {
+            song.album = nil
+            song.artist = nil
+            song.artwork = []
+            modelContext.delete(song)
+        }
+    }
+    
     @discardableResult func addSong(_ fileURL: URL) throws -> Song {
         let audioFile = try AudioFile(url: fileURL)
         try audioFile.readPropertiesAndMetadata()

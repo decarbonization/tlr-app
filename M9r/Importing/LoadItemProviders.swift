@@ -22,7 +22,7 @@ import os
 
 func loadAll<T: Transferable>(_ transferableType: T.Type = T.self,
                               from itemProviders: [NSItemProvider],
-                              completionHandler: @escaping ([Result<T, any Error>], Progress) -> Void) -> Progress {
+                              completionHandler: @escaping @MainActor ([Result<T, any Error>], Progress) -> Void) -> Progress {
     let overallProgress = Progress(totalUnitCount: Int64(itemProviders.count))
     overallProgress.localizedDescription = NSLocalizedString("Loading…", comment: "")
     let group = DispatchGroup()
@@ -37,8 +37,10 @@ func loadAll<T: Transferable>(_ transferableType: T.Type = T.self,
         }
         overallProgress.addChild(progress, withPendingUnitCount: 1)
     }
-    group.notify(queue: .global()) {
-        completionHandler(results.withLock { $0 }, overallProgress)
+    group.notify(queue: .main) {
+        MainActor.assumeIsolated {
+            completionHandler(results.withLock { $0 }, overallProgress)
+        }
     }
     return overallProgress
 }

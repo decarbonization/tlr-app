@@ -26,8 +26,21 @@ struct SongList: View {
     
     @Query private var songs: [Song]
     @Environment(PlayQueue.self) private var playQueue
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.presentErrors) private var presentErrors
     @State private var selection = Set<PersistentIdentifier>()
     @State private var sortOrder = [KeyPathComparator(\Song.title)]
+    
+    private func deleteSelection() {
+        guard !selection.isEmpty else {
+            return
+        }
+        Library.performChanges(inContainerOf: modelContext) { library in
+            try await library.deleteSongs(withIDs: selection)
+        } catching: { error in
+            await presentErrors(error)
+        }
+    }
     
     var body: some View {
         Table(songs, selection: $selection, sortOrder: $sortOrder) {
@@ -41,9 +54,12 @@ struct SongList: View {
                 Text(verbatim: song.artist?.name ?? "")
             }
         }
+        .onDeleteCommand {
+            deleteSelection()
+        }
         .contextMenu(forSelectionType: PersistentIdentifier.self) { selection in
-            Button("Remove") {
-                
+            Button("Remove from Library") {
+                deleteSelection()
             }
         } primaryAction: { selection in
             guard let songID = selection.first,

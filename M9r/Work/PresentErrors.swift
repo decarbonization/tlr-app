@@ -56,8 +56,12 @@ struct PresentErrors {
     
     private let implementation: @MainActor ([PresentableError]) -> Void
     
-    @MainActor func callAsFunction(_ errors: [any Error]) {
+    @MainActor func callAsFunction(_ errors: some Sequence<any Error>) {
         implementation(errors.map { PresentableError(wrapping: $0) })
+    }
+    
+    @MainActor func callAsFunction(_ error: any Error) {
+        self(CollectionOfOne(error))
     }
 }
 

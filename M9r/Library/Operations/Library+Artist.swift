@@ -20,6 +20,16 @@ import Foundation
 import SwiftData
 
 extension Library {
+    func deleteArtists(withIDs ids: Set<PersistentIdentifier>) throws {
+        let whatArtists = FetchDescriptor<Artist>(predicate: #Predicate { ids.contains($0.persistentModelID) })
+        let toDelete = try modelContext.fetch(whatArtists)
+        for artist in toDelete {
+            artist.albums = []
+            artist.songs = []
+            modelContext.delete(artist)
+        }
+    }
+    
     func getOrInsertArtist(named artistName: String) throws -> Artist {
         try getOrInsert(matching: #Predicate { $0.name == artistName }) {
             Artist(name: artistName)

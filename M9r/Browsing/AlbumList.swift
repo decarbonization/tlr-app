@@ -25,6 +25,8 @@ struct AlbumList: View {
     }
     
     @Query var albums: [Album]
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.presentErrors) private var presentErrors
     
     var body: some View {
         ScrollView {
@@ -49,6 +51,15 @@ struct AlbumList: View {
                         }
                     }
                     .buttonStyle(.borderless)
+                    .contextMenu {
+                        Button("Remove from Library") {
+                            Library.performChanges(inContainerOf: modelContext) { library in
+                                try await library.deleteAlbums(withIDs: [album.persistentModelID])
+                            } catching: { error in
+                                await presentErrors(error)
+                            }
+                        }
+                    }
                 }
             }
             .padding()
