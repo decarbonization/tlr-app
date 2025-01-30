@@ -21,15 +21,19 @@ import SwiftUI
 
 @main
 struct M9rApp: App {
-    @State var playQueue = PlayQueue()
-    @State var tasks = Tasks()
+    @State private var playQueue = PlayQueue()
+    @State private var tasks = Tasks()
+    @State private var errors = [PresentableError]()
     
     var body: some Scene {
         Window("Library", id: "library") {
-            ContentView()
+            ContentView(errors: $errors)
         }
         .environment(playQueue)
         .environment(tasks)
+        .presentErrors { newErrors in
+            errors.append(contentsOf: newErrors)
+        }
         .modelContainer(for: [Album.self, Artist.self, Artwork.self, Song.self],
                         inMemory: true,
                         isAutosaveEnabled: true,

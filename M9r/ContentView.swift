@@ -20,7 +20,7 @@ import SwiftData
 import SwiftUI
 
 struct ContentView: View {
-    @State var errors = [PresentableError]()
+    @Binding var errors: [PresentableError]
     
     var body: some View {
         HSplitView {
@@ -41,9 +41,6 @@ struct ContentView: View {
                     Spacer()
                     PlaybackControls()
                 }
-        }
-        .presentErrors { newErrors in
-            errors.append(contentsOf: newErrors)
         }
     }
 }

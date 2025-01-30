@@ -19,8 +19,8 @@
 import os
 import SwiftUI
 
-extension View {
-    @ViewBuilder func presentErrors(_ present: @escaping @MainActor ([PresentableError]) -> Void) -> some View {
+extension Scene {
+    @SceneBuilder func presentErrors(_ present: @escaping @MainActor ([PresentableError]) -> Void) -> some Scene {
         environment(\.presentErrors, PresentErrors(present))
     }
 }
