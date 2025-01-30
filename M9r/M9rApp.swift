@@ -21,6 +21,7 @@ import SwiftUI
 
 @main
 struct M9rApp: App {
+    @State private var modelContainer = makeAppModelConatiner()
     @State private var playQueue = PlayQueue()
     @State private var tasks = Tasks()
     @State private var errors = [PresentableError]()
@@ -34,10 +35,6 @@ struct M9rApp: App {
         .presentErrors { newErrors in
             errors.append(contentsOf: newErrors)
         }
-        .modelContainer(for: [Album.self, Artist.self, Artwork.self, Song.self],
-                        inMemory: true,
-                        isAutosaveEnabled: true,
-                        isUndoEnabled: false,
-                        onSetup: { _ in })
+        .modelContainer(modelContainer)
     }
 }

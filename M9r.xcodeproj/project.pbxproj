@@ -426,6 +426,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"M9r/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = M9r/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = M9r;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -453,6 +454,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"M9r/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = M9r/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = M9r;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
