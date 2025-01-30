@@ -41,7 +41,11 @@ extension Library {
     func copy(_ metadata: AudioMetadata,
                from fileURL: URL,
                to song: Song) throws {
-        song.title = metadata.title ?? fileURL.lastPathComponent
+        if let title = song.title, !title.isEmpty {
+            song.title = metadata.title
+        } else {
+            song.title = fileURL.lastPathComponent
+        }
         if let artistName = metadata.artist {
             song.artist = try getOrInsertArtist(named: artistName)
         }

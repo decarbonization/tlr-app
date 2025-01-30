@@ -45,12 +45,14 @@ func findAudioFiles(at url: URL) -> [Result<URL, any Error>] {
         enumerator.lazy
             .compactMap { $0 as? URL }
             .filter { (try? $0.resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory != true }
-            .map {
-                AudioDecoder.handlesPaths(withExtension: $0.pathExtension)
-                ? .success($0)
-                : .failure(CocoaError(.fileReadUnsupportedScheme,
-                                      userInfo: [NSLocalizedDescriptionKey: "Unsupported file <\(url)>",
-                                                             NSURLErrorKey: url]))
+            .map { fileURL in
+                do {
+                    return withExtendedLifetime(try AudioDecoder(url: fileURL, detectContentType: true)) {
+                        .success(fileURL)
+                    }
+                } catch {
+                    return .failure(error)
+                }
             }
     )
 }
