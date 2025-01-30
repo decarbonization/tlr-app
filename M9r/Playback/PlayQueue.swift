@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import MediaPlayer
 import os
 import SFBAudioEngine
 import SwiftUI
@@ -60,6 +61,49 @@ import SwiftUI
             self?.consumeDelegateEvent(event)
         }
         audioPlayer.delegate = delegate
+        
+        let remoteCommandCenter = MPRemoteCommandCenter.shared()
+        remoteCommandCenter.togglePlayPauseCommand.addTarget { [weak self] _ in
+            guard let self else {
+                return .commandFailed
+            }
+            if self.playbackState == .paused {
+                self.resume()
+                return .success
+            } else if self.playbackState == .playing {
+                self.pause()
+                return .success
+            } else if self.playbackState == .stopped && !items.isEmpty {
+                do {
+                    try play(itemAt: 0)
+                    return .success
+                } catch {
+                    PlayQueue.log.warning("Could not start playback for media key, reason: \(error)")
+                    return .commandFailed
+                }
+            } else {
+                return .noSuchContent
+            }
+        }
+        remoteCommandCenter.previousTrackCommand.addTarget { [weak self] _ in
+            do {
+                try self?.previousTrack()
+                return .success
+            } catch {
+                PlayQueue.log.warning("Could not skip back for media key, reason: \(error)")
+                return .commandFailed
+            }
+            
+        }
+        remoteCommandCenter.nextTrackCommand.addTarget { [weak self] _ in
+            do {
+                try self?.nextTrack()
+                return .success
+            } catch {
+                PlayQueue.log.warning("Could not skip forward for media key, reason: \(error)")
+                return .commandFailed
+            }
+        }
     }
     
     private let audioPlayer: AudioPlayer
@@ -210,6 +254,16 @@ import SwiftUI
         case .playbackStateChanged(let newPlaybackState):
             withMutation(keyPath: \.playbackState) {
                 Self.log.info("\(String(describing: self)).playbackState = \(newPlaybackState.rawValue)")
+                switch newPlaybackState {
+                case .playing:
+                    MPNowPlayingInfoCenter.default().playbackState = .playing
+                case .paused:
+                    MPNowPlayingInfoCenter.default().playbackState = .paused
+                case .stopped:
+                    MPNowPlayingInfoCenter.default().playbackState = .stopped
+                @unknown default:
+                    MPNowPlayingInfoCenter.default().playbackState = .unknown
+                }
             }
         case .nowPlayingChanged(_):
             break
