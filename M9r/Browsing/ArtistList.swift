@@ -32,6 +32,7 @@ struct ArtistList: View {
         List(artists) { artist in
             NavigationLink(artist.name) {
                 AlbumList(filter: #Predicate { [artistID = artist.id] in $0.artist?.persistentModelID == artistID })
+                    .navigationTitle(artist.name)
             }
             .contextMenu {
                 Button("Remove from Library") {

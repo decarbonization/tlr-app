@@ -26,18 +26,21 @@ struct SourceList: View {
             Section("Library") {
                 NavigationLink {
                     ArtistList()
+                        .navigationTitle("All Artists")
                 } label: {
                     Label("All Artists", systemImage: "music.microphone")
                 }
                 .onDropOfImportableItems()
                 NavigationLink {
                     AlbumList()
+                        .navigationTitle("All Albums")
                 } label: {
                     Label("All Albums", systemImage: "square.stack")
                 }
                 .onDropOfImportableItems()
                 NavigationLink {
                     SongList()
+                        .navigationTitle("All Songs")
                 } label: {
                     Label("All Songs", systemImage: "music.note")
                 }
@@ -51,11 +54,13 @@ struct SourceList: View {
                 Divider()
                 NavigationLink {
                     TaskList()
+                        .navigationTitle("Tasks")
                 } label: {
                     Label("Tasks", systemImage: "inset.filled.circle")
                 }
                 NavigationLink {
                     ErrorList(errors: $errors)
+                        .navigationTitle("Errors")
                 } label: {
                     Label("Errors", systemImage: "exclamationmark.triangle")
                 }

@@ -34,6 +34,7 @@ struct AlbumList: View {
                 ForEach(albums) { album in
                     NavigationLink {
                         SongList(filter: #Predicate { [albumID = album.id] in $0.album?.persistentModelID == albumID })
+                            .navigationTitle(album.title)
                     } label: {
                         VStack {
                             Group {
