@@ -35,9 +35,22 @@
 		463A9F542D413B1C00ABF576 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		467A01382D4C12520067EB43 /* Exceptions for "M9r" folder in "M9r" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 463A9F142D413AFF00ABF576 /* M9r */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		463A9F172D413AFF00ABF576 /* M9r */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				467A01382D4C12520067EB43 /* Exceptions for "M9r" folder in "M9r" target */,
+			);
 			path = M9r;
 			sourceTree = "<group>";
 		};

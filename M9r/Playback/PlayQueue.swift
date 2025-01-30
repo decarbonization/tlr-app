@@ -51,7 +51,7 @@ import SwiftUI
         }
     }
     
-    private static let logger = Logger()
+    static let log = Logger(subsystem: "io.github.decarbonization.M9r", category: "PlayQueue")
     
     init() {
         audioPlayer = AudioPlayer()
@@ -64,6 +64,11 @@ import SwiftUI
     
     private let audioPlayer: AudioPlayer
     private var delegate: Delegate?
+    private var heartBeat: Timer? {
+        didSet {
+            oldValue?.invalidate()
+        }
+    }
     
     private(set) var items: [Song]
     private var playingIndex: Int?
@@ -79,10 +84,36 @@ import SwiftUI
         return audioPlayer.playbackState
     }
     
+    var totalTime: TimeInterval {
+        access(keyPath: \.totalTime)
+        return audioPlayer.totalTime ?? 0
+    }
+    
+    var currentTime: TimeInterval {
+        get {
+            access(keyPath: \.currentTime)
+            return audioPlayer.currentTime ?? 0
+        }
+        set {
+            withMutation(keyPath: \.currentTime) {
+                if !audioPlayer.seek(time: newValue) {
+                    
+                }
+            }
+        }
+    }
+    
     private func play(itemAt index: Int) throws {
         let item = items[index]
-        try audioPlayer.play(item.currentURL())
+        try withMutation(keyPath: \.totalTime) {
+            try audioPlayer.play(item.currentURL())
+        }
         playingIndex = index
+        heartBeat = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            self?.withMutation(keyPath: \.currentTime) {
+                // Do nothing.
+            }
+        }
     }
     
     func play(_ newItems: [Song],
@@ -141,6 +172,7 @@ import SwiftUI
         audioPlayer.stop()
         audioPlayer.clearQueue()
         playingIndex = nil
+        heartBeat = nil
     }
     
     func relativeItemPosition(_ item: Song) -> ComparisonResult? {
@@ -177,7 +209,7 @@ import SwiftUI
         switch event {
         case .playbackStateChanged(let newPlaybackState):
             withMutation(keyPath: \.playbackState) {
-                Self.logger.info("\(String(describing: self)).playbackState = \(newPlaybackState.rawValue)")
+                Self.log.info("\(String(describing: self)).playbackState = \(newPlaybackState.rawValue)")
             }
         case .nowPlayingChanged(_):
             break

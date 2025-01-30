@@ -22,6 +22,8 @@ struct NowPlaying: View {
     @Environment(PlayQueue.self) var playQueue
     
     var body: some View {
+        @Bindable var playQueue = playQueue
+        
         VStack(alignment: .leading, spacing: 0) {
             Divider()
             HStack(alignment: .center) {
@@ -44,6 +46,8 @@ struct NowPlaying: View {
                 }
             }
             .padding(8)
+            Slider(value: $playQueue.currentTime, in: 0 ... playQueue.totalTime)
+                .padding(.all.subtracting([.top]), 8)
         }
     }
 }
