@@ -81,7 +81,7 @@ import SwiftUI
     
     private func play(itemAt index: Int) throws {
         let item = items[index]
-        try audioPlayer.play(item.fileURL)
+        try audioPlayer.play(item.currentURL())
         playingIndex = index
     }
     

@@ -25,7 +25,8 @@ import SwiftData
         
         static let disabled = Self(rawValue: 1 << 0)
         static let skipWhenShuffling = Self(rawValue: 1 << 1)
-        static let fromCueSheet = Self(rawValue: 1 << 2)
+        static let compilation = Self(rawValue: 1 << 2)
+        static let fromCueSheet = Self(rawValue: 1 << 3)
         
         var debugDescription: String {
             var fields = [String]()
@@ -42,26 +43,19 @@ import SwiftData
         }
     }
     
-    init(fileBookmark: Data,
+    init(url: URL,
          startTime: TimeInterval,
-         endTime: TimeInterval,
-         flags: Flags) {
-        self.fileBookmark = fileBookmark
+         endTime: TimeInterval) {
+        self.url = url
         self.startTime = startTime
         self.endTime = endTime
-        self.flags = flags
+        self.flags = []
         self.artwork = []
     }
     
-    var fileBookmark: Data
-    var fileURL: URL {
-        get throws {
-            var isStale = false
-            return try URL(resolvingBookmarkData: fileBookmark,
-                           options: [.withSecurityScope],
-                           bookmarkDataIsStale: &isStale)
-        }
-    }
+    var url: URL
+    var fileBookmark: Data?
+    
     var startTime: TimeInterval
     var endTime: TimeInterval
     var flags: Flags
@@ -71,6 +65,7 @@ import SwiftData
     @Relationship var artwork: [Artwork]
     
     var title: String?
+    var albumArtist: String?
     var composer: String?
     var genre: String?
     var releaseDate: String?
@@ -81,4 +76,21 @@ import SwiftData
     var lyrics: String?
     var bpm: UInt64?
     var comment: String?
+    var grouping: String?
+    var mcn: String?
+    var isrc: String?
+    var musicBrainzReleaseID: String?
+    var musicBrainzRecordingID: String?
+    
+    func currentURL(relativeTo libraryURL: URL? = nil) throws -> URL {
+        // TODO: Try to repair stale/broken bookmarks
+        guard let fileBookmark else {
+            return url
+        }
+        var isStale = false
+        return try URL(resolvingBookmarkData: fileBookmark,
+                       options: [.withSecurityScope],
+                       relativeTo: libraryURL,
+                       bookmarkDataIsStale: &isStale)
+    }
 }

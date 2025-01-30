@@ -36,11 +36,14 @@ extension Library {
         let audioFile = try AudioFile(url: fileURL)
         try audioFile.readPropertiesAndMetadata()
         
-        let fileBookmark = try fileURL.bookmarkData(options: [.withSecurityScope])
-        let newSong = Song(fileBookmark: fileBookmark,
+        let newSong = Song(url: fileURL,
                            startTime: 0.0,
-                           endTime: audioFile.properties.duration ?? 0.0,
-                           flags: [])
+                           endTime: audioFile.properties.duration ?? 0.0)
+        do {
+            newSong.fileBookmark = try fileURL.bookmarkData(options: [.withSecurityScope])
+        } catch {
+            Library.log.warning("Could not create bookmark for song at <\(fileURL)>")
+        }
         try copy(audioFile.metadata,
                  from: fileURL,
                  to: newSong)
@@ -66,6 +69,11 @@ extension Library {
         song.artwork = try metadata.attachedPictures.compactMap {
             try getOrInsertArtwork(copying: $0)
         }
+        if metadata.isCompilation == true {
+            song.flags.insert(.compilation)
+        }
+        song.albumArtist = metadata.albumArtist
+        song.composer = metadata.composer
         song.genre = metadata.genre
         song.releaseDate = metadata.releaseDate
         song.trackNumber = metadata.trackNumber.map(UInt64.init(clamping:))
@@ -75,5 +83,10 @@ extension Library {
         song.lyrics = metadata.lyrics
         song.bpm = metadata.bpm.map(UInt64.init(clamping:))
         song.comment = metadata.comment
+        song.grouping = metadata.grouping
+        song.mcn = metadata.mcn
+        song.isrc = metadata.isrc
+        song.musicBrainzReleaseID = metadata.musicBrainzReleaseID
+        song.musicBrainzRecordingID = metadata.musicBrainzRecordingID
     }
 }
