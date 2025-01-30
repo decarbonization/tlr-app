@@ -25,12 +25,12 @@ struct M9rApp: App {
     @State var tasks = Tasks()
     
     var body: some Scene {
-        WindowGroup {
+        Window("Library", id: "library") {
             ContentView()
         }
         .environment(playQueue)
         .environment(tasks)
-        .modelContainer(for: [Song.self],
+        .modelContainer(for: [Album.self, Artist.self, Artwork.self, Song.self],
                         inMemory: true,
                         isAutosaveEnabled: true,
                         isUndoEnabled: false,
