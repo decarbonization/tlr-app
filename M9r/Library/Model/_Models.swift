@@ -18,6 +18,15 @@
 
 import Foundation
 import SwiftData
+import UniformTypeIdentifiers
+
+extension UTType {
+    static let musicLibrary = UTType(exportedAs: "io.github.decarbonization.M9r.musicLibrary",
+                                     conformingTo: .database)
+    
+    static let libraryItem = UTType(exportedAs: "io.github.decarbonization.M9r.item",
+                                    conformingTo: .content)
+}
 
 func makeAppModelConatiner() -> ModelContainer {
     let appSchema = Schema([Album.self, Artist.self, Artwork.self, Song.self],
