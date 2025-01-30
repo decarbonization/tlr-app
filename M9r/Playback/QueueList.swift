@@ -27,31 +27,39 @@ struct QueueList: View {
         @Bindable var playQueue = playQueue
         
         VStack(spacing: 0) {
-            List(selection: $selectedItems) {
-                ForEach(playQueue.items) { item in
-                    let position = playQueue.relativeItemPosition(item)
-                    Text(verbatim: item.title ?? "")
-                        .foregroundStyle(
-                            position == .orderedSame ? .primary :
-                                position == .orderedAscending ? .tertiary
-                            : .secondary
-                        )
+            ScrollViewReader { proxy in
+                List(selection: $selectedItems) {
+                    ForEach(playQueue.items) { item in
+                        let position = playQueue.relativeItemPosition(item)
+                        Text(verbatim: item.title ?? "")
+                            .foregroundStyle(
+                                position == .orderedSame ? .primary :
+                                    position == .orderedAscending ? .tertiary
+                                : .secondary
+                            )
+                    }
+                    .onDelete { toRemove in
+                        playQueue.removeItems(atOffsets: toRemove)
+                    }
+                    .onMove { source, destination in
+                        playQueue.moveItems(fromOffsets: source, toOffset: destination)
+                    }
                 }
-                .onDelete { toRemove in
-                    playQueue.removeItems(atOffsets: toRemove)
+                .contextMenu(forSelectionType: PersistentIdentifier.self) { selection in
+                    
+                } primaryAction: { selection in
+                    guard let songID = selection.first,
+                          let toPlay = playQueue.items.firstIndex(where: { $0.id == songID }) else {
+                        return
+                    }
+                    try! playQueue.play(playQueue.items, startingAt: toPlay)
                 }
-                .onMove { source, destination in
-                    playQueue.moveItems(fromOffsets: source, toOffset: destination)
+                .onChange(of: playQueue.playingItem) {
+                    guard let playingItem = playQueue.playingItem else {
+                        return
+                    }
+                    proxy.scrollTo(playingItem.persistentModelID, anchor: .center)
                 }
-            }
-            .contextMenu(forSelectionType: PersistentIdentifier.self) { selection in
-                
-            } primaryAction: { selection in
-                guard let songID = selection.first,
-                      let toPlay = playQueue.items.firstIndex(where: { $0.id == songID }) else {
-                    return
-                }
-                try! playQueue.play(playQueue.items, startingAt: toPlay)
             }
             NowPlaying()
         }
