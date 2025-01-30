@@ -20,12 +20,12 @@ import SwiftData
 import SwiftUI
 
 struct ContentView: View {
-    @State var searchText: String = ""
+    @State var errors = [PresentableError]()
     
     var body: some View {
         HSplitView {
             NavigationSplitView {
-                SourceList()
+                SourceList(errors: $errors)
             } detail: {
                 NavigationStack {
                     VStack {
@@ -41,6 +41,9 @@ struct ContentView: View {
                     Spacer()
                     PlaybackControls()
                 }
+        }
+        .presentErrors { newErrors in
+            errors.append(contentsOf: newErrors)
         }
     }
 }

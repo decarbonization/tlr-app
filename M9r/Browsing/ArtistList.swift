@@ -25,8 +25,6 @@ struct ArtistList: View {
     }
     
     @Query(sort: \Artist.name) var artists: [Artist]
-    @Environment(\.modelContext) private var modelContext
-    @Environment(Tasks.self) private var tasks
     
     var body: some View {
         List(artists) { artist in
@@ -34,7 +32,6 @@ struct ArtistList: View {
                 AlbumList(filter: #Predicate { [artistID = artist.id] in $0.artist?.persistentModelID == artistID })
             }
         }
-        .onDrop(of: LibraryDropDelegate.supportedContentTypes,
-                delegate: LibraryDropDelegate(tasks: tasks, modelContext: modelContext))
+        .onDropOfImportableItems()
     }
 }

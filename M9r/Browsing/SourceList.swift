@@ -19,7 +19,7 @@
 import SwiftUI
 
 struct SourceList: View {
-    @Environment(Tasks.self) private var tasks
+    @Binding var errors: [PresentableError]
     
     var body: some View {
         List {
@@ -29,26 +29,36 @@ struct SourceList: View {
                 } label: {
                     Label("All Artists", systemImage: "music.microphone")
                 }
+                .onDropOfImportableItems()
                 NavigationLink {
                     AlbumList()
                 } label: {
                     Label("All Albums", systemImage: "square.stack")
                 }
+                .onDropOfImportableItems()
                 NavigationLink {
                     SongList()
                 } label: {
                     Label("All Songs", systemImage: "music.note")
                 }
-                if !tasks.inProgress.isEmpty {
-                    NavigationLink {
-                        TaskList()
-                    } label: {
-                        Label("Tasks", systemImage: "inset.filled.circle")
-                    }
-                }
+                .onDropOfImportableItems()
             }
             Section("Playlists") {
                 
+            }
+            
+            Section {
+                Divider()
+                NavigationLink {
+                    TaskList()
+                } label: {
+                    Label("Tasks", systemImage: "inset.filled.circle")
+                }
+                NavigationLink {
+                    ErrorList(errors: $errors)
+                } label: {
+                    Label("Errors", systemImage: "exclamationmark.triangle")
+                }
             }
         }
         .listStyle(.sidebar)

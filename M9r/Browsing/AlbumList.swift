@@ -25,8 +25,6 @@ struct AlbumList: View {
     }
     
     @Query var albums: [Album]
-    @Environment(\.modelContext) private var modelContext
-    @Environment(Tasks.self) private var tasks
     
     var body: some View {
         ScrollView {
@@ -56,7 +54,6 @@ struct AlbumList: View {
             .padding()
         }
         .background(.background)
-        .onDrop(of: LibraryDropDelegate.supportedContentTypes,
-                delegate: LibraryDropDelegate(tasks: tasks, modelContext: modelContext))
+        .onDropOfImportableItems()
     }
 }

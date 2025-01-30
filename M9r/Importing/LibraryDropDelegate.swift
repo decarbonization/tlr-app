@@ -20,11 +20,31 @@ import SwiftData
 import SwiftUI
 import UniformTypeIdentifiers
 
-struct LibraryDropDelegate: DropDelegate {
+extension View {
+    @ViewBuilder func onDropOfImportableItems() -> some View {
+        modifier(ImportDropViewModifier())
+    }
+}
+
+private struct ImportDropViewModifier: ViewModifier {
+    @Environment(Tasks.self) private var tasks
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.presentErrors) private var presentErrors
+    
+    func body(content: Content) -> some View {
+        content.onDrop(of: ImportDropDelegate.supportedContentTypes,
+                       delegate: ImportDropDelegate(tasks: tasks,
+                                                    modelContext: modelContext,
+                                                    presentErrors: presentErrors))
+    }
+}
+
+private struct ImportDropDelegate: DropDelegate {
     static let supportedContentTypes = [UTType.fileURL]
     
     let tasks: Tasks
     let modelContext: ModelContext
+    let presentErrors: PresentErrors
     
     func validateDrop(info: DropInfo) -> Bool {
         info.hasItemsConforming(to: Self.supportedContentTypes)
@@ -89,6 +109,14 @@ struct LibraryDropDelegate: DropDelegate {
                 do {
                     try await library.garbageCollect()
                     try await library.save()
+                    
+                    let errors = addResults.compactMap { result -> (any Error)? in
+                        guard case .failure(let error) = result else {
+                            return nil
+                        }
+                        return error
+                    }
+                    presentErrors(errors)
                 } catch {
                     Library.log.error("Could not save library, reason: \(error)")
                 }
