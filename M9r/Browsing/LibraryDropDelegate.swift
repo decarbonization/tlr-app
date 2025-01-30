@@ -43,36 +43,55 @@ struct LibraryDropDelegate: DropDelegate {
             let discoveringProgress = Progress(totalUnitCount: Int64(itemResults.count))
             discoveringProgress.localizedDescription = NSLocalizedString("Discovering…", comment: "")
             tasks.add(discoveringProgress)
-            var fileURLs = [URL]()
-            for case .success(let url) in itemResults {
+            var fileResults = [Result<URL, any Error>]()
+            for itemResult in itemResults {
                 defer {
                     discoveringProgress.completedUnitCount += 1
                 }
-                discoveringProgress.localizedAdditionalDescription = url.lastPathComponent
-                fileURLs.append(contentsOf: findAudioFiles(at: url))
+                switch itemResult {
+                case .success(let url):
+                    discoveringProgress.localizedAdditionalDescription = url.lastPathComponent
+                    fileResults.append(contentsOf: findAudioFiles(at: url))
+                case .failure(let error):
+                    discoveringProgress.localizedAdditionalDescription = error.localizedDescription
+                    fileResults.append(.failure(error))
+                }
                 
             }
             tasks.remove(discoveringProgress)
             
             Task(priority: .userInitiated) {
-                let progress = Progress(totalUnitCount: Int64(fileURLs.count))
+                let progress = Progress(totalUnitCount: Int64(fileResults.count))
                 progress.localizedDescription = NSLocalizedString("Importing Songs…", comment: "")
                 tasks.add(progress)
                 defer {
                     tasks.remove(progress)
                 }
-                for fileURL in fileURLs {
-                    progress.localizedAdditionalDescription = fileURL.lastPathComponent
-                    do {
-                        try await library.addSong(fileURL)
-                    } catch {
-                        Library.log.error("Could not import \(fileURL), reason: \(error)")
+                var addResults = [Result<Song, any Error>]()
+                for fileResult in fileResults {
+                    defer {
+                        progress.completedUnitCount += 1
                     }
-                    progress.completedUnitCount += 1
+                    switch fileResult {
+                    case .success(let fileURL):
+                        progress.localizedAdditionalDescription = fileURL.lastPathComponent
+                        do {
+                            try await library.addSong(fileURL)
+                        } catch {
+                            Library.log.error("Could not import \(fileURL), reason: \(error)")
+                        }
+                    case .failure(let error):
+                        progress.localizedAdditionalDescription = error.localizedDescription
+                        addResults.append(.failure(error))
+                    }
                 }
                 
-                try await library.garbageCollect()
-                try await library.save()
+                do {
+                    try await library.garbageCollect()
+                    try await library.save()
+                } catch {
+                    Library.log.error("Could not save library, reason: \(error)")
+                }
             }
         }
         tasks.add(loadItemsProgress)

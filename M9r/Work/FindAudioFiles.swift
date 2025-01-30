@@ -19,25 +19,38 @@
 import Foundation
 import SFBAudioEngine
 
-func findAudioFiles(at url: URL) -> [URL] {
+func findAudioFiles(at url: URL) -> [Result<URL, any Error>] {
     guard url.isFileURL else {
-        return []
+        return [.failure(URLError(.badURL,
+                                  userInfo: [NSLocalizedDescriptionKey: "Cannot load non-file URL <\(url)>",
+                                                         NSURLErrorKey: url]))]
     }
     var isDirectory: ObjCBool = false
     guard FileManager.default.fileExists(atPath: url.path(percentEncoded: false), isDirectory: &isDirectory) else {
-        return []
+        return [.failure(CocoaError(.fileNoSuchFile,
+                                    userInfo: [NSLocalizedDescriptionKey: "No file found at <\(url)>",
+                                                           NSURLErrorKey: url]))]
     }
     guard isDirectory.boolValue else {
-        return []
+        return [.success(url)]
     }
     guard let enumerator = FileManager.default.enumerator(at: url,
-                                                          includingPropertiesForKeys: nil,
+                                                          includingPropertiesForKeys: [.isDirectoryKey],
                                                           options: [.skipsHiddenFiles, .skipsPackageDescendants]) else {
-        return []
+        return [.failure(CocoaError(.fileReadNoPermission,
+                                    userInfo: [NSLocalizedDescriptionKey: "Could not access <\(url)>",
+                                                           NSURLErrorKey: url]))]
     }
-    return [URL](
+    return [Result<URL, any Error>](
         enumerator.lazy
             .compactMap { $0 as? URL }
-            .filter { AudioDecoder.handlesPaths(withExtension: $0.pathExtension) }
+            .filter { (try? $0.resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory != true }
+            .map {
+                AudioDecoder.handlesPaths(withExtension: $0.pathExtension)
+                ? .success($0)
+                : .failure(CocoaError(.fileReadUnsupportedScheme,
+                                      userInfo: [NSLocalizedDescriptionKey: "Unsupported file <\(url)>",
+                                                             NSURLErrorKey: url]))
+            }
     )
 }
