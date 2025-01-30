@@ -52,7 +52,7 @@ extension Library {
     func copy(_ metadata: AudioMetadata,
                from fileURL: URL,
                to song: Song) throws {
-        if let title = song.title, !title.isEmpty {
+        if let title = metadata.title, !title.isEmpty {
             song.title = metadata.title
         } else {
             song.title = fileURL.lastPathComponent

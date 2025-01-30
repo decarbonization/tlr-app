@@ -21,15 +21,35 @@ import SwiftUI
 
 struct SongList: View {
     init(filter: Predicate<Song>? = nil) {
-        _songs = .init(filter: filter)
+        _filter = .init(initialValue: filter)
+    }
+    
+    @State private var filter: Predicate<Song>?
+    @State private var selection = Set<PersistentIdentifier>()
+    @State private var sortOrder = [SortDescriptor(\Song.title)]
+    
+    var body: some View {
+        _SongListBody(filter: $filter,
+                      selection: $selection,
+                      sortOrder: $sortOrder)
+    }
+}
+
+private struct _SongListBody: View {
+    init(filter: Binding<Predicate<Song>?>,
+         selection: Binding<Set<PersistentIdentifier>>,
+         sortOrder: Binding<[SortDescriptor<Song>]>) {
+        _songs = .init(filter: filter.wrappedValue, sort: sortOrder.wrappedValue)
+        _selection = selection
+        _sortOrder = sortOrder
     }
     
     @Query private var songs: [Song]
     @Environment(PlayQueue.self) private var playQueue
     @Environment(\.modelContext) private var modelContext
     @Environment(\.presentErrors) private var presentErrors
-    @State private var selection = Set<PersistentIdentifier>()
-    @State private var sortOrder = [KeyPathComparator(\Song.title)]
+    @Binding private var selection: Set<PersistentIdentifier>
+    @Binding private var sortOrder: [SortDescriptor<Song>]
     
     private func deleteSelection() {
         guard !selection.isEmpty else {
@@ -44,13 +64,13 @@ struct SongList: View {
     
     var body: some View {
         Table(songs, selection: $selection, sortOrder: $sortOrder) {
-            TableColumn("Title", sortUsing: KeyPathComparator(\Song.title)) { song in
+            TableColumn("Title", sortUsing: SortDescriptor(\Song.title)) { song in
                 Text(verbatim: song.title ?? "")
             }
-            TableColumn("Album", sortUsing: KeyPathComparator(\Song.album?.title)) { song in
+            TableColumn("Album", sortUsing: SortDescriptor(\Song.album?.title)) { song in
                 Text(verbatim: song.album?.title ?? "")
             }
-            TableColumn("Artist", sortUsing: KeyPathComparator(\Song.artist?.name)) { song in
+            TableColumn("Artist", sortUsing: SortDescriptor(\Song.album?.artist?.name)) { song in
                 Text(verbatim: song.artist?.name ?? "")
             }
         }
