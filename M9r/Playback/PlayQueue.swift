@@ -39,16 +39,22 @@ import SwiftUI
         
         func audioPlayer(_ audioPlayer: AudioPlayer,
                          playbackStateChanged playbackState: AudioPlayer.PlaybackState) {
-            observer(.playbackStateChanged(playbackState))
+            Task { @MainActor in
+                observer(.playbackStateChanged(playbackState))
+            }
         }
         
         func audioPlayer(_ audioPlayer: AudioPlayer,
                          nowPlayingChanged nowPlaying: (any PCMDecoding)?) {
-            observer(.nowPlayingChanged(nowPlaying))
+            Task { @MainActor in
+                observer(.nowPlayingChanged(nowPlaying))
+            }
         }
         
         func audioPlayerEndOfAudio(_ audioPlayer: AudioPlayer) {
-            observer(.endOfAudio)
+            Task { @MainActor in
+                observer(.endOfAudio)
+            }
         }
     }
     
@@ -149,7 +155,14 @@ import SwiftUI
     
     private func play(itemAt index: Int) throws {
         let item = items[index]
-        try audioPlayer.enqueue(item.currentURL(), immediate: true)
+        let itemURL = try item.currentURL()
+        guard itemURL.startAccessingSecurityScopedResource() else {
+            throw CocoaError(.fileReadNoPermission, userInfo: [
+                NSLocalizedDescriptionKey: "Could not extend sandbox for file <\(itemURL)>",
+                NSURLErrorKey: itemURL
+            ])
+        }
+        try audioPlayer.enqueue(itemURL, immediate: true)
         if !audioPlayer.seek(time: item.startTime) {
             Self.log.warning("Could not seek to startTime <\(item.startTime)>")
         }
@@ -158,7 +171,7 @@ import SwiftUI
         heartBeat = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
             self?.withMutation(keyPath: \.currentTime) {
                 MPNowPlayingInfoCenter.default().nowPlayingInfo = [
-                    MPMediaItemPropertyMediaType: MPMediaType.music,
+                    MPMediaItemPropertyMediaType: MPMediaType.music.rawValue,
                     MPMediaItemPropertyPlaybackDuration: item.endTime,
                     MPMediaItemPropertyTitle: item.title ?? "--",
                     MPMediaItemPropertyArtist: item.artist?.name ?? "--",
@@ -224,6 +237,15 @@ import SwiftUI
     }
     
     func stop() {
+        guard let playingItem else {
+            return
+        }
+        do {
+            let itemURL = try playingItem.currentURL()
+            itemURL.stopAccessingSecurityScopedResource()
+        } catch {
+            Self.log.warning("Could not close sandbox extension, reason: \(error)")
+        }
         withMutation(keyPath: \.currentTime) {
             audioPlayer.stop()
             audioPlayer.clearQueue()
