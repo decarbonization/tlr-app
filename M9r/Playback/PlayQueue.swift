@@ -141,7 +141,7 @@ import SwiftUI
         set {
             withMutation(keyPath: \.currentTime) {
                 if !audioPlayer.seek(time: newValue) {
-                    
+                    Self.log.warning("Could not seek to new time <\(newValue)>")
                 }
             }
         }
@@ -149,13 +149,21 @@ import SwiftUI
     
     private func play(itemAt index: Int) throws {
         let item = items[index]
-        try withMutation(keyPath: \.totalTime) {
-            try audioPlayer.play(item.currentURL())
+        try audioPlayer.enqueue(item.currentURL(), immediate: true)
+        if !audioPlayer.seek(time: item.startTime) {
+            Self.log.warning("Could not seek to startTime <\(item.startTime)>")
         }
+        try audioPlayer.play()
         playingIndex = index
         heartBeat = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
             self?.withMutation(keyPath: \.currentTime) {
-                // Do nothing.
+                MPNowPlayingInfoCenter.default().nowPlayingInfo = [
+                    MPMediaItemPropertyMediaType: MPMediaType.music,
+                    MPMediaItemPropertyPlaybackDuration: item.endTime,
+                    MPMediaItemPropertyTitle: item.title ?? "--",
+                    MPMediaItemPropertyArtist: item.artist?.name ?? "--",
+                    MPMediaItemPropertyAlbumTitle: item.album?.title ?? "--",
+                ]
             }
         }
     }
@@ -197,11 +205,14 @@ import SwiftUI
     }
     
     func nextTrack() throws {
-        guard let playingIndex,
-              playingIndex < (items.count - 1) else {
+        guard let playingIndex else {
             return
         }
-        try play(itemAt: playingIndex + 1)
+        if playingIndex < (items.count - 1) {
+            try play(itemAt: playingIndex + 1)
+        } else {
+            stop()
+        }
     }
     
     func pause() {
@@ -213,10 +224,13 @@ import SwiftUI
     }
     
     func stop() {
-        audioPlayer.stop()
-        audioPlayer.clearQueue()
-        playingIndex = nil
-        heartBeat = nil
+        withMutation(keyPath: \.currentTime) {
+            audioPlayer.stop()
+            audioPlayer.clearQueue()
+            playingIndex = nil
+            heartBeat = nil
+            MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
+        }
     }
     
     func relativeItemPosition(_ item: Song) -> ComparisonResult? {
@@ -264,9 +278,16 @@ import SwiftUI
                 }
             }
         case .nowPlayingChanged(_):
-            break
+            withMutation(keyPath: \.totalTime) {
+                // Do nothing
+            }
         case .endOfAudio:
-            try! nextTrack()
+            do {
+                try nextTrack()
+            } catch {
+                Self.log.error("Could not advance to next track, reason: \(error)")
+                stop()
+            }
         }
     }
 }
