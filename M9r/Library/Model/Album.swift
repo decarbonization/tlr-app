@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import Foundation
 import SwiftData
 
 @Model final class Album {
@@ -33,4 +34,11 @@ import SwiftData
     var title: String
     @Relationship var artist: Artist?
     @Relationship(inverse: \Song.album) var songs: [Song]
+    
+    var sortedSongs: [Song] {
+        songs.sorted(using: [
+            KeyPathComparator(\.discNumber),
+            KeyPathComparator(\.trackNumber),
+        ])
+    }
 }

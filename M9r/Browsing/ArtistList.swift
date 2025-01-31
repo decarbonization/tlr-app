@@ -25,6 +25,7 @@ struct ArtistList: View {
     }
     
     @Query(sort: \Artist.name) var artists: [Artist]
+    @Environment(PlayQueue.self) private var playQueue
     @Environment(\.modelContext) private var modelContext
     @Environment(\.presentErrors) private var presentErrors
     
@@ -35,6 +36,11 @@ struct ArtistList: View {
                     .navigationTitle(artist.name)
             }
             .contextMenu {
+                Button("Add to Queue") {
+                    playQueue.withItems { items in
+                        items.append(contentsOf: artist.sortedSongs)
+                    }
+                }
                 Button("Remove from Library") {
                     Library.performChanges(inContainerOf: modelContext) { library in
                         try await library.deleteArtists(withIDs: [artist.persistentModelID])
