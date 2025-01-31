@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import CoreTransferable
 import Foundation
 import SwiftData
 import UniformTypeIdentifiers
@@ -26,6 +27,33 @@ extension UTType {
     
     static let libraryItem = UTType(exportedAs: "io.github.decarbonization.M9r.item",
                                     conformingTo: .content)
+}
+
+struct LibraryItem: Identifiable, Equatable, Transferable {
+    static var transferRepresentation: some TransferRepresentation {
+        DataRepresentation(contentType: .libraryItem) { libraryItem in
+            return try JSONEncoder().encode(libraryItem.id)
+        } importing: { libraryItemData in
+            let id = try JSONDecoder().decode(PersistentIdentifier.self, from: libraryItemData)
+            return LibraryItem(id: id)
+        }
+
+    }
+    
+    init(from model: some PersistentModel) {
+        self.id = model.persistentModelID
+    }
+    
+    init(id: PersistentIdentifier) {
+        self.id = id
+    }
+    
+    let id: PersistentIdentifier
+    
+    func model<Model: PersistentModel>(from modelContext: ModelContext,
+                                       as modelType: Model.Type = Model.self) -> Model? {
+        modelContext.model(for: id) as? Model
+    }
 }
 
 func makeAppModelConatiner() -> ModelContainer {

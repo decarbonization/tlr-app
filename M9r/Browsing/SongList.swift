@@ -63,7 +63,7 @@ private struct _SongListBody: View {
     }
     
     var body: some View {
-        Table(songs, selection: $selection, sortOrder: $sortOrder) {
+        Table(selection: $selection, sortOrder: $sortOrder) {
             TableColumn("Title", sortUsing: SortDescriptor(\Song.title)) { song in
                 Text(verbatim: song.title ?? "")
             }
@@ -73,11 +73,22 @@ private struct _SongListBody: View {
             TableColumn("Artist", sortUsing: SortDescriptor(\Song.album?.artist?.name)) { song in
                 Text(verbatim: song.artist?.name ?? "")
             }
+        } rows: {
+            ForEach(songs) { song in
+                TableRow(song)
+                    .draggable(LibraryItem(from: song))
+            }
         }
         .onDeleteCommand {
             deleteSelection()
         }
         .contextMenu(forSelectionType: PersistentIdentifier.self) { selection in
+            Button("Add to Queue") {
+                let toAdd = songs.filter { selection.contains($0.persistentModelID) }
+                playQueue.withItems { items in
+                    items.append(contentsOf: toAdd)
+                }
+            }
             Button("Remove from Library") {
                 deleteSelection()
             }
@@ -86,7 +97,11 @@ private struct _SongListBody: View {
                   let songPosition = songs.firstIndex(where: { $0.id == songID }) else {
                 return
             }
-            try! playQueue.play(songs, startingAt: songPosition)
+            do {
+                try playQueue.play(songs, startingAt: songPosition)
+            } catch {
+                presentErrors(error)
+            }
         }
         .onDropOfImportableItems()
     }

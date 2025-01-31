@@ -233,20 +233,18 @@ import SwiftUI
         }
     }
     
-    func moveItems(fromOffsets source: IndexSet, toOffset destination: Int) {
+    @discardableResult func withItems<R>(perform actions: (inout [Song]) throws -> R) rethrows -> R {
         let playingItem = playingItem
-        items.move(fromOffsets: source, toOffset: destination)
-        if let playingItem {
-            playingIndex = items.firstIndex(where: { $0.id == playingItem.id })
+        defer {
+            if let playingItem {
+                if let newPlayingIndex = items.firstIndex(where: { $0.id == playingItem.id }) {
+                    playingIndex = newPlayingIndex
+                } else {
+                    stop()
+                }
+            }
         }
-    }
-    
-    func removeItems(atOffsets toRemove: IndexSet) {
-        if let playingIndex,
-           toRemove.contains(playingIndex) {
-            stop()
-        }
-        items.remove(atOffsets: toRemove)
+        return try actions(&items)
     }
     
     private func consumeDelegateEvent(_ event: DelegateEvent) {

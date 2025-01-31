@@ -20,12 +20,17 @@ import SwiftUI
 import SFBAudioEngine
 
 struct PlaybackControls: View {
-    @Environment(PlayQueue.self) var playQueue
+    @Environment(PlayQueue.self) private var playQueue
+    @Environment(\.presentErrors) private var presentErrors
     
     var body: some View {
         HStack {
             Button {
-                try! playQueue.previousTrack()
+                do {
+                    try playQueue.previousTrack()
+                } catch {
+                    presentErrors(error)
+                }
             } label: {
                 Label("Previous Track", systemImage: "backward.end.alt.fill")
             }
@@ -34,8 +39,11 @@ struct PlaybackControls: View {
             Button {
                 switch playQueue.playbackState {
                 case .stopped:
-                    break
-                    // try! playQueue.play(library.allSongs)
+                    do {
+                        try playQueue.play(playQueue.items, startingAt: 0)
+                    } catch {
+                        presentErrors(error)
+                    }
                 case .paused:
                     playQueue.resume()
                 case .playing:
@@ -55,9 +63,14 @@ struct PlaybackControls: View {
                     EmptyView()
                 }
             }
+            .disabled(playQueue.items.isEmpty)
             .keyboardShortcut(.space)
             Button {
-                try! playQueue.nextTrack()
+                do {
+                    try playQueue.nextTrack()
+                } catch {
+                    presentErrors(error)
+                }
             } label: {
                 Label("Previous Track", systemImage: "forward.end.alt.fill")
             }

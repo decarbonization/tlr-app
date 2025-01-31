@@ -18,9 +18,13 @@
 
 import SwiftData
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct QueueList: View {
-    @Environment(PlayQueue.self) var playQueue
+    @Environment(PlayQueue.self) private var playQueue
+    @Environment(Tasks.self) private var tasks
+    @Environment(\.presentErrors) private var presentErrors
+    @Environment(\.modelContext) private var modelContext
     @State private var selectedItems = Set<PersistentIdentifier>()
     
     var body: some View {
@@ -33,26 +37,66 @@ struct QueueList: View {
                         let position = playQueue.relativeItemPosition(item)
                         Text(verbatim: item.title ?? "")
                             .foregroundStyle(
-                                position == .orderedSame ? .primary :
+                                position == .orderedDescending ? .secondary :
                                     position == .orderedAscending ? .tertiary
-                                : .secondary
+                                : .primary
                             )
                     }
                     .onDelete { toRemove in
-                        playQueue.removeItems(atOffsets: toRemove)
+                        playQueue.withItems { items in
+                            items.remove(atOffsets: toRemove)
+                        }
                     }
                     .onMove { source, destination in
-                        playQueue.moveItems(fromOffsets: source, toOffset: destination)
+                        playQueue.withItems { items in
+                            items.move(fromOffsets: source, toOffset: destination)
+                        }
+                    }
+                    .onInsert(of: [.libraryItem]) { (offset: Int, providers: [NSItemProvider]) in
+                        let loadProgress = loadAll(LibraryItem.self, from: providers) { results, loadProgress in
+                            tasks.remove(loadProgress)
+                            var songs = [Song]()
+                            var errors = [any Error]()
+                            for result in results {
+                                switch result {
+                                case .success(let libraryItem):
+                                    if let song = libraryItem.model(from: modelContext, as: Song.self) {
+                                        songs.append(song)
+                                    } else {
+                                        errors.append(CocoaError(.persistentStoreUnsupportedRequestType, userInfo: [
+                                            NSLocalizedDescriptionKey: "Could not load song for \(libraryItem)",
+                                        ]))
+                                    }
+                                case .failure(let error):
+                                    errors.append(error)
+                                }
+                            }
+                            playQueue.withItems { items in
+                                items.insert(contentsOf: songs, at: offset)
+                            }
+                            presentErrors(errors)
+                        }
+                        tasks.add(loadProgress)
                     }
                 }
                 .contextMenu(forSelectionType: PersistentIdentifier.self) { selection in
-                    
+                    Button("Remove from Queue") {
+                        playQueue.withItems { items in
+                            items.removeAll { item in
+                                selection.contains(item.id)
+                            }
+                        }
+                    }
                 } primaryAction: { selection in
                     guard let songID = selection.first,
                           let toPlay = playQueue.items.firstIndex(where: { $0.id == songID }) else {
                         return
                     }
-                    try! playQueue.play(playQueue.items, startingAt: toPlay)
+                    do {
+                        try playQueue.play(playQueue.items, startingAt: toPlay)
+                    } catch {
+                        presentErrors(error)
+                    }
                 }
                 .onChange(of: playQueue.playingItem) {
                     guard let playingItem = playQueue.playingItem else {
