@@ -54,8 +54,21 @@ import SwiftData
     }
     
     func garbageCollect() throws {
-        try modelContext.delete(model: Album.self, where: #Predicate { $0.songs.isEmpty })
-        try modelContext.delete(model: Artist.self, where: #Predicate { $0.songs.isEmpty })
+        var emptyAlbumsFetch = FetchDescriptor<Album>(predicate: #Predicate { $0.songs.isEmpty })
+        emptyAlbumsFetch.includePendingChanges = true
+        let emptyAlbums = try modelContext.fetch(emptyAlbumsFetch)
+        for emptyAlbum in emptyAlbums {
+            emptyAlbum.artist = nil
+            modelContext.delete(emptyAlbum)
+        }
+        
+        var emptyArtistFetch = FetchDescriptor<Artist>(predicate: #Predicate { $0.songs.isEmpty })
+        emptyArtistFetch.includePendingChanges = true
+        let emptyArtist = try modelContext.fetch(emptyArtistFetch)
+        for emptyArtist in emptyArtist {
+            emptyArtist.albums = []
+            modelContext.delete(emptyArtist)
+        }
     }
     
     func save() throws {
