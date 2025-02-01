@@ -20,13 +20,17 @@ import SwiftData
 import SwiftUI
 
 struct SongList: View {
-    init(filter: Predicate<Song>? = nil) {
-        _filter = .init(initialValue: filter)
+    init(filter: Predicate<Song>? = nil,
+         selection: Set<PersistentIdentifier> = [],
+         sortOrder: [SortDescriptor<Song>] = [SortDescriptor(\Song.title)]) {
+        _filter = .init(wrappedValue: filter)
+        _selection = .init(wrappedValue: selection)
+        _sortOrder = .init(wrappedValue: sortOrder)
     }
     
     @State private var filter: Predicate<Song>?
-    @State private var selection = Set<PersistentIdentifier>()
-    @State private var sortOrder = [SortDescriptor(\Song.title)]
+    @State private var selection: Set<PersistentIdentifier>
+    @State private var sortOrder: [SortDescriptor<Song>]
     
     var body: some View {
         _SongListBody(filter: $filter,

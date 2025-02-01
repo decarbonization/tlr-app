@@ -25,16 +25,19 @@ struct AlbumList: View {
     }
     
     @Query var albums: [Album]
-    @Environment(PlayQueue.self) private var playQueue
-    @Environment(\.modelContext) private var modelContext
-    @Environment(\.presentErrors) private var presentErrors
     
     var body: some View {
+        // let _ = Self._printChanges()
+        // let _ = dump(self)
         ScrollView {
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 128, maximum: 150))]) {
                 ForEach(albums) { album in
                     NavigationLink {
-                        SongList(filter: #Predicate { [albumID = album.id] in $0.album?.persistentModelID == albumID })
+                        SongList(filter: #Predicate { [albumID = album.id] in $0.album?.persistentModelID == albumID },
+                                 sortOrder: [
+                                    SortDescriptor(\Song.discNumber),
+                                    SortDescriptor(\Song.trackNumber),
+                                 ])
                             .navigationTitle(album.title)
                     } label: {
                         VStack {
@@ -54,7 +57,8 @@ struct AlbumList: View {
                     }
                     .buttonStyle(.borderless)
                     .contextMenu {
-                        Button("Add to Queue") {
+                        // TODO: Why does accessing any @Observable object cause this view to lose its identity?
+                        /*Button("Add to Queue") {
                             playQueue.withItems { items in
                                 items.append(contentsOf: album.sortedSongs)
                             }
@@ -65,7 +69,7 @@ struct AlbumList: View {
                             } catching: { error in
                                 await presentErrors(error)
                             }
-                        }
+                        }*/
                     }
                 }
             }
