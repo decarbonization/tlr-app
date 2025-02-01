@@ -60,6 +60,7 @@ extension AppSchemaV0 {
         
         private(set) var creationDate: Date
         var lastModified: Date
+        var lastPlayed: Date?
         
         var url: URL
         var fileBookmark: Data?
