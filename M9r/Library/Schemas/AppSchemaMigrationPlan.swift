@@ -17,20 +17,14 @@
  */
 
 import Foundation
-import SFBAudioEngine
 import SwiftData
 
-extension Library {
-    func getOrInsertArtwork(copying picture: AttachedPicture) throws -> Artwork? {
-        guard picture.type == .frontCover else {
-            // TODO: Support other kinds of artwork
-            return nil
-        }
-        let payloadHash = Artwork.hash(for: picture.imageData)
-        return try getOrInsert(matching: #Predicate { $0.payloadHash == payloadHash }) {
-            Artwork(payloadHash: payloadHash,
-                    payloadType: .data,
-                    payload: picture.imageData)
-        }
+enum AppSchemaMigrationPlan: SchemaMigrationPlan {
+    static var schemas: [any VersionedSchema.Type] {
+        [AppSchemaV0.self]
+    }
+    
+    static var stages: [MigrationStage] {
+        []
     }
 }

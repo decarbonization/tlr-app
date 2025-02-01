@@ -19,78 +19,87 @@
 import Foundation
 import SwiftData
 
-@Model final class Song {
-    struct Flags: OptionSet, Codable, CustomDebugStringConvertible {
-        var rawValue: UInt
-        
-        static let disabled = Self(rawValue: 1 << 0)
-        static let skipWhenShuffling = Self(rawValue: 1 << 1)
-        static let compilation = Self(rawValue: 1 << 2)
-        static let fromCueSheet = Self(rawValue: 1 << 3)
-        
-        var debugDescription: String {
-            var fields = [String]()
-            if contains(.disabled) {
-                fields.append(".disabled")
+typealias Song = LatestAppSchema.Song
+
+extension AppSchemaV0 {
+    @Model final class Song {
+        struct Flags: OptionSet, Codable, CustomDebugStringConvertible {
+            var rawValue: UInt
+            
+            static let disabled = Self(rawValue: 1 << 0)
+            static let skipWhenShuffling = Self(rawValue: 1 << 1)
+            static let compilation = Self(rawValue: 1 << 2)
+            static let fromCueSheet = Self(rawValue: 1 << 3)
+            
+            var debugDescription: String {
+                var fields = [String]()
+                if contains(.disabled) {
+                    fields.append(".disabled")
+                }
+                if contains(.skipWhenShuffling) {
+                    fields.append(".skipWhenShuffling")
+                }
+                if contains(.fromCueSheet) {
+                    fields.append(".fromCueSheet")
+                }
+                return "Flags(\(fields))"
             }
-            if contains(.skipWhenShuffling) {
-                fields.append(".skipWhenShuffling")
-            }
-            if contains(.fromCueSheet) {
-                fields.append(".fromCueSheet")
-            }
-            return "Flags(\(fields))"
         }
-    }
-    
-    init(url: URL,
-         startTime: TimeInterval,
-         endTime: TimeInterval) {
-        self.url = url
-        self.startTime = startTime
-        self.endTime = endTime
-        self.flags = []
-        self.artwork = []
-    }
-    
-    var url: URL
-    var fileBookmark: Data?
-    
-    var startTime: TimeInterval
-    var endTime: TimeInterval
-    var flags: Flags
-    
-    @Relationship var artist: Artist?
-    @Relationship var album: Album?
-    @Relationship var artwork: [Artwork]
-    
-    var title: String?
-    var albumArtist: String?
-    var composer: String?
-    var genre: String?
-    var releaseDate: String?
-    var trackNumber: UInt64?
-    var trackTotal: UInt64?
-    var discNumber: UInt64?
-    var discTotal: UInt64?
-    var lyrics: String?
-    var bpm: UInt64?
-    var comment: String?
-    var grouping: String?
-    var mcn: String?
-    var isrc: String?
-    var musicBrainzReleaseID: String?
-    var musicBrainzRecordingID: String?
-    
-    func currentURL(relativeTo libraryURL: URL? = nil) throws -> URL {
-        // TODO: Try to repair stale/broken bookmarks
-        guard let fileBookmark else {
-            return url
+        
+        init(url: URL,
+             startTime: TimeInterval,
+             endTime: TimeInterval) {
+            self.creationDate = Date()
+            self.lastModified = Date()
+            self.url = url
+            self.startTime = startTime
+            self.endTime = endTime
+            self.flags = []
+            self.artwork = []
         }
-        var isStale = false
-        return try URL(resolvingBookmarkData: fileBookmark,
-                       options: [.withSecurityScope],
-                       relativeTo: libraryURL,
-                       bookmarkDataIsStale: &isStale)
+        
+        private(set) var creationDate: Date
+        var lastModified: Date
+        
+        var url: URL
+        var fileBookmark: Data?
+        
+        var startTime: TimeInterval
+        var endTime: TimeInterval
+        var flags: Flags
+        
+        @Relationship var artist: Artist?
+        @Relationship var album: Album?
+        @Relationship var artwork: [Artwork]
+        
+        var title: String?
+        var albumArtist: String?
+        var composer: String?
+        var genre: String?
+        var releaseDate: String?
+        var trackNumber: UInt64?
+        var trackTotal: UInt64?
+        var discNumber: UInt64?
+        var discTotal: UInt64?
+        var lyrics: String?
+        var bpm: UInt64?
+        var comment: String?
+        var grouping: String?
+        var mcn: String?
+        var isrc: String?
+        var musicBrainzReleaseID: String?
+        var musicBrainzRecordingID: String?
+        
+        func currentURL(relativeTo libraryURL: URL? = nil) throws -> URL {
+            // TODO: Try to repair stale/broken bookmarks
+            guard let fileBookmark else {
+                return url
+            }
+            var isStale = false
+            return try URL(resolvingBookmarkData: fileBookmark,
+                           options: [.withSecurityScope],
+                           relativeTo: libraryURL,
+                           bookmarkDataIsStale: &isStale)
+        }
     }
 }

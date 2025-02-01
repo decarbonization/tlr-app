@@ -72,6 +72,20 @@ import SwiftData
     }
     
     func save() throws {
+        for changedModel in modelContext.changedModelsArray {
+            switch changedModel {
+            case let artist as Artist:
+                artist.lastModified = Date()
+            case let album as Album:
+                album.lastModified = Date()
+            case let artwork as Artwork:
+                artwork.lastModified = Date()
+            case let song as Song:
+                song.lastModified = Date()
+            default:
+                break
+            }
+        }
         try modelContext.save()
     }
 }

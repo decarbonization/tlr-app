@@ -25,14 +25,14 @@ extension Artwork {
     @MainActor private static var cachedNSImages: [String: Image] = [:]
     
     @MainActor var image: Image? {
-        if let existingImage = Self.cachedNSImages[imageHash] {
+        if let existingImage = Self.cachedNSImages[payloadHash] {
             return existingImage
         } else {
-            guard let nsImage = NSImage(data: imageData) else {
+            guard let nsImage = NSImage(data: payload) else {
                 return nil
             }
             let newImage = Image(nsImage: nsImage)
-            Self.cachedNSImages[imageHash] = newImage
+            Self.cachedNSImages[payloadHash] = newImage
             return newImage
         }
     }

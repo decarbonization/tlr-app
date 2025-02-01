@@ -19,26 +19,35 @@
 import Foundation
 import SwiftData
 
-@Model final class Album {
-    #Index([\Album.title])
-    #Unique([\Album.title])
-    
-    init(title: String,
-         artist: Artist? = nil,
-         songs: [Song] = []) {
-        self.title = title
-        self.artist = artist
-        self.songs = songs
-    }
-    
-    var title: String
-    @Relationship var artist: Artist?
-    @Relationship(inverse: \Song.album) var songs: [Song]
-    
-    var sortedSongs: [Song] {
-        songs.sorted(using: [
-            KeyPathComparator(\.discNumber),
-            KeyPathComparator(\.trackNumber),
-        ])
+typealias Album = LatestAppSchema.Album
+
+extension AppSchemaV0 {
+    @Model final class Album {
+        #Index([\Album.title])
+        #Unique([\Album.title])
+        
+        init(title: String,
+             artist: Artist? = nil,
+             songs: [Song] = []) {
+            self.creationDate = Date()
+            self.lastModified = Date()
+            self.title = title
+            self.artist = artist
+            self.songs = songs
+        }
+        
+        private(set) var creationDate: Date
+        var lastModified: Date
+        
+        var title: String
+        @Relationship var artist: Artist?
+        @Relationship(inverse: \Song.album) var songs: [Song]
+        
+        var sortedSongs: [Song] {
+            songs.sorted(using: [
+                KeyPathComparator(\.discNumber),
+                KeyPathComparator(\.trackNumber),
+            ])
+        }
     }
 }

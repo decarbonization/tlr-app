@@ -20,34 +20,50 @@ import CryptoKit
 import Foundation
 import SwiftData
 
-@Model final class Artwork {
-    #Index([\Artwork.imageHash])
-    #Unique([\Artwork.imageHash])
-    
-    enum Kind: UInt64, Codable {
-        // TODO: Support more kinds
-        case frontCover
+typealias Artwork = LatestAppSchema.Artwork
+
+extension AppSchemaV0 {
+    @Model final class Artwork {
+        #Index([\Artwork.payloadHash])
+        #Unique([\Artwork.payloadHash])
+        
+        enum Kind: UInt64, Codable {
+            // TODO: Support more kinds
+            case frontCover
+        }
+        
+        enum PayloadType: UInt64, Codable {
+            case data
+        }
+        
+        static func hash(for imageData: Data) -> String {
+            var sha256 = SHA256()
+            sha256.update(data: imageData)
+            let digest = sha256.finalize()
+            return digest.description
+        }
+        
+        init(kind: Kind = .frontCover,
+             payloadHash: String,
+             payloadType: PayloadType,
+             payload: Data,
+             songs: [Song] = []) {
+            self.creationDate = Date()
+            self.lastModified = Date()
+            self.kind = kind
+            self.payloadHash = payloadHash
+            self.payloadType = payloadType
+            self.payload = payload
+            self.songs = songs
+        }
+        
+        private(set) var creationDate: Date
+        var lastModified: Date
+        
+        var kind: Kind
+        var payloadHash: String
+        var payloadType: PayloadType
+        var payload: Data
+        @Relationship(inverse: \Song.artwork) var songs: [Song]
     }
-    
-    static func imageHash(for imageData: Data) -> String {
-        var sha256 = SHA256()
-        sha256.update(data: imageData)
-        let digest = sha256.finalize()
-        return digest.description
-    }
-    
-    init(kind: Kind = .frontCover,
-         imageHash: String,
-         imageData: Data,
-         songs: [Song] = []) {
-        self.kind = kind
-        self.imageHash = imageHash
-        self.imageData = imageData
-        self.songs = songs
-    }
-    
-    var kind: Kind
-    var imageHash: String
-    var imageData: Data // TODO: This should be stored outside the DB once the DB is persistent
-    @Relationship(inverse: \Song.artwork) var songs: [Song]
 }

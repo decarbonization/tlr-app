@@ -57,8 +57,7 @@ struct LibraryItem: Identifiable, Equatable, Transferable {
 }
 
 func makeAppModelConatiner() -> ModelContainer {
-    let appSchema = Schema([Album.self, Artist.self, Artwork.self, Song.self],
-                           version: Schema.Version(0, 1, 0))
+    let appSchema = Schema(versionedSchema: LatestAppSchema.self)
     let appLibraryURL = UserDefaults.standard.url(forKey: "M9r_libraryURL")
         ?? URL.musicDirectory.appending(path: "Music Library.m9rl", directoryHint: .notDirectory)
     let appModelConfiguration = ModelConfiguration("M9r Music Library",
@@ -68,6 +67,7 @@ func makeAppModelConatiner() -> ModelContainer {
                                                    cloudKitDatabase: .none)
     do {
         let appModelContainer = try ModelContainer(for: appSchema,
+                                                   migrationPlan: AppSchemaMigrationPlan.self,
                                                    configurations: appModelConfiguration)
         Library.log.debug("Opened app library at <\(appLibraryURL)>")
         return appModelContainer
