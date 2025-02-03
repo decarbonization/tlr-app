@@ -20,7 +20,9 @@ import Foundation
 import os
 
 @Observable final class Tasks: Sendable {
-    init() {
+    static let all = Tasks()
+    
+    private init() {
         _inProgress = .init(initialState: [])
     }
     
@@ -31,7 +33,7 @@ import os
         return _inProgress.withLock { $0 }
     }
     
-    func add(_ newProgress: Progress) {
+    func begin(_ newProgress: Progress) {
         withMutation(keyPath: \.inProgress) {
             _inProgress.withLock { active in
                 active.append(newProgress)
@@ -39,7 +41,7 @@ import os
         }
     }
     
-    func remove(_ oldProgress: Progress) {
+    func end(_ oldProgress: Progress) {
         withMutation(keyPath: \.inProgress) {
             _inProgress.withLock { active in
                 guard let toRemove = active.firstIndex(of: oldProgress) else {

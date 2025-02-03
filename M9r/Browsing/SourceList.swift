@@ -19,8 +19,6 @@
 import SwiftUI
 
 struct SourceList: View {
-    @Binding var errors: [PresentableError]
-    
     var body: some View {
         List {
             Section("Library") {
@@ -59,7 +57,7 @@ struct SourceList: View {
                     Label("Tasks", systemImage: "inset.filled.circle")
                 }
                 NavigationLink {
-                    ErrorList(errors: $errors)
+                    ErrorList()
                         .navigationTitle("Errors")
                 } label: {
                     Label("Errors", systemImage: "exclamationmark.triangle")

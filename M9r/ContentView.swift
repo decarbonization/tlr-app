@@ -20,12 +20,10 @@ import SwiftData
 import SwiftUI
 
 struct ContentView: View {
-    @Binding var errors: [PresentableError]
-    
     var body: some View {
         HSplitView {
             NavigationSplitView {
-                SourceList(errors: $errors)
+                SourceList()
             } detail: {
                 NavigationStack {
                     VStack {

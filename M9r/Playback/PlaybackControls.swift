@@ -21,7 +21,6 @@ import SFBAudioEngine
 
 struct PlaybackControls: View {
     @Environment(PlayQueue.self) private var playQueue
-    @Environment(\.presentErrors) private var presentErrors
     
     var body: some View {
         HStack {
@@ -29,7 +28,7 @@ struct PlaybackControls: View {
                 do {
                     try playQueue.previousTrack()
                 } catch {
-                    presentErrors(error)
+                    TaskErrors.all.present(error)
                 }
             } label: {
                 Label("Previous Track", systemImage: "backward.end.alt.fill")
@@ -42,7 +41,7 @@ struct PlaybackControls: View {
                     do {
                         try playQueue.play(playQueue.items, startingAt: 0)
                     } catch {
-                        presentErrors(error)
+                        TaskErrors.all.present(error)
                     }
                 case .paused:
                     playQueue.resume()
@@ -69,7 +68,7 @@ struct PlaybackControls: View {
                 do {
                     try playQueue.nextTrack()
                 } catch {
-                    presentErrors(error)
+                    TaskErrors.all.present(error)
                 }
             } label: {
                 Label("Previous Track", systemImage: "forward.end.alt.fill")

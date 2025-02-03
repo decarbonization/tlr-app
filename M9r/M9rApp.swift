@@ -23,18 +23,12 @@ import SwiftUI
 struct M9rApp: App {
     @State private var modelContainer = makeAppModelConatiner()
     @State private var playQueue = PlayQueue()
-    @State private var tasks = Tasks()
-    @State private var errors = [PresentableError]()
     
     var body: some Scene {
         Window("Library", id: "library") {
-            ContentView(errors: $errors)
+            ContentView()
         }
         .environment(playQueue)
-        .environment(tasks)
-        .presentErrors { newErrors in
-            errors.append(contentsOf: newErrors)
-        }
         .modelContainer(modelContainer)
     }
 }

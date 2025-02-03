@@ -19,11 +19,10 @@
 import SwiftUI
 
 struct ErrorList: View {
-    @Binding var errors: [PresentableError]
-    @State private var selectedErrors = Set<ObjectIdentifier>()
+    @State private var selectedErrors = Set<PresentableError.ID>()
     
     var body: some View {
-        Table(errors, selection: $selectedErrors) {
+        Table(TaskErrors.all.presented, selection: $selectedErrors) {
             TableColumn("Type") { error in
                 Text(verbatim: "\(type(of: error.unwrap))")
             }
@@ -35,21 +34,21 @@ struct ErrorList: View {
             }
         }
         .onDeleteCommand {
-            errors.removeAll(where: { selectedErrors.contains($0.id) })
+            TaskErrors.all.clearPresented(matching: selectedErrors)
         }
         .onCopyCommand {
-            errors
+            TaskErrors.all.presented
                 .lazy
                 .filter { selectedErrors.contains($0.id) }
                 .map { NSItemProvider(object: "\(type(of: $0.unwrap))\t\($0.capturedAt)\t\($0.localizedDescription)" as NSString) }
         }
         .toolbar {
             Button {
-                errors.removeAll()
+                TaskErrors.all.clearPresented()
             } label: {
                 Label("Clear Errors", systemImage: "trash")
             }
-            .disabled(errors.isEmpty)
+            .disabled(TaskErrors.all.presented.isEmpty)
         }
     }
 }

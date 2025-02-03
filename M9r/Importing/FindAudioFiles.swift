@@ -19,6 +19,29 @@
 import Foundation
 import SFBAudioEngine
 
+func findAudioFiles(fromContentsOf itemResults: [Result<URL, any Error>]) async -> [Result<URL, any Error>] {
+    let discoveringProgress = Progress(totalUnitCount: Int64(itemResults.count))
+    discoveringProgress.localizedDescription = NSLocalizedString("Discovering…", comment: "")
+    Tasks.all.begin(discoveringProgress)
+    var fileResults = [Result<URL, any Error>]()
+    for itemResult in itemResults {
+        defer {
+            discoveringProgress.completedUnitCount += 1
+        }
+        switch itemResult {
+        case .success(let url):
+            discoveringProgress.localizedAdditionalDescription = url.lastPathComponent
+            fileResults.append(contentsOf: findAudioFiles(at: url))
+        case .failure(let error):
+            discoveringProgress.localizedAdditionalDescription = error.localizedDescription
+            fileResults.append(.failure(error))
+        }
+        
+    }
+    Tasks.all.end(discoveringProgress)
+    return fileResults
+}
+
 func findAudioFiles(at url: URL) -> [Result<URL, any Error>] {
     guard url.isFileURL else {
         return [.failure(URLError(.badURL,

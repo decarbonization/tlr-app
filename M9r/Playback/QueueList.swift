@@ -22,8 +22,6 @@ import UniformTypeIdentifiers
 
 struct QueueList: View {
     @Environment(PlayQueue.self) private var playQueue
-    @Environment(Tasks.self) private var tasks
-    @Environment(\.presentErrors) private var presentErrors
     @Environment(\.modelContext) private var modelContext
     @State private var selectedItems = Set<PersistentIdentifier>()
     
@@ -53,12 +51,12 @@ struct QueueList: View {
                         }
                     }
                     .onInsert(of: [.libraryItem]) { (offset: Int, providers: [NSItemProvider]) in
-                        let loadProgress = loadAll(LibraryItem.self, from: providers) { results, loadProgress in
-                            tasks.remove(loadProgress)
+                        Task(priority: .userInitiated) {
+                            let itemResults = await loadAll(LibraryItem.self, from: providers)
                             var songs = [Song]()
                             var errors = [any Error]()
-                            for result in results {
-                                switch result {
+                            for itemResult in itemResults {
+                                switch itemResult {
                                 case .success(let libraryItem):
                                     if let song = libraryItem.model(from: modelContext, as: Song.self) {
                                         songs.append(song)
@@ -74,9 +72,8 @@ struct QueueList: View {
                             playQueue.withItems { items in
                                 items.insert(contentsOf: songs, at: offset)
                             }
-                            presentErrors(errors)
+                            TaskErrors.all.present(errors)
                         }
-                        tasks.add(loadProgress)
                     }
                 }
                 .contextMenu(forSelectionType: PersistentIdentifier.self) { selection in
@@ -95,7 +92,7 @@ struct QueueList: View {
                     do {
                         try playQueue.play(playQueue.items, startingAt: toPlay)
                     } catch {
-                        presentErrors(error)
+                        TaskErrors.all.present(error)
                     }
                 }
                 .onChange(of: playQueue.playingItem) {

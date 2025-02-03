@@ -27,7 +27,6 @@ struct ArtistList: View {
     @Query(sort: \Artist.name) var artists: [Artist]
     @Environment(PlayQueue.self) private var playQueue
     @Environment(\.modelContext) private var modelContext
-    @Environment(\.presentErrors) private var presentErrors
     
     var body: some View {
         List(artists) { artist in
@@ -45,7 +44,7 @@ struct ArtistList: View {
                     Library.performChanges(inContainerOf: modelContext) { library in
                         try await library.deleteArtists(withIDs: [artist.persistentModelID])
                     } catching: { error in
-                        await presentErrors(error)
+                        TaskErrors.all.present(error)
                     }
                 }
             }

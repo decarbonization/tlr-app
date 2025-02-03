@@ -16,13 +16,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import Foundation
 import Testing
 @testable import M9r
 
-struct M9rTests {
-
-    @Test func example() async throws {
-        // Write your test here and use APIs like `#expect(...)` to check expected conditions.
+@Suite struct TaskErrorsTests {
+    @Test func presentingErrors() {
+        let subject = TaskErrors()
+        subject.present([
+            CocoaError(.fileNoSuchFile),
+            URLError(.badURL),
+        ] as [any Error])
+        #expect(subject.presented.count == 2)
+        
+        subject.clearPresented()
+        #expect(subject.presented.isEmpty)
     }
-
 }

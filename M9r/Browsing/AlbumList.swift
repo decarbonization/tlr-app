@@ -67,7 +67,7 @@ struct AlbumList: View {
                             Library.performChanges(inContainerOf: modelContext) { library in
                                 try await library.deleteAlbums(withIDs: [album.persistentModelID])
                             } catching: { error in
-                                await presentErrors(error)
+                                TaskErrors.all.present(error)
                             }
                         }*/
                     }

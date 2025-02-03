@@ -51,7 +51,6 @@ private struct _SongListBody: View {
     @Query private var songs: [Song]
     @Environment(PlayQueue.self) private var playQueue
     @Environment(\.modelContext) private var modelContext
-    @Environment(\.presentErrors) private var presentErrors
     @Binding private var selection: Set<PersistentIdentifier>
     @Binding private var sortOrder: [SortDescriptor<Song>]
     
@@ -62,7 +61,7 @@ private struct _SongListBody: View {
         Library.performChanges(inContainerOf: modelContext) { library in
             try await library.deleteSongs(withIDs: selection)
         } catching: { error in
-            await presentErrors(error)
+            TaskErrors.all.present(error)
         }
     }
     
@@ -104,7 +103,7 @@ private struct _SongListBody: View {
             do {
                 try playQueue.play(songs, startingAt: songPosition)
             } catch {
-                presentErrors(error)
+                TaskErrors.all.present(error)
             }
         }
         .onDropOfImportableItems()

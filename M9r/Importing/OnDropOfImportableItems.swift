@@ -27,24 +27,18 @@ extension View {
 }
 
 private struct ImportDropViewModifier: ViewModifier {
-    @Environment(Tasks.self) private var tasks
     @Environment(\.modelContext) private var modelContext
-    @Environment(\.presentErrors) private var presentErrors
     
     func body(content: Content) -> some View {
         content.onDrop(of: ImportDropDelegate.supportedContentTypes,
-                       delegate: ImportDropDelegate(tasks: tasks,
-                                                    modelContext: modelContext,
-                                                    presentErrors: presentErrors))
+                       delegate: ImportDropDelegate(modelContext: modelContext))
     }
 }
 
 private struct ImportDropDelegate: DropDelegate {
     static let supportedContentTypes = [UTType.fileURL]
     
-    let tasks: Tasks
     let modelContext: ModelContext
-    let presentErrors: PresentErrors
     
     func validateDrop(info: DropInfo) -> Bool {
         info.hasItemsConforming(to: Self.supportedContentTypes)
@@ -56,35 +50,16 @@ private struct ImportDropDelegate: DropDelegate {
             return false
         }
         
-        let loadItemsProgress = loadAll(URL.self, from: itemProviders) { itemResults, loadItemsProgress in
-            tasks.remove(loadItemsProgress)
-            
+        Task(priority: .userInitiated) {
+            let itemResults = await loadAll(URL.self, from: itemProviders)
             Library.performChanges(inContainerOf: modelContext) { library in
-                let discoveringProgress = Progress(totalUnitCount: Int64(itemResults.count))
-                discoveringProgress.localizedDescription = NSLocalizedString("Discovering…", comment: "")
-                tasks.add(discoveringProgress)
-                var fileResults = [Result<URL, any Error>]()
-                for itemResult in itemResults {
-                    defer {
-                        discoveringProgress.completedUnitCount += 1
-                    }
-                    switch itemResult {
-                    case .success(let url):
-                        discoveringProgress.localizedAdditionalDescription = url.lastPathComponent
-                        fileResults.append(contentsOf: findAudioFiles(at: url))
-                    case .failure(let error):
-                        discoveringProgress.localizedAdditionalDescription = error.localizedDescription
-                        fileResults.append(.failure(error))
-                    }
-                    
-                }
-                tasks.remove(discoveringProgress)
+                let fileResults = await findAudioFiles(fromContentsOf: itemResults)
                 
                 let progress = Progress(totalUnitCount: Int64(fileResults.count))
                 progress.localizedDescription = NSLocalizedString("Importing Songs…", comment: "")
-                tasks.add(progress)
+                Tasks.all.begin(progress)
                 defer {
-                    tasks.remove(progress)
+                    Tasks.all.end(progress)
                 }
                 var addResults = [Result<Song, any Error>]()
                 for fileResult in fileResults {
@@ -98,6 +73,7 @@ private struct ImportDropDelegate: DropDelegate {
                             try await library.addSong(fileURL)
                         } catch {
                             Library.log.error("Could not import \(fileURL), reason: \(error)")
+                            addResults.append(.failure(error))
                         }
                     case .failure(let error):
                         progress.localizedAdditionalDescription = error.localizedDescription
@@ -105,18 +81,11 @@ private struct ImportDropDelegate: DropDelegate {
                     }
                 }
                 
-                let errors = addResults.compactMap { result -> (any Error)? in
-                    guard case .failure(let error) = result else {
-                        return nil
-                    }
-                    return error
-                }
-                await presentErrors(errors)
+                TaskErrors.all.present(addResults)
             } catching: { error in
-                await presentErrors(error)
+                TaskErrors.all.present(error)
             }
         }
-        tasks.add(loadItemsProgress)
         
         return true
     }

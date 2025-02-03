@@ -20,27 +20,27 @@ import CoreTransferable
 import Foundation
 import os
 
-func loadAll<T: Transferable>(_ transferableType: T.Type = T.self,
-                              from itemProviders: [NSItemProvider],
-                              completionHandler: @escaping @MainActor ([Result<T, any Error>], Progress) -> Void) -> Progress {
-    let overallProgress = Progress(totalUnitCount: Int64(itemProviders.count))
-    overallProgress.localizedDescription = NSLocalizedString("Loading…", comment: "")
-    let group = DispatchGroup()
-    let results = OSAllocatedUnfairLock(initialState: [Result<T, any Error>]())
-    for itemProvider in itemProviders {
-        group.enter()
-        let progress = itemProvider.loadTransferable(type: transferableType) { result in
-            results.withLock { results in
-                results.append(result)
+@MainActor func loadAll<T: Transferable>(_ transferableType: T.Type = T.self,
+                                         from itemProviders: [NSItemProvider]) async -> [Result<T, any Error>] {
+    await withUnsafeContinuation { continuation in
+        let overallProgress = Progress(totalUnitCount: Int64(itemProviders.count))
+        overallProgress.localizedDescription = NSLocalizedString("Loading…", comment: "")
+        Tasks.all.begin(overallProgress)
+        let group = DispatchGroup()
+        let results = OSAllocatedUnfairLock(initialState: [Result<T, any Error>]())
+        for itemProvider in itemProviders {
+            group.enter()
+            let progress = itemProvider.loadTransferable(type: transferableType) { result in
+                results.withLock { results in
+                    results.append(result)
+                }
+                group.leave()
             }
-            group.leave()
+            overallProgress.addChild(progress, withPendingUnitCount: 1)
         }
-        overallProgress.addChild(progress, withPendingUnitCount: 1)
-    }
-    group.notify(queue: .main) {
-        MainActor.assumeIsolated {
-            completionHandler(results.withLock { $0 }, overallProgress)
+        group.notify(queue: .main) {
+            Tasks.all.end(overallProgress)
+            continuation.resume(returning: results.withLock { $0 })
         }
     }
-    return overallProgress
 }

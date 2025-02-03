@@ -24,9 +24,9 @@ extension Library {
                                      reportingTo tasks: Tasks) -> [Result<Song, any Error>] {
         let progress = Progress(totalUnitCount: Int64(fileResults.count))
         progress.localizedDescription = NSLocalizedString("Importing Songs…", comment: "")
-        tasks.add(progress)
+        tasks.begin(progress)
         defer {
-            tasks.remove(progress)
+            tasks.end(progress)
         }
         var songs = [Result<Song, any Error>]()
         songs.reserveCapacity(fileResults.count)

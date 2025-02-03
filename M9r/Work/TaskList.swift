@@ -19,16 +19,10 @@
 import SwiftUI
 
 struct TaskList: View {
-    @Environment(Tasks.self) private var tasks
-    
     var body: some View {
-        List(tasks.inProgress, id: \.self) { progress in
-            VStack(alignment: .leading) {
-                Text(verbatim: progress.localizedDescription ?? "--")
-                Text(verbatim: progress.localizedAdditionalDescription ?? "--")
-                ProgressView(progress)
-            }
-            .padding()
+        List(Tasks.all.inProgress, id: \.self) { progress in
+            ProgressView(progress)
+                .padding()
         }
         .progressViewStyle(.linear)
     }
