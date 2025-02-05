@@ -25,20 +25,22 @@ struct AlbumList: View {
     }
     
     @Query var albums: [Album]
+    @Environment(PlayQueue.self) private var playQueue
+    @Environment(\.modelContext) private var modelContext
     
     var body: some View {
-        // let _ = Self._printChanges()
-        // let _ = dump(self)
         ScrollView {
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 128, maximum: 150))]) {
                 ForEach(albums) { album in
                     NavigationLink {
-                        SongList(filter: #Predicate { [albumID = album.id] in $0.album?.persistentModelID == albumID },
-                                 sortOrder: [
-                                    SortDescriptor(\Song.discNumber),
-                                    SortDescriptor(\Song.trackNumber),
-                                 ])
+                        DeferView {
+                            SongList(filter: #Predicate { [albumID = album.id] in $0.album?.persistentModelID == albumID },
+                                     sortOrder: [
+                                        SortDescriptor(\Song.discNumber),
+                                        SortDescriptor(\Song.trackNumber),
+                                     ])
                             .navigationTitle(album.title)
+                        }
                     } label: {
                         VStack {
                             Group {
@@ -57,8 +59,7 @@ struct AlbumList: View {
                     }
                     .buttonStyle(.borderless)
                     .contextMenu {
-                        // TODO: Why does accessing any @Observable object cause this view to lose its identity?
-                        /*Button("Add to Queue") {
+                        Button("Add to Queue") {
                             playQueue.withItems { items in
                                 items.append(contentsOf: album.sortedSongs)
                             }
@@ -69,7 +70,7 @@ struct AlbumList: View {
                             } catching: { error in
                                 TaskErrors.all.present(error)
                             }
-                        }*/
+                        }
                     }
                 }
             }
