@@ -68,6 +68,9 @@ extension AppSchemaV0 {
         var startTime: TimeInterval
         var endTime: TimeInterval
         var flags: Flags
+        var duration: Duration {
+            Duration.seconds(endTime - startTime)
+        }
         
         @Relationship var artist: Artist?
         @Relationship var album: Album?
