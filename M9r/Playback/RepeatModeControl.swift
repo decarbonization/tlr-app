@@ -51,3 +51,9 @@ struct RepeatModeLabel: View {
         }
     }
 }
+
+#Preview {
+    @Previewable @State var repeatMode = PlayQueue.RepeatMode.none
+    
+    RepeatModeControl(repeatMode: $repeatMode)
+}

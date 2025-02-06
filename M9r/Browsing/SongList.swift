@@ -45,7 +45,8 @@ struct SongList: View {
     
     @State private var fetchDescriptor: FetchDescriptor<Song>
     @State private var selection: Set<PersistentIdentifier>
-    @SceneStorage("BugReportTableConfig") private var columnCustomization: TableColumnCustomization<Song> = Self.defaultColumnCustomizations
+    @SceneStorage("SongTableConfig") private var columnCustomization: TableColumnCustomization<Song> = Self.defaultColumnCustomizations
+    @SceneStorage("SongShuffleEnabled") private var isShuffleEnabled: Bool = false
     @Environment(PlayQueue.self) private var playQueue
     @Environment(\.modelContext) private var modelContext
     
@@ -173,12 +174,23 @@ struct SongList: View {
                     return
                 }
                 do {
-                    try playQueue.play(songs, startingAt: songPosition)
+                    if isShuffleEnabled {
+                        var shuffledSongs = songs.shuffled()
+                        if let toMove = shuffledSongs.firstIndex(where: { $0.id == songID }) {
+                            shuffledSongs.move(fromOffsets: [toMove], toOffset: 0)
+                        }
+                        try playQueue.play(shuffledSongs)
+                    } else {
+                        try playQueue.play(songs, startingAt: songPosition)
+                    }
                 } catch {
                     TaskErrors.all.present(error)
                 }
             }
             .onDropOfImportableItems()
+            .toolbar {
+                ShuffleModeControl(isEnabled: $isShuffleEnabled)
+            }
         }
     }
 }
