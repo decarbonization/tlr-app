@@ -19,16 +19,24 @@
 import SwiftUI
 
 struct NowPlaying: View {
-    @Environment(PlayQueue.self) var playQueue
+    init(playingItem: Song?,
+         totalTime: TimeInterval,
+         currentTime: Binding<TimeInterval>) {
+        self.playingItem = playingItem
+        self.totalTime = totalTime
+        self._currentTime = currentTime
+    }
+    
+    private let playingItem: Song?
+    private let totalTime: TimeInterval
+    @Binding private var currentTime: TimeInterval
     
     var body: some View {
-        @Bindable var playQueue = playQueue
-        
         VStack(alignment: .leading, spacing: 0) {
             Divider()
             HStack(alignment: .center) {
                 Group {
-                    if let image = playQueue.playingItem?.artwork.first?.image {
+                    if let image = playingItem?.artwork.first?.image {
                         image.resizable()
                     } else {
                         Color.gray
@@ -37,17 +45,43 @@ struct NowPlaying: View {
                 .frame(width: 32, height: 32)
                 .clipShape(RoundedRectangle(cornerRadius: 3.0))
                 VStack(alignment: .leading) {
-                    Text(verbatim: playQueue.playingItem?.title ?? "--")
+                    Text(verbatim: playingItem?.title ?? "--")
                         .font(.headline)
                         .foregroundStyle(.primary)
-                    Text(verbatim: playQueue.playingItem?.artist?.name ?? "--")
+                    Text(verbatim: playingItem?.artist?.name ?? "--")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
             }
             .padding(8)
-            Slider(value: $playQueue.currentTime, in: 0 ... playQueue.totalTime)
+            Slider(value: $currentTime, in: 0 ... totalTime)
                 .padding(.all.subtracting([.top]), 8)
         }
     }
+}
+
+#Preview {
+    @Previewable var song: Song = {
+        let song = Song(url: URL(string: "about:blank")!,
+                        startTime: 0,
+                        endTime: 300)
+        song.artwork = [
+            Artwork(payloadHash: "",
+                    payloadType: .data,
+                    payload: NSImage(size: NSSize(width: 300, height: 300), flipped: true) { drawingRect in
+                        let gradient = NSGradient(colors: [.systemCyan, .systemBlue])
+                        gradient?.draw(in: drawingRect, angle: 45)
+                        return true
+                    }.tiffRepresentation!),
+        ]
+        song.title = "Halfway Highway"
+        song.artist = Artist(name: "Blue States")
+        song.album = Album(title: "Man Mountain")
+        return song
+    }()
+    @Previewable @State var currentTime: TimeInterval = 30.0
+    
+    NowPlaying(playingItem: song,
+               totalTime: song.endTime - song.startTime,
+               currentTime: $currentTime)
 }

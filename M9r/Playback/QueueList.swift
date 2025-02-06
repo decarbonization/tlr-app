@@ -102,7 +102,9 @@ struct QueueList: View {
                     proxy.scrollTo(playingItem.persistentModelID, anchor: .center)
                 }
             }
-            NowPlaying()
+            NowPlaying(playingItem: playQueue.playingItem,
+                       totalTime: playQueue.totalTime,
+                       currentTime: $playQueue.currentTime)
         }
         .toolbar {
             RepeatModeControl(repeatMode: $playQueue.repeatMode)
