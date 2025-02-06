@@ -22,6 +22,12 @@ import SFBAudioEngine
 import SwiftUI
 
 @Observable final class PlayQueue: @unchecked Sendable {
+    enum RepeatMode: CaseIterable, Equatable, Codable {
+        case none
+        case all
+        case one
+    }
+    
     private enum DelegateEvent: @unchecked Sendable {
         case playbackStateChanged(AudioPlayer.PlaybackState)
         case nowPlayingChanged((any PCMDecoding)?)
@@ -63,6 +69,7 @@ import SwiftUI
     init() {
         audioPlayer = AudioPlayer()
         items = []
+        repeatMode = .none
         delegate = Delegate { [weak self] event in
             self?.consumeDelegateEvent(event)
         }
@@ -128,6 +135,8 @@ import SwiftUI
         }
         return items[playingIndex]
     }
+    
+    var repeatMode: RepeatMode
     
     var playbackState: AudioPlayer.PlaybackState {
         access(keyPath: \.playbackState)
@@ -195,18 +204,38 @@ import SwiftUI
         guard let playingIndex else {
             return false
         }
-        return playingIndex > 0
+        switch repeatMode {
+        case .none:
+            return playingIndex > 0
+        case .all,
+             .one:
+            return true
+        }
     }
     
     func previousTrack() throws {
-        guard let playingIndex,
-              playingIndex > 0 else {
+        guard let playingIndex else {
             return
         }
         if let currentTime = audioPlayer.currentTime, currentTime > 10 {
             audioPlayer.seek(time: 0)
         } else {
-            try play(itemAt: playingIndex - 1)
+            switch repeatMode {
+            case .none:
+                if playingIndex > 0 {
+                    try play(itemAt: playingIndex - 1)
+                } else {
+                    stop()
+                }
+            case .all:
+                if playingIndex > 0 {
+                    try play(itemAt: playingIndex - 1)
+                } else {
+                    try play(itemAt: items.count - 1)
+                }
+            case .one:
+                try play(itemAt: playingIndex)
+            }
         }
     }
     
@@ -214,17 +243,34 @@ import SwiftUI
         guard let playingIndex else {
             return false
         }
-        return playingIndex < (items.count - 1)
+        switch repeatMode {
+        case .none:
+            return playingIndex < (items.count - 1)
+        case .all,
+             .one:
+            return true
+        }
     }
     
     func nextTrack() throws {
         guard let playingIndex else {
             return
         }
-        if playingIndex < (items.count - 1) {
-            try play(itemAt: playingIndex + 1)
-        } else {
-            stop()
+        switch repeatMode {
+        case .none:
+            if playingIndex < (items.count - 1) {
+                try play(itemAt: playingIndex + 1)
+            } else {
+                stop()
+            }
+        case .all:
+            if playingIndex < (items.count - 1) {
+                try play(itemAt: playingIndex + 1)
+            } else {
+                try play(itemAt: 0)
+            }
+        case .one:
+            try play(itemAt: playingIndex)
         }
     }
     

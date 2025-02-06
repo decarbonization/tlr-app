@@ -35,10 +35,6 @@ struct ContentView: View {
             }
             QueueList()
                 .frame(minWidth: 100, idealWidth: 200, maxWidth: 250)
-                .toolbar {
-                    Spacer()
-                    PlaybackControls()
-                }
         }
     }
 }

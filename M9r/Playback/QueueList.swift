@@ -104,5 +104,10 @@ struct QueueList: View {
             }
             NowPlaying()
         }
+        .toolbar {
+            RepeatModeControl(repeatMode: $playQueue.repeatMode)
+            Spacer()
+            PlaybackControls()
+        }
     }
 }
