@@ -18,7 +18,7 @@
 
 import SwiftUI
 
-/** Defers the evaluation of some view. This can be useful to workaround SwiftUI bugs. */
+/// Defers the evaluation of some view. This can be useful to workaround SwiftUI bugs.
 struct DeferView<RootView: View>: NSViewRepresentable {
     init(@ViewBuilder rootView: @escaping () -> RootView) {
         self.rootView = rootView

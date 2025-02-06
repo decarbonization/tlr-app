@@ -23,36 +23,14 @@ struct SongList: View {
     init(filter: Predicate<Song>? = nil,
          selection: Set<PersistentIdentifier> = [],
          sortOrder: [SortDescriptor<Song>] = [SortDescriptor(\Song.title)]) {
-        _filter = .init(wrappedValue: filter)
+        _fetchDescriptor = .init(wrappedValue: FetchDescriptor(predicate: filter, sortBy: sortOrder))
         _selection = .init(wrappedValue: selection)
-        _sortOrder = .init(wrappedValue: sortOrder)
     }
     
-    @State private var filter: Predicate<Song>?
+    @State private var fetchDescriptor: FetchDescriptor<Song>
     @State private var selection: Set<PersistentIdentifier>
-    @State private var sortOrder: [SortDescriptor<Song>]
-    
-    var body: some View {
-        _SongListBody(filter: $filter,
-                      selection: $selection,
-                      sortOrder: $sortOrder)
-    }
-}
-
-private struct _SongListBody: View {
-    init(filter: Binding<Predicate<Song>?>,
-         selection: Binding<Set<PersistentIdentifier>>,
-         sortOrder: Binding<[SortDescriptor<Song>]>) {
-        _songs = .init(filter: filter.wrappedValue, sort: sortOrder.wrappedValue)
-        _selection = selection
-        _sortOrder = sortOrder
-    }
-    
-    @Query private var songs: [Song]
     @Environment(PlayQueue.self) private var playQueue
     @Environment(\.modelContext) private var modelContext
-    @Binding private var selection: Set<PersistentIdentifier>
-    @Binding private var sortOrder: [SortDescriptor<Song>]
     
     private func deleteSelection() {
         guard !selection.isEmpty else {
@@ -66,46 +44,48 @@ private struct _SongListBody: View {
     }
     
     var body: some View {
-        Table(selection: $selection, sortOrder: $sortOrder) {
-            TableColumn("Title", sortUsing: SortDescriptor(\Song.title)) { song in
-                Text(verbatim: song.title ?? "")
-            }
-            TableColumn("Album", sortUsing: SortDescriptor(\Song.album?.title)) { song in
-                Text(verbatim: song.album?.title ?? "")
-            }
-            TableColumn("Artist", sortUsing: SortDescriptor(\Song.album?.artist?.name)) { song in
-                Text(verbatim: song.artist?.name ?? "")
-            }
-        } rows: {
-            ForEach(songs) { song in
-                TableRow(song)
-                    .draggable(LibraryItem(from: song))
-            }
-        }
-        .onDeleteCommand {
-            deleteSelection()
-        }
-        .contextMenu(forSelectionType: PersistentIdentifier.self) { selection in
-            Button("Add to Queue") {
-                let toAdd = songs.filter { selection.contains($0.persistentModelID) }
-                playQueue.withItems { items in
-                    items.append(contentsOf: toAdd)
+        QueryView(fetchDescriptor: $fetchDescriptor) { songs in
+            Table(selection: $selection, sortOrder: $fetchDescriptor.sortBy) {
+                TableColumn("Title", sortUsing: SortDescriptor(\Song.title)) { song in
+                    Text(verbatim: song.title ?? "")
+                }
+                TableColumn("Album", sortUsing: SortDescriptor(\Song.album?.title)) { song in
+                    Text(verbatim: song.album?.title ?? "")
+                }
+                TableColumn("Artist", sortUsing: SortDescriptor(\Song.album?.artist?.name)) { song in
+                    Text(verbatim: song.artist?.name ?? "")
+                }
+            } rows: {
+                ForEach(songs) { song in
+                    TableRow(song)
+                        .draggable(LibraryItem(from: song))
                 }
             }
-            Button("Remove from Library") {
+            .onDeleteCommand {
                 deleteSelection()
             }
-        } primaryAction: { selection in
-            guard let songID = selection.first,
-                  let songPosition = songs.firstIndex(where: { $0.id == songID }) else {
-                return
+            .contextMenu(forSelectionType: PersistentIdentifier.self) { selection in
+                Button("Add to Queue") {
+                    let toAdd = songs.filter { selection.contains($0.persistentModelID) }
+                    playQueue.withItems { items in
+                        items.append(contentsOf: toAdd)
+                    }
+                }
+                Button("Remove from Library") {
+                    deleteSelection()
+                }
+            } primaryAction: { selection in
+                guard let songID = selection.first,
+                      let songPosition = songs.firstIndex(where: { $0.id == songID }) else {
+                    return
+                }
+                do {
+                    try playQueue.play(songs, startingAt: songPosition)
+                } catch {
+                    TaskErrors.all.present(error)
+                }
             }
-            do {
-                try playQueue.play(songs, startingAt: songPosition)
-            } catch {
-                TaskErrors.all.present(error)
-            }
+            .onDropOfImportableItems()
         }
-        .onDropOfImportableItems()
     }
 }
