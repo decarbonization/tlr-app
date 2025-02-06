@@ -36,25 +36,35 @@ extension Library {
         let audioFile = try AudioFile(url: fileURL)
         try audioFile.readPropertiesAndMetadata()
         
-        let newSong = Song(url: fileURL,
-                           startTime: 0.0,
-                           endTime: audioFile.properties.duration ?? 0.0)
-        do {
-            newSong.fileBookmark = try fileURL.bookmarkData(options: [.withSecurityScope])
-        } catch {
-            Library.log.warning("Could not create bookmark for song at <\(fileURL)>")
+        if let existingSong = try existingSong(withURL: fileURL) {
+            try copy(audioFile.metadata,
+                     from: fileURL,
+                     to: existingSong)
+            
+            Library.log.debug("Updated \(fileURL): \(String(describing: existingSong))")
+            
+            return existingSong
+        } else {
+            let newSong = Song(url: fileURL,
+                               startTime: 0.0,
+                               endTime: audioFile.properties.duration ?? 0.0)
+            do {
+                newSong.fileBookmark = try fileURL.bookmarkData(options: [.withSecurityScope])
+            } catch {
+                Library.log.warning("Could not create bookmark for song at <\(fileURL)>")
+            }
+            try copy(audioFile.metadata,
+                     from: fileURL,
+                     to: newSong)
+            modelContext.insert(newSong)
+            Library.log.debug("Inserted \(fileURL): \(String(describing: newSong))")
+            return newSong
         }
-        try copy(audioFile.metadata,
-                 from: fileURL,
-                 to: newSong)
-        modelContext.insert(newSong)
-        Library.log.debug("Inserted \(fileURL): \(String(describing: newSong))")
-        return newSong
     }
     
-    func copy(_ metadata: AudioMetadata,
-               from fileURL: URL,
-               to song: Song) throws {
+    private func copy(_ metadata: AudioMetadata,
+                      from fileURL: URL,
+                      to song: Song) throws {
         if let title = metadata.title, !title.isEmpty {
             song.title = metadata.title
         } else {
@@ -88,5 +98,17 @@ extension Library {
         song.isrc = metadata.isrc
         song.musicBrainzReleaseID = metadata.musicBrainzReleaseID
         song.musicBrainzRecordingID = metadata.musicBrainzRecordingID
+    }
+    
+    private func existingSong(withURL fileURL: URL) throws -> Song? {
+        var whatSong = FetchDescriptor<Song>(predicate: #Predicate { $0.url == fileURL })
+        whatSong.fetchLimit = 1
+        whatSong.includePendingChanges = true
+        let onlySong = try modelContext.fetch(whatSong)
+        if onlySong.count == 1 {
+            return onlySong[0]
+        } else {
+            return nil
+        }
     }
 }
