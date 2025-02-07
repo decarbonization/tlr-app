@@ -31,6 +31,7 @@ struct ShuffleModeControl: View {
         } label: {
             Label(isEnabled ? "Shuffle On" : "Shuffle Off", systemImage: "shuffle")
                 .labelStyle(.iconOnly)
+                .foregroundStyle(isEnabled ? Color.accentColor : .primary)
                 .opacity(isEnabled ? 1.0 : 0.6)
         }
     }
