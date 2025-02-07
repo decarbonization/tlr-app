@@ -19,6 +19,18 @@
 import SwiftUI
 
 struct NowPlaying: View {
+    @Environment(PlayQueue.self) private var playQueue
+    
+    var body: some View {
+        @Bindable var playQueue = playQueue
+        
+        _NowPlayingContent(playingItem: playQueue.playingItem,
+                           totalTime: playQueue.totalTime,
+                           currentTime: $playQueue.currentTime)
+    }
+}
+
+private struct _NowPlayingContent: View {
     init(playingItem: Song?,
          totalTime: TimeInterval,
          currentTime: Binding<TimeInterval>) {
@@ -64,7 +76,7 @@ struct NowPlaying: View {
     @Previewable var song = LibraryPreviewSupport.song
     @Previewable @State var currentTime = TimeInterval(30.0)
     
-    NowPlaying(playingItem: song,
+    _NowPlayingContent(playingItem: song,
                totalTime: song.endTime - song.startTime,
                currentTime: $currentTime)
 }

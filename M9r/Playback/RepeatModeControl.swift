@@ -19,6 +19,16 @@
 import SwiftUI
 
 struct RepeatModeControl: View {
+    @Environment(PlayQueue.self) private var playQueue
+    
+    var body: some View {
+        @Bindable var playQueue = playQueue
+        
+        _RepeatModeControlContent(repeatMode: $playQueue.repeatMode)
+    }
+}
+
+struct _RepeatModeControlContent: View {
     init(repeatMode: Binding<PlayQueue.RepeatMode>) {
         _repeatMode = repeatMode
     }
@@ -28,7 +38,7 @@ struct RepeatModeControl: View {
     var body: some View {
         Picker(selection: $repeatMode) {
             ForEach(PlayQueue.RepeatMode.allCases, id: \.self) { repeatMode in
-                RepeatModeLabel(repeatMode: repeatMode)
+                _RepeatModeLabel(repeatMode: repeatMode)
                     .labelStyle(.iconOnly)
             }
         } label: {
@@ -37,7 +47,7 @@ struct RepeatModeControl: View {
     }
 }
 
-struct RepeatModeLabel: View {
+private struct _RepeatModeLabel: View {
     let repeatMode: PlayQueue.RepeatMode
     
     var body: some View {
@@ -55,5 +65,5 @@ struct RepeatModeLabel: View {
 #Preview {
     @Previewable @State var repeatMode = PlayQueue.RepeatMode.none
     
-    RepeatModeControl(repeatMode: $repeatMode)
+    _RepeatModeControlContent(repeatMode: $repeatMode)
 }

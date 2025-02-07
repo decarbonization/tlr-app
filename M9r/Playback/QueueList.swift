@@ -26,8 +26,6 @@ struct QueueList: View {
     @State private var selectedItems = Set<PersistentIdentifier>()
     
     var body: some View {
-        @Bindable var playQueue = playQueue
-        
         VStack(spacing: 0) {
             ScrollViewReader { proxy in
                 List(selection: $selectedItems) {
@@ -97,12 +95,10 @@ struct QueueList: View {
                     proxy.scrollTo(playingItem.persistentModelID, anchor: .center)
                 }
             }
-            NowPlaying(playingItem: playQueue.playingItem,
-                       totalTime: playQueue.totalTime,
-                       currentTime: $playQueue.currentTime)
+            NowPlaying()
         }
         .toolbar {
-            RepeatModeControl(repeatMode: $playQueue.repeatMode)
+            RepeatModeControl()
             Spacer()
             PlaybackControls()
         }
