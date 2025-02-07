@@ -32,13 +32,8 @@ struct QueueList: View {
             ScrollViewReader { proxy in
                 List(selection: $selectedItems) {
                     ForEach(playQueue.items) { item in
-                        let position = playQueue.relativeItemPosition(item)
-                        Text(verbatim: item.title ?? "")
-                            .foregroundStyle(
-                                position == .orderedDescending ? .secondary :
-                                    position == .orderedAscending ? .tertiary
-                                : .primary
-                            )
+                        QueueItem(relativeItemPosition: playQueue.relativeItemPosition(item),
+                                  item: item)
                     }
                     .onDelete { toRemove in
                         playQueue.withItems { items in

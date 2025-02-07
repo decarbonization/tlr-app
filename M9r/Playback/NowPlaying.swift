@@ -61,25 +61,8 @@ struct NowPlaying: View {
 }
 
 #Preview {
-    @Previewable var song: Song = {
-        let song = Song(url: URL(string: "about:blank")!,
-                        startTime: 0,
-                        endTime: 300)
-        song.artwork = [
-            Artwork(payloadHash: "",
-                    payloadType: .data,
-                    payload: NSImage(size: NSSize(width: 300, height: 300), flipped: true) { drawingRect in
-                        let gradient = NSGradient(colors: [.systemCyan, .systemBlue])
-                        gradient?.draw(in: drawingRect, angle: 45)
-                        return true
-                    }.tiffRepresentation!),
-        ]
-        song.title = "Halfway Highway"
-        song.artist = Artist(name: "Blue States")
-        song.album = Album(title: "Man Mountain")
-        return song
-    }()
-    @Previewable @State var currentTime: TimeInterval = 30.0
+    @Previewable var song = LibraryPreviewSupport.song
+    @Previewable @State var currentTime = TimeInterval(30.0)
     
     NowPlaying(playingItem: song,
                totalTime: song.endTime - song.startTime,
