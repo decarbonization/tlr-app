@@ -53,22 +53,25 @@ jobs:
             -exportOptionsPlist ".github/workflows/NightlyExportOptions.plist" \
             -exportPath "dist/" \
             -allowProvisioningUpdates
+          npm install --global create-dmg
           pushd dist
-          zip -r M9r.zip M9r.app
+          create-dmg M9r.app --overwrite
+          DMGS=$(echo M9r*.dmg)
+          mv "${DMGS[0]}" "M9r.dmg"
           popd
-      # - name: Notarize
-      #   env:
-      #     TEAM_ID: ${{ secrets.TEAM_ID }}
-      #     APPLE_ID: ${{ secrets.APPLE_ID }}
-      #     NOTARY_PASSWORD: ${{ secrets.NOTARY_PASSWORD }}
-      #   run: |
-      #     xcrun notarytool submit \
-      #       --team-id "$TEAM_ID" \
-      #       --apple-id "$APPLE_ID" \
-      #       --password "$NOTARY_PASSWORD" \
-      #       --wait \
-      #       dist/M9r.zip
-      #     xcrun stapler staple dist/M9r.zip
+      - name: Notarize
+        env:
+          TEAM_ID: ${{ secrets.TEAM_ID }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          NOTARY_PASSWORD: ${{ secrets.NOTARY_PASSWORD }}
+        run: |
+          xcrun notarytool submit \
+            --team-id "$TEAM_ID" \
+            --apple-id "$APPLE_ID" \
+            --password "$NOTARY_PASSWORD" \
+            --wait \
+            dist/M9r.dmg
+          xcrun stapler staple dist/M9r.dmg
       - name: Update Nightly Release
         uses: andelf/nightly-release@main
         env:
@@ -79,4 +82,4 @@ jobs:
           prerelease: true
           body: 'Nightly build of main branch'
           files: |
-            ./dist/M9r.zip
+            ./dist/M9r.dmg
