@@ -19,7 +19,7 @@ jobs:
           MAC_DEV_CER_PASSWORD: ${{ secrets.MAC_DEV_CER_PASSWORD }}
           DEVELOPER_ID_CER_PASSWORD: ${{ secrets.DEVELOPER_ID_CER_PASSWORD }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-        run: \
+        run: |
           MAC_DEV_CER_PATH=$RUNNER_TEMP/madev.p12
           DEVELOPER_ID_CER_PATH=$RUNNER_TEMP/devid.p12
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
