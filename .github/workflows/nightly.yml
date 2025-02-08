@@ -1,0 +1,68 @@
+name: macOS
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: M9r
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Prepare Certificates
+        env:
+          MAC_DEV_CER: ${{ secrets.MAC_DEV_CER }}
+          DEVELOPER_ID_CER: ${{ secrets.DEVELOPER_ID_CER }}
+          MAC_DEV_CER_PASSWORD: ${{ secrets.MAC_DEV_CER_PASSWORD }}
+          DEVELOPER_ID_CER_PASSWORD: ${{ secrets.DEVELOPER_ID_CER_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: \
+          MAC_DEV_CER_PATH=$RUNNER_TEMP/madev.p12
+          DEVELOPER_ID_CER_PATH=$RUNNER_TEMP/devid.p12
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+          echo -n "$MAC_DEV_CER" | base64 --decode -o $MAC_DEV_CER_PATH
+          echo -n "$DEVELOPER_ID_CER" | base64 --decode -o $DEVELOPER_ID_CER_PATH
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security import $MAC_DEV_CER_PATH -P "$MAC_DEV_CER_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security import $DEVELOPER_ID_CER_PATH -P "$DEVELOPER_ID_CER_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
+      - name: Configure Export Options
+        env:
+          TEAM_ID: ${{ secrets.TEAM_ID }}
+        run: |
+          plutil -replace "teamID" -string "$TEAM_ID" .github/workflows/NightlyExportOptions.plist
+      - name: Build
+        env:
+          scheme: ${{ 'M9r' }}
+          platform: ${{ 'macOS' }}
+        run: |
+          xcodebuild archive \
+            -scheme "$scheme" \
+            -project "M9r.xcodeproj" \
+            -destination "platform=$platform" \
+            -archivePath "dist/M9r.xcarchive"
+      - name: Package
+        run: |
+          xcodebuild -exportArchive \
+            -archivePath "dist/M9r.xcarchive" \
+            -exportOptionsPlist ".github/workflows/NightlyExportOptions.plist" \
+            -exportPath "dist/" \
+            -allowProvisioningUpdates
+          pushd dist
+          zip -r M9r.zip M9r.app
+          popd
+      - name: Update Nightly Release
+        uses: andelf/nightly-release@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: nightly
+          name: 'M9r Nightly Release $$'
+          prerelease: true
+          body: 'TODO: Add nightly release notes'
+          files: |
+            ./dist/M9r.app
