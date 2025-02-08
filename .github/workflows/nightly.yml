@@ -56,6 +56,19 @@ jobs:
           pushd dist
           zip -r M9r.zip M9r.app
           popd
+      # - name: Notarize
+      #   env:
+      #     TEAM_ID: ${{ secrets.TEAM_ID }}
+      #     APPLE_ID: ${{ secrets.APPLE_ID }}
+      #     NOTARY_PASSWORD: ${{ secrets.NOTARY_PASSWORD }}
+      #   run: |
+      #     xcrun notarytool submit \
+      #       --team-id "$TEAM_ID" \
+      #       --apple-id "$APPLE_ID" \
+      #       --password "$NOTARY_PASSWORD" \
+      #       --wait \
+      #       dist/M9r.zip
+      #     xcrun stapler staple dist/M9r.zip
       - name: Update Nightly Release
         uses: andelf/nightly-release@main
         env:
@@ -64,6 +77,6 @@ jobs:
           tag_name: nightly
           name: 'M9r Nightly Release $$'
           prerelease: true
-          body: 'TODO: Add nightly release notes'
+          body: 'Nightly build of main branch'
           files: |
-            ./dist/M9r.app
+            ./dist/M9r.zip
