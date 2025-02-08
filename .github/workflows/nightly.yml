@@ -1,11 +1,12 @@
-name: macOS
+name: Nightly
 
 on:
   workflow_dispatch:
 
 jobs:
-  build:
+  deploy:
     name: M9r
+    environment: CI
     runs-on: macos-15
 
     steps:
@@ -22,14 +23,14 @@ jobs:
           MAC_DEV_CER_PATH=$RUNNER_TEMP/madev.p12
           DEVELOPER_ID_CER_PATH=$RUNNER_TEMP/devid.p12
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
-          echo -n "$MAC_DEV_CER" | base64 --decode -o $MAC_DEV_CER_PATH
-          echo -n "$DEVELOPER_ID_CER" | base64 --decode -o $DEVELOPER_ID_CER_PATH
-          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
-          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-          security import $MAC_DEV_CER_PATH -P "$MAC_DEV_CER_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
-          security import $DEVELOPER_ID_CER_PATH -P "$DEVELOPER_ID_CER_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
-          security list-keychain -d user -s $KEYCHAIN_PATH
+          echo -n "$MAC_DEV_CER" | base64 --decode -o "$MAC_DEV_CER_PATH"
+          echo -n "$DEVELOPER_ID_CER" | base64 --decode -o "$DEVELOPER_ID_CER_PATH"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security import $MAC_DEV_CER_PATH -P "$MAC_DEV_CER_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
+          security import $DEVELOPER_ID_CER_PATH -P "$DEVELOPER_ID_CER_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
+          security list-keychain -d user -s "$KEYCHAIN_PATH"
       - name: Configure Export Options
         env:
           TEAM_ID: ${{ secrets.TEAM_ID }}
