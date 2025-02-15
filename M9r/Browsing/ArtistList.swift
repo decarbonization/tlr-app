@@ -34,6 +34,13 @@ struct ArtistList: View {
                 AlbumList(filter: #Predicate { [artistID = artist.id] in $0.artist?.persistentModelID == artistID })
                     .navigationTitle(artist.name)
             }
+            .onDrag {
+                let itemProvider = NSItemProvider()
+                for song in artist.sortedSongs {
+                    itemProvider.register(LibraryItem(from: song))
+                }
+                return itemProvider
+            }
             .contextMenu {
                 Button("Add to Queue") {
                     playQueue.withItems { items in
