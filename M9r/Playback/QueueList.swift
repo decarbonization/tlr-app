@@ -93,8 +93,8 @@ struct QueueList: View {
         }
         .toolbar {
             RepeatModeControl()
-            Volume()
             Spacer()
+            Volume()
             PlaybackControls()
         }
     }

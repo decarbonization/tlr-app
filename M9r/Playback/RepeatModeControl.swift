@@ -36,28 +36,30 @@ struct _RepeatModeControlContent: View {
     @Binding private var repeatMode: PlayQueue.RepeatMode
     
     var body: some View {
-        Picker(selection: $repeatMode) {
-            ForEach(PlayQueue.RepeatMode.allCases, id: \.self) { repeatMode in
-                _RepeatModeLabel(repeatMode: repeatMode)
-                    .labelStyle(.iconOnly)
+        Button {
+            let allModes = PlayQueue.RepeatMode.allCases
+            let nextIndex = allModes.index(after: allModes.firstIndex(of: repeatMode)!)
+            if nextIndex < allModes.endIndex {
+                repeatMode = allModes[nextIndex]
+            } else {
+                repeatMode = allModes[allModes.startIndex]
             }
         } label: {
-            
-        }
-    }
-}
-
-private struct _RepeatModeLabel: View {
-    let repeatMode: PlayQueue.RepeatMode
-    
-    var body: some View {
-        switch repeatMode {
-        case .none:
-            Label("Repeat None", systemImage: "arrow.turn.down.right")
-        case .all:
-            Label("Repeat All", systemImage: "repeat")
-        case .one:
-            Label("Repeat One", systemImage: "repeat.1")
+            switch repeatMode {
+            case .none:
+                Label("Repeat None", systemImage: "repeat")
+                    .labelStyle(.iconOnly)
+                    .foregroundStyle(.primary)
+                    .opacity(0.6)
+            case .all:
+                Label("Repeat None", systemImage: "repeat")
+                    .labelStyle(.iconOnly)
+                    .foregroundStyle(Color.accentColor)
+            case .one:
+                Label("Repeat None", systemImage: "repeat.1")
+                    .labelStyle(.iconOnly)
+                    .foregroundStyle(Color.accentColor)
+            }
         }
     }
 }
