@@ -58,16 +58,25 @@ private struct _NowPlayingContent: View {
                 .clipShape(RoundedRectangle(cornerRadius: 3.0))
                 VStack(alignment: .leading) {
                     Text(verbatim: playingItem?.title ?? "--")
+                        .lineLimit(2)
                         .font(.headline)
                         .foregroundStyle(.primary)
                     Text(verbatim: playingItem?.artist?.name ?? "--")
+                        .lineLimit(2)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
             }
             .padding(8)
-            Slider(value: $currentTime, in: 0 ... totalTime)
-                .padding(.all.subtracting([.top]), 8)
+            HStack {
+                Slider(value: $currentTime, in: 0 ... totalTime)
+                    .controlSize(.mini)
+                    .tint(.orange)
+                Text(Duration.seconds(currentTime), format: Duration.TimeFormatStyle(pattern: .minuteSecond))
+                    .font(.caption)
+                    .foregroundStyle(.primary)
+            }
+            .padding(.all.subtracting([.top]), 8)
         }
     }
 }
@@ -77,6 +86,6 @@ private struct _NowPlayingContent: View {
     @Previewable @State var currentTime = TimeInterval(30.0)
     
     _NowPlayingContent(playingItem: song,
-               totalTime: song.endTime - song.startTime,
-               currentTime: $currentTime)
+                       totalTime: song.endTime - song.startTime,
+                       currentTime: $currentTime)
 }

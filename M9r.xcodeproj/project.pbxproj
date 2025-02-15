@@ -449,6 +449,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 15.1;
 				MARKETING_VERSION = 0.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = io.github.decarbonization.M9r;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -479,6 +480,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 15.1;
 				MARKETING_VERSION = 0.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = io.github.decarbonization.M9r;
 				PRODUCT_NAME = "$(TARGET_NAME)";
