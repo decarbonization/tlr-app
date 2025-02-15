@@ -1,6 +1,8 @@
 name: Nightly
 
 on:
+  schedule:
+    - cron: '0 2 * * *'
   workflow_dispatch:
 
 jobs:
@@ -31,11 +33,6 @@ jobs:
           security import $MAC_DEV_CER_PATH -P "$MAC_DEV_CER_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
           security import $DEVELOPER_ID_CER_PATH -P "$DEVELOPER_ID_CER_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
           security list-keychain -d user -s "$KEYCHAIN_PATH"
-      - name: Configure Export Options
-        env:
-          TEAM_ID: ${{ secrets.TEAM_ID }}
-        run: |
-          plutil -replace "teamID" -string "$TEAM_ID" .github/workflows/NightlyExportOptions.plist
       - name: Build
         env:
           scheme: ${{ 'M9r' }}
