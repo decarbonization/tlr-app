@@ -19,13 +19,14 @@
 import SwiftUI
 
 struct QueueItem: View {
-    var relativeItemPosition: ComparisonResult?
+    var isPlaying: Bool
+    var isHistory: Bool
     var item: Song
     
     var body: some View {
         HStack {
             Group {
-                if relativeItemPosition == .orderedSame {
+                if isPlaying {
                     Label("Now Playing", systemImage: "speaker.wave.2")
                         .symbolRenderingMode(.multicolor)
                         .fontWeight(.semibold)
@@ -37,10 +38,10 @@ struct QueueItem: View {
             
             Text(verbatim: item.title ?? "")
                 .fontWeight(
-                    relativeItemPosition == .orderedSame ? .semibold : .regular
+                    isPlaying ? .semibold : .regular
                 )
                 .foregroundStyle(
-                    relativeItemPosition == .orderedAscending ? .secondary : .primary
+                    isHistory ? .secondary : .primary
                 )
         }
     }
@@ -49,13 +50,14 @@ struct QueueItem: View {
 #Preview {
     @Previewable var song: Song = LibraryPreviewSupport.song
     List {
-        QueueItem(relativeItemPosition: .orderedAscending,
+        QueueItem(isPlaying: false,
+                  isHistory: true,
                   item: song)
-        QueueItem(relativeItemPosition: .orderedSame,
+        QueueItem(isPlaying: true,
+                  isHistory: false,
                   item: song)
-        QueueItem(relativeItemPosition: .orderedDescending,
-                  item: song)
-        QueueItem(relativeItemPosition: nil,
+        QueueItem(isPlaying: false,
+                  isHistory: false,
                   item: song)
     }
     .padding()

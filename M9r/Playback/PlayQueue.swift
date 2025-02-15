@@ -128,7 +128,7 @@ import SwiftUI
     }
     
     private(set) var items: [Song]
-    private var playingIndex: Int?
+    private(set) var playingIndex: Int?
     var playingItem: Song? {
         guard let playingIndex else {
             return nil
@@ -301,9 +301,8 @@ import SwiftUI
         }
     }
     
-    func relativeItemPosition(_ item: Song) -> ComparisonResult? {
-        guard let playingIndex,
-              let itemIndex = items.firstIndex(where: { $0.id == item.id }) else {
+    func relativePosition(of itemIndex: Int) -> ComparisonResult? {
+        guard let playingIndex else {
             return nil
         }
         if itemIndex < playingIndex {

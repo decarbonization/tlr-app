@@ -29,8 +29,9 @@ struct QueueList: View {
         VStack(spacing: 0) {
             ScrollViewReader { proxy in
                 List(selection: $selectedItems) {
-                    ForEach(playQueue.items) { item in
-                        QueueItem(relativeItemPosition: playQueue.relativeItemPosition(item),
+                    ForEach(playQueue.items.indexed, id: \.element.id) { (item, index) in
+                        QueueItem(isPlaying: playQueue.playingIndex == index,
+                                  isHistory: index < playQueue.playingIndex ?? 0,
                                   item: item)
                     }
                     .onDelete { toRemove in
@@ -46,22 +47,15 @@ struct QueueList: View {
                     .onInsert(of: [.libraryItem]) { (offset: Int, providers: [NSItemProvider]) in
                         Task(priority: .userInitiated) {
                             let itemResults = await loadAll(LibraryItem.self, from: providers)
-                            var songs = [Song]()
-                            var errors = [any Error]()
-                            for itemResult in itemResults {
-                                switch itemResult {
-                                case .success(let libraryItem):
-                                    if let song = libraryItem.model(from: modelContext, as: Song.self) {
-                                        songs.append(song)
-                                    } else {
-                                        errors.append(CocoaError(.persistentStoreUnsupportedRequestType, userInfo: [
-                                            NSLocalizedDescriptionKey: "Could not load song for \(libraryItem)",
-                                        ]))
-                                    }
-                                case .failure(let error):
-                                    errors.append(error)
+                            let songResults = mapResults(itemResults) { libraryItem in
+                                guard let song = libraryItem.model(from: modelContext, as: Song.self) else {
+                                    throw CocoaError(.persistentStoreUnsupportedRequestType, userInfo: [
+                                        NSLocalizedDescriptionKey: "Could not load song for \(libraryItem)",
+                                    ])
                                 }
+                                return song
                             }
+                            let (songs, errors) = extractResults(songResults)
                             playQueue.withItems { items in
                                 items.insert(contentsOf: songs, at: offset)
                             }
