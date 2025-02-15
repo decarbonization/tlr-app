@@ -2,7 +2,7 @@
 
 Local file music player for macOS
 
-[![Build and Test](https://github.com/decarbonization/m9r/actions/workflows/macos.yml/badge.svg)](https://github.com/decarbonization/m9r/actions/workflows/macos.yml) [![Nightly](https://github.com/decarbonization/m9r/actions/workflows/nightly.yml/badge.svg)](https://github.com/decarbonization/m9r/actions/workflows/nightly.yml)
+[![Build and Test](https://github.com/decarbonization/m9r/actions/workflows/test.yml/badge.svg)](https://github.com/decarbonization/m9r/actions/workflows/test.yml) [![Nightly](https://github.com/decarbonization/m9r/actions/workflows/nightly.yml/badge.svg)](https://github.com/decarbonization/m9r/actions/workflows/nightly.yml)
 
 ## License
 
