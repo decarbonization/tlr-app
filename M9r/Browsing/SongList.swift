@@ -50,7 +50,25 @@ struct SongList: View {
     @Environment(PlayQueue.self) private var playQueue
     @Environment(\.modelContext) private var modelContext
     
-    private func deleteSelection() {
+    private func addToQueue(_ selection: Set<PersistentIdentifier>) {
+        guard !selection.isEmpty else {
+            return
+        }
+        let toAdd = selection.compactMap { modelContext.model(for: $0) as? Song }
+        playQueue.withItems { items in
+            items.append(contentsOf: toAdd)
+        }
+    }
+    
+    private func revealSelectionInFinder(_ selection: Set<PersistentIdentifier>) {
+        guard !selection.isEmpty else {
+            return
+        }
+        let toReveal = selection.compactMap { modelContext.model(for: $0) as? Song }.map{ $0.url }
+        NSWorkspace.shared.activateFileViewerSelecting(toReveal)
+    }
+    
+    private func deleteSelection(_ selection: Set<PersistentIdentifier>) {
         guard !selection.isEmpty else {
             return
         }
@@ -156,17 +174,17 @@ struct SongList: View {
                 }
             }
             .onDeleteCommand {
-                deleteSelection()
+                deleteSelection(selection)
             }
             .contextMenu(forSelectionType: PersistentIdentifier.self) { selection in
                 Button("Add to Queue") {
-                    let toAdd = songs.filter { selection.contains($0.persistentModelID) }
-                    playQueue.withItems { items in
-                        items.append(contentsOf: toAdd)
-                    }
+                    addToQueue(selection)
+                }
+                Button("Show in Finder") {
+                    revealSelectionInFinder(selection)
                 }
                 Button("Remove from Library") {
-                    deleteSelection()
+                    deleteSelection(selection)
                 }
             } primaryAction: { selection in
                 guard let songID = selection.first,

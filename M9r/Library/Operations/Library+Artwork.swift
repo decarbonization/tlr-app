@@ -22,7 +22,7 @@ import SwiftData
 
 extension Library {
     func getOrInsertArtwork(copying picture: AttachedPicture) throws -> Artwork? {
-        guard picture.type == .frontCover else {
+        guard picture.type == .other || picture.type == .frontCover else {
             // TODO: Support other kinds of artwork
             return nil
         }
