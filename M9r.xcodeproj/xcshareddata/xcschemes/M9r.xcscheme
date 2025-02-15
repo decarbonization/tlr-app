@@ -6,6 +6,42 @@
       parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES"
       buildArchitectures = "Automatic">
+      <PreActions>
+         <ExecutionAction
+            ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
+            <ActionContent
+               title = "Run Script"
+               scriptText = "cd &quot;$SRCROOT/$PRODUCT_NAME&quot;&#10;&#10;new_build_number=$(date &quot;+%Y%m%d&quot;)&#10;sed -i -e &quot;/BUILD_NUMBER =/ s/= .*/= $new_build_number/&quot; Config.xcconfig&#10;&#10;new_marketing_version=&quot;$(date &quot;+%Y.%-m.%-d&quot;) ($(git rev-parse --short HEAD))&quot;&#10;sed -i -e &quot;/MARKETING_VERSION =/ s/= .*/= $new_marketing_version/&quot; Config.xcconfig&#10;&#10;rm -f Config.xcconfig-e&#10;">
+               <EnvironmentBuildable>
+                  <BuildableReference
+                     BuildableIdentifier = "primary"
+                     BlueprintIdentifier = "463A9F142D413AFF00ABF576"
+                     BuildableName = "M9r.app"
+                     BlueprintName = "M9r"
+                     ReferencedContainer = "container:M9r.xcodeproj">
+                  </BuildableReference>
+               </EnvironmentBuildable>
+            </ActionContent>
+         </ExecutionAction>
+      </PreActions>
+      <PostActions>
+         <ExecutionAction
+            ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
+            <ActionContent
+               title = "Run Script"
+               scriptText = "cd &quot;$SRCROOT/$PRODUCT_NAME&quot;&#10;git checkout -- Config.xcconfig&#10;">
+               <EnvironmentBuildable>
+                  <BuildableReference
+                     BuildableIdentifier = "primary"
+                     BlueprintIdentifier = "463A9F142D413AFF00ABF576"
+                     BuildableName = "M9r.app"
+                     BlueprintName = "M9r"
+                     ReferencedContainer = "container:M9r.xcodeproj">
+                  </BuildableReference>
+               </EnvironmentBuildable>
+            </ActionContent>
+         </ExecutionAction>
+      </PostActions>
       <BuildActionEntries>
          <BuildActionEntry
             buildForTesting = "YES"

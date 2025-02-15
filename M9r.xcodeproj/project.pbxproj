@@ -33,12 +33,14 @@
 		463A9F302D413AFF00ABF576 /* M9rUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = M9rUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		463A9F532D413B1C00ABF576 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		463A9F542D413B1C00ABF576 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		46E40AEB2D60F363003DD059 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
 		467A01382D4C12520067EB43 /* Exceptions for "M9r" folder in "M9r" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Config.xcconfig,
 				Info.plist,
 			);
 			target = 463A9F142D413AFF00ABF576 /* M9r */;
@@ -429,6 +431,7 @@
 		};
 		463A9F3B2D413AFF00ABF576 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 46E40AEB2D60F363003DD059 /* Config.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -436,7 +439,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = "$(BUILD_NUMBER)";
 				DEVELOPMENT_ASSET_PATHS = "\"M9r/Preview Content\"";
 				DEVELOPMENT_TEAM = 5S5M6S4H56;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -451,7 +454,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.1;
-				MARKETING_VERSION = 0.0.0;
+				MARKETING_VERSION = "$(MARKETING_VERSION)";
 				PRODUCT_BUNDLE_IDENTIFIER = io.github.decarbonization.M9r;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -461,6 +464,7 @@
 		};
 		463A9F3C2D413AFF00ABF576 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 46E40AEB2D60F363003DD059 /* Config.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -468,7 +472,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = "$(BUILD_NUMBER)";
 				DEVELOPMENT_ASSET_PATHS = "\"M9r/Preview Content\"";
 				DEVELOPMENT_TEAM = 5S5M6S4H56;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -483,7 +487,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.1;
-				MARKETING_VERSION = 0.0.0;
+				MARKETING_VERSION = "$(MARKETING_VERSION)";
 				PRODUCT_BUNDLE_IDENTIFIER = io.github.decarbonization.M9r;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
