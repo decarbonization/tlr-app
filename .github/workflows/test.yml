@@ -9,6 +9,7 @@ on:
 jobs:
   build:
     name: M9r
+    environment: CI
     runs-on: macos-15
 
     steps:
