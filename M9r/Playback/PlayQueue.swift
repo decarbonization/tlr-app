@@ -162,6 +162,23 @@ import SwiftUI
         }
     }
     
+    var volume: Float {
+        get {
+            access(keyPath: \.volume)
+            return audioPlayer.volume
+        }
+        set {
+            withMutation(keyPath: \.volume) {
+                do {
+                    try audioPlayer.setVolume(newValue)
+                } catch {
+                    Self.log.warning("Could not update volume, reason: \(error)")
+                    TaskErrors.all.present(error)
+                }
+            }
+        }
+    }
+    
     private func play(itemAt index: Int) throws {
         let item = items[index]
         let itemURL = try item.currentURL()
