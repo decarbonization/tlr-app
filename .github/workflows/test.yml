@@ -14,6 +14,25 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Prepare Certificates
+        env:
+          MAC_DEV_CER: ${{ secrets.MAC_DEV_CER }}
+          DEVELOPER_ID_CER: ${{ secrets.DEVELOPER_ID_CER }}
+          MAC_DEV_CER_PASSWORD: ${{ secrets.MAC_DEV_CER_PASSWORD }}
+          DEVELOPER_ID_CER_PASSWORD: ${{ secrets.DEVELOPER_ID_CER_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          MAC_DEV_CER_PATH=$RUNNER_TEMP/madev.p12
+          DEVELOPER_ID_CER_PATH=$RUNNER_TEMP/devid.p12
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+          echo -n "$MAC_DEV_CER" | base64 --decode -o "$MAC_DEV_CER_PATH"
+          echo -n "$DEVELOPER_ID_CER" | base64 --decode -o "$DEVELOPER_ID_CER_PATH"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security import $MAC_DEV_CER_PATH -P "$MAC_DEV_CER_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
+          security import $DEVELOPER_ID_CER_PATH -P "$DEVELOPER_ID_CER_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
+          security list-keychain -d user -s "$KEYCHAIN_PATH"
       - name: Set Default Scheme
         run: |
           scheme_list=$(xcodebuild -list -json | tr -d "\n")
