@@ -28,6 +28,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		463377EB2D62AF1400859BC3 /* MAINTAINERS */ = {isa = PBXFileReference; lastKnownFileType = text; path = MAINTAINERS; sourceTree = "<group>"; };
 		463A9F152D413AFF00ABF576 /* M9r.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = M9r.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		463A9F262D413AFF00ABF576 /* M9rTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = M9rTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		463A9F302D413AFF00ABF576 /* M9rUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = M9rUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -98,6 +99,7 @@
 			children = (
 				463A9F542D413B1C00ABF576 /* README.md */,
 				463A9F532D413B1C00ABF576 /* LICENSE */,
+				463377EB2D62AF1400859BC3 /* MAINTAINERS */,
 				463A9F172D413AFF00ABF576 /* M9r */,
 				463A9F292D413AFF00ABF576 /* M9rTests */,
 				463A9F332D413AFF00ABF576 /* M9rUITests */,
@@ -369,6 +371,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -425,6 +428,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 			};
 			name = Release;
 		};
