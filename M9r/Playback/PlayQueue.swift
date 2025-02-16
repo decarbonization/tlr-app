@@ -333,16 +333,18 @@ import SwiftUI
     
     @discardableResult func withItems<R>(perform actions: (inout [Song]) throws -> R) rethrows -> R {
         let playingItem = playingItem
+        var newItems = items // [#35] Must copy for stop to work.
         defer {
             if let playingItem {
-                if let newPlayingIndex = items.firstIndex(where: { $0.id == playingItem.id }) {
+                if let newPlayingIndex = newItems.firstIndex(where: { $0.id == playingItem.id }) {
                     playingIndex = newPlayingIndex
                 } else {
                     stop()
                 }
             }
+            items = newItems
         }
-        return try actions(&items)
+        return try actions(&newItems)
     }
     
     private func consumeDelegateEvent(_ event: DelegateEvent) {
