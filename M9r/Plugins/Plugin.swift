@@ -18,7 +18,7 @@
 
 import Foundation
 
-final class Plugin: Sendable {
+final class Plugin: Identifiable, Sendable {
     init(from bundleURL: URL) throws {
         guard bundleURL.isFileURL else {
             throw URLError(.badURL, userInfo: [

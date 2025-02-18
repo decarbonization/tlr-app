@@ -16,22 +16,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import SwiftData
 import SwiftUI
 
-@main
-struct M9rApp: App {
-    @State private var modelContainer = makeAppModelConatiner()
-    @State private var playQueue = PlayQueue()
-    
-    var body: some Scene {
-        Window("Library", id: "library") {
-            ContentView()
-        }
-        .environment(playQueue)
-        .modelContainer(modelContainer)
-        Settings {
-            SettingsView()
+struct GeneralSettingsView: View {
+    var body: some View {
+        Form {
+            
         }
     }
 }
