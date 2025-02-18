@@ -46,6 +46,8 @@ extension Plugin {
         }
         
         var rawValue: String
+        
+        static let networking = Self(rawValue: "networking")
     }
     
     struct Manifest: Codable {

@@ -17,16 +17,38 @@
  */
 
 import Foundation
+import os
 
 @Observable final class PluginManager: Sendable {
-    static let shared = PluginManager()
-    
-    private init() {
+    static var defaultSearchURLs: [URL] {
+        var searchURLs = [URL]()
+        if let builtInPlugInsURL = Bundle.main.builtInPlugInsURL {
+            searchURLs.append(builtInPlugInsURL)
+        }
+        if let bundleID = Bundle.main.bundleIdentifier {
+            let applicationSupportURL = URL.applicationSupportDirectory
+                .appending(component: bundleID, directoryHint: .isDirectory)
+            let libraryPluginsURL = applicationSupportURL.appending(component: "Plugins",
+                                                                    directoryHint: .isDirectory)
+            searchURLs.append(libraryPluginsURL)
+        }
+        return searchURLs
     }
+    
+    static let shared = PluginManager(searchURLs: PluginManager.defaultSearchURLs)
+    
+    private init(searchURLs: [URL]) {
+        self.searchURLs = searchURLs
+        self._allPlugins = .init(initialState: [])
+        refresh()
+    }
+    
+    private let searchURLs: [URL]
+    private let _allPlugins: OSAllocatedUnfairLock<[Plugin]>
     
     var allPlugins: [Plugin] {
         access(keyPath: \.allPlugins)
-        return []
+        return _allPlugins.withLock { $0 }
     }
     
     var enabledPlugins: [Plugin] {
@@ -37,6 +59,9 @@ import Foundation
     var disabledPlugins: [Plugin] {
         access(keyPath: \.disabledPlugins)
         return []
+    }
+    
+    private func refresh() {
     }
     
     func installPlugin(at bundleURL: URL) async throws {
@@ -53,5 +78,11 @@ import Foundation
     
     func disablePlugin(_ plugin: Plugin) throws {
         throw CocoaError(.featureUnsupported)
+    }
+}
+
+extension PluginManager {
+    convenience init(_forTesting_searchURLs searchURLs: [URL]) {
+        self.init(searchURLs: searchURLs)
     }
 }
