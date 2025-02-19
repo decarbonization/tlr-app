@@ -22,7 +22,7 @@ import SwiftData
 typealias Artist = LatestAppSchema.Artist
 
 extension AppSchemaV0 {
-    @Model final class Artist {
+    @Model final class Artist: SongCollection {
         #Index([\Artist.name])
         #Unique([\Artist.name])
         

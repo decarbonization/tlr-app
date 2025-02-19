@@ -22,7 +22,7 @@ import SwiftData
 typealias Song = LatestAppSchema.Song
 
 extension AppSchemaV0 {
-    @Model final class Song {
+    @Model final class Song: SongCollection {
         struct Flags: OptionSet, Codable, CustomDebugStringConvertible {
             var rawValue: UInt
             
@@ -86,6 +86,7 @@ extension AppSchemaV0 {
         var discNumber: UInt64?
         var discTotal: UInt64?
         var lyrics: String?
+        var rating: Float?
         var bpm: UInt64?
         var comment: String?
         var grouping: String?
@@ -93,6 +94,10 @@ extension AppSchemaV0 {
         var isrc: String?
         var musicBrainzReleaseID: String?
         var musicBrainzRecordingID: String?
+        
+        var sortedSongs: [Song] {
+            [self]
+        }
         
         func currentURL(relativeTo libraryURL: URL? = nil) throws -> URL {
             // TODO: Try to repair stale/broken bookmarks

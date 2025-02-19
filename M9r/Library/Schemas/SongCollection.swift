@@ -16,19 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import SwiftUI
+import Foundation
 
-struct GeneralSettingsView: View {
-    @AppStorage("RatingStyle") private var ratingStyle = RatingStyle.default
-    
-    var body: some View {
-        Form {
-            Picker("Rating Style", selection: $ratingStyle) {
-                Label("Like / Dislike", systemImage: "hand.thumbsup")
-                    .tag(RatingStyle.binary)
-                Label("Stars", systemImage: "star")
-                    .tag(RatingStyle.stars)
-            }
-        }
-    }
+protocol SongCollection {
+    var sortedSongs: [Song] { get }
 }

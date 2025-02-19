@@ -16,19 +16,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import SwiftUI
 
-struct GeneralSettingsView: View {
-    @AppStorage("RatingStyle") private var ratingStyle = RatingStyle.default
+import Foundation
+
+enum RatingStyle: Int, CaseIterable {
+    case binary
+    case stars
     
-    var body: some View {
-        Form {
-            Picker("Rating Style", selection: $ratingStyle) {
-                Label("Like / Dislike", systemImage: "hand.thumbsup")
-                    .tag(RatingStyle.binary)
-                Label("Stars", systemImage: "star")
-                    .tag(RatingStyle.stars)
-            }
-        }
+    static var `default`: Self {
+        .binary
     }
 }

@@ -33,6 +33,7 @@ struct SongList: View {
         customizations[visibility: "creationDate"] = .hidden
         customizations[visibility: "lastModified"] = .hidden
         customizations[visibility: "lastPlayed"] = .hidden
+        customizations[visibility: "rating"] = .hidden
         return customizations
     }
     
@@ -47,6 +48,7 @@ struct SongList: View {
     @State private var selection: Set<PersistentIdentifier>
     @SceneStorage("SongTableConfig") private var columnCustomization: TableColumnCustomization<Song> = Self.defaultColumnCustomizations
     @SceneStorage("SongShuffleEnabled") private var isShuffleEnabled: Bool = false
+    @AppStorage("RatingStyle") private var ratingStyle = RatingStyle.default
     @Environment(PlayQueue.self) private var playQueue
     @Environment(\.modelContext) private var modelContext
     
@@ -165,7 +167,27 @@ struct SongList: View {
                         }
                     }
                     .customizationID("lastPlayed")
-                    
+                }
+                
+                Group {
+                    TableColumn("Rating", sortUsing: SortDescriptor(\Song.lastPlayed)) { song in
+                        switch ratingStyle {
+                        case .binary:
+                            if song.rating != nil && song.rating != 1 {
+                                Label("Like", systemImage: "hand.thumbsup")
+                                    .labelStyle(.iconOnly)
+                            } else if song.rating == 1 {
+                                Label("Dislike", systemImage: "hand.thumbsdown")
+                                    .labelStyle(.iconOnly)
+                            }
+                        case .stars:
+                            if let rating = song.rating {
+                                Text(String(repeating: "􀋃", count: Int(rating)) + String(repeating: "􀋂", count: 5 - Int(rating)))
+                                    .accessibilityLabel("\(rating) Stars")
+                            }
+                        }
+                    }
+                    .customizationID("rating")
                 }
             } rows: {
                 ForEach(songs) { song in
@@ -180,6 +202,7 @@ struct SongList: View {
                 Button("Add to Queue") {
                     addToQueue(selection)
                 }
+                RatingButton(itemIDs: selection)
                 Button("Show in Finder") {
                     revealSelectionInFinder(selection)
                 }

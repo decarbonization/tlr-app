@@ -64,6 +64,7 @@ struct AlbumList: View {
                                 items.append(contentsOf: album.sortedSongs)
                             }
                         }
+                        RatingButton(itemIDs: [album.persistentModelID])
                         Button("Remove from Library") {
                             Library.performChanges(inContainerOf: modelContext) { library in
                                 try await library.deleteAlbums(withIDs: [album.persistentModelID])
