@@ -58,6 +58,11 @@ struct AlbumList: View {
                         }
                     }
                     .buttonStyle(.borderless)
+                    .onDrag {
+                        let itemProvider = NSItemProvider()
+                        itemProvider.register(LibraryItem(from: album))
+                        return itemProvider
+                    }
                     .contextMenu {
                         Button("Add to Queue") {
                             playQueue.withItems { items in

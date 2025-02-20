@@ -50,8 +50,8 @@ struct LibraryItem: Identifiable, Equatable, Transferable {
     
     let id: PersistentIdentifier
     
-    func model<Model: PersistentModel>(from modelContext: ModelContext,
-                                       as modelType: Model.Type = Model.self) -> Model? {
+    func model<Model>(from modelContext: ModelContext,
+                      as modelType: Model.Type = Model.self) -> Model? {
         modelContext.model(for: id) as? Model
     }
 }

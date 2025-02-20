@@ -47,17 +47,18 @@ struct QueueList: View {
                     .onInsert(of: [.libraryItem]) { (offset: Int, providers: [NSItemProvider]) in
                         Task(priority: .userInitiated) {
                             let itemResults = await loadAll(LibraryItem.self, from: providers)
-                            let songResults = mapResults(itemResults) { libraryItem in
-                                guard let song = libraryItem.model(from: modelContext, as: Song.self) else {
+                            let collectionsResults = mapResults(itemResults) { libraryItem in
+                                guard let song = libraryItem.model(from: modelContext, as: SongCollection.self) else {
                                     throw CocoaError(.persistentStoreUnsupportedRequestType, userInfo: [
-                                        NSLocalizedDescriptionKey: "Could not load song for \(libraryItem)",
+                                        NSLocalizedDescriptionKey: "Could not load songs from \(libraryItem)",
                                     ])
                                 }
                                 return song
                             }
-                            let (songs, errors) = extractResults(songResults)
+                            let (collections, errors) = extractResults(collectionsResults)
+                            let allSongs = collections.flatMap { $0.sortedSongs }
                             playQueue.withItems { items in
-                                items.insert(contentsOf: songs, at: offset)
+                                items.insert(contentsOf: allSongs, at: offset)
                             }
                             TaskErrors.all.present(errors)
                         }

@@ -36,9 +36,7 @@ struct ArtistList: View {
             }
             .onDrag {
                 let itemProvider = NSItemProvider()
-                for song in artist.sortedSongs {
-                    itemProvider.register(LibraryItem(from: song))
-                }
+                itemProvider.register(LibraryItem(from: artist))
                 return itemProvider
             }
             .contextMenu {
