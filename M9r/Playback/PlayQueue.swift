@@ -31,6 +31,7 @@ import SwiftUI
     private enum DelegateEvent: @unchecked Sendable {
         case playbackStateChanged(AudioPlayer.PlaybackState)
         case nowPlayingChanged((any PCMDecoding)?)
+        case encounteredError(any Error)
         case endOfAudio
     }
     
@@ -54,6 +55,13 @@ import SwiftUI
                          nowPlayingChanged nowPlaying: (any PCMDecoding)?) {
             Task { @MainActor in
                 observer(.nowPlayingChanged(nowPlaying))
+            }
+        }
+        
+        func audioPlayer(_ audioPlayer: AudioPlayer,
+                         encounteredError error: any Error) {
+            Task { @MainActor in
+                observer(.encounteredError(error))
             }
         }
         
@@ -180,31 +188,46 @@ import SwiftUI
     }
     
     private func play(itemAt index: Int) throws {
-        let item = items[index]
-        let itemURL = try item.currentURL()
-        guard itemURL.startAccessingSecurityScopedResource() else {
-            throw CocoaError(.fileReadNoPermission, userInfo: [
-                NSLocalizedDescriptionKey: "Could not extend sandbox for file <\(itemURL)>",
-                NSURLErrorKey: itemURL
-            ])
-        }
-        try audioPlayer.enqueue(itemURL, immediate: true)
-        if !audioPlayer.seek(time: item.startTime) {
-            Self.log.warning("Could not seek to startTime <\(item.startTime)>")
-        }
-        try audioPlayer.play()
-        playingIndex = index
-        heartBeat = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            self?.withMutation(keyPath: \.currentTime) {
-                MPNowPlayingInfoCenter.default().nowPlayingInfo = [
-                    MPMediaItemPropertyMediaType: MPMediaType.music.rawValue,
-                    MPMediaItemPropertyPlaybackDuration: item.endTime,
-                    MPMediaItemPropertyTitle: item.title ?? "--",
-                    MPMediaItemPropertyArtist: item.artist?.name ?? "--",
-                    MPMediaItemPropertyAlbumTitle: item.album?.title ?? "--",
-                ]
+        var newPlayingIndex = index
+        repeat {
+            let item = items[newPlayingIndex]
+            do {
+                let itemURL = try item.currentURL()
+                guard itemURL.startAccessingSecurityScopedResource() else {
+                    throw CocoaError(.fileReadNoPermission, userInfo: [
+                        NSLocalizedDescriptionKey: "Could not extend sandbox for file <\(itemURL)>",
+                        NSURLErrorKey: itemURL
+                    ])
+                }
+                try audioPlayer.enqueue(itemURL, immediate: true)
+                if !audioPlayer.seek(time: item.startTime) {
+                    Self.log.warning("Could not seek to startTime <\(item.startTime)>")
+                }
+                try audioPlayer.play()
+                playingIndex = newPlayingIndex
+                heartBeat = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+                    self?.withMutation(keyPath: \.currentTime) {
+                        MPNowPlayingInfoCenter.default().nowPlayingInfo = [
+                            MPMediaItemPropertyMediaType: MPMediaType.music.rawValue,
+                            MPMediaItemPropertyPlaybackDuration: item.endTime,
+                            MPMediaItemPropertyTitle: item.title ?? "--",
+                            MPMediaItemPropertyArtist: item.artist?.name ?? "--",
+                            MPMediaItemPropertyAlbumTitle: item.album?.title ?? "--",
+                        ]
+                    }
+                }
+                break
+            } catch {
+                let nextNewNowPlayingIndex = newPlayingIndex + 1
+                if nextNewNowPlayingIndex < items.count {
+                    newPlayingIndex = nextNewNowPlayingIndex
+                    Self.log.error("Could not play song <\(String(describing: item))>, reason: \(error)")
+                    TaskErrors.all.present(error)
+                } else {
+                    throw error
+                }
             }
-        }
+        } while newPlayingIndex < items.count
     }
     
     func play(_ newItems: [Song],
@@ -367,6 +390,10 @@ import SwiftUI
             withMutation(keyPath: \.totalTime) {
                 // Do nothing
             }
+        case .encounteredError(let error):
+            Self.log.error("Encountered error during playback: \(error)")
+            TaskErrors.all.present(error)
+            fallthrough
         case .endOfAudio:
             do {
                 try nextTrack()
