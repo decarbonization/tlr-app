@@ -25,26 +25,30 @@ enum PlayerPlaybackState: Int, Codable {
 }
 
 enum PlayerEvent {
-    case playbackStateChanged(PlayerPlaybackState)
-    case nowPlayingChanged
+    case playbackStateDidChange
+    case playingItemDidChange
     case encounteredError(any Error)
     case endOfAudio
 }
 
-protocol Player: Observable, Sendable {
+enum PlayerError: Error {
+    case couldNotSeek(to: TimeInterval)
+}
+
+protocol Player: Sendable {
     associatedtype Events: AsyncSequence<PlayerEvent, Never>
     
     var events: Events { get }
     
-    @ObservationTracked var playbackState: PlayerPlaybackState { get }
-    @ObservationTracked var totalTime: TimeInterval { get }
-    @ObservationTracked var currentTime: TimeInterval { get set }
-    @ObservationTracked var volume: Float { get }
+    var playbackState: PlayerPlaybackState { get }
+    var totalTime: TimeInterval? { get }
+    var currentTime: TimeInterval? { get }
+    var volume: Float { get }
     
-    func enqueue(_ url: URL) async throws -> Void
-    func play() async throws -> Void
+    func setVolume(_ newVolume: Float) async throws -> Void
+    func play(_ itemURL: URL, startingAt startTime: TimeInterval) async throws -> Void
+    func seek(toTime newTime: TimeInterval) async throws -> Void
     func pause() async throws -> Void
     func resume() async throws -> Void
     func stop() async throws -> Void
-    func clearQueue() async throws -> Void
 }

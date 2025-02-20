@@ -19,7 +19,7 @@
 import Foundation
 @preconcurrency import SFBAudioEngine
 
-final class SFBAudioEnginePlayer: NSObject, AudioPlayer.Delegate, Player {
+final class SFBAudioEnginePlayer: NSObject, Player, AudioPlayer.Delegate {
     override init() {
         let (stream, continuation) = AsyncStream.makeStream(of: PlayerEvent.self)
         audioPlayer = AudioPlayer()
@@ -34,55 +34,79 @@ final class SFBAudioEnginePlayer: NSObject, AudioPlayer.Delegate, Player {
     private let audioPlayer: AudioPlayer
     private let eventSink: AsyncStream<PlayerEvent>.Continuation
     
+    // MARK: - Player
+    
     let events: AsyncStream<PlayerEvent>
     
     var playbackState: PlayerPlaybackState {
-        fatalError()
+        switch audioPlayer.playbackState {
+        case .paused:
+            return .paused
+        case .playing:
+            return .playing
+        case .stopped:
+            return .stopped
+        @unknown default:
+            fatalError("Unknown playback state \(audioPlayer.playbackState.rawValue)")
+        }
     }
     
-    var totalTime: TimeInterval {
-        fatalError()
+    var totalTime: TimeInterval? {
+        audioPlayer.totalTime
     }
     
-    var currentTime: TimeInterval {
-        get {
-            fatalError()
-        }
-        set {
-            fatalError()
-        }
+    var currentTime: TimeInterval? {
+        audioPlayer.currentTime
     }
     
     var volume: Float {
-        get {
-            fatalError()
-        }
-        set {
-            fatalError()
-        }
+        audioPlayer.volume
     }
     
-    func enqueue(_ url: URL) async throws {
-        fatalError()
+    func setVolume(_ newVolume: Float) async throws {
+        try audioPlayer.setVolume(newVolume)
     }
     
-    func play() async throws {
-        fatalError()
+    func play(_ itemURL: URL, startingAt startTime: TimeInterval) async throws {
+        try audioPlayer.enqueue(itemURL, immediate: true)
+        try await seek(toTime: startTime)
+        try audioPlayer.play()
+    }
+    
+    func seek(toTime newTime: TimeInterval) async throws {
+        if !audioPlayer.seek(time: newTime) {
+            throw PlayerError.couldNotSeek(to: newTime)
+        }
     }
     
     func pause() async throws {
-        fatalError()
+        audioPlayer.pause()
     }
     
     func resume() async throws {
-        fatalError()
+        audioPlayer.resume()
     }
     
     func stop() async throws {
-        fatalError()
+        audioPlayer.stop()
+        audioPlayer.clearQueue()
     }
     
-    func clearQueue() async throws {
-        fatalError()
+    // MARK: - AudioPlayer.Delegate
+    
+    func audioPlayer(_ audioPlayer: AudioPlayer, playbackStateChanged playbackState: AudioPlayer.PlaybackState) {
+        eventSink.yield(.playbackStateDidChange)
+    }
+    
+    func audioPlayer(_ audioPlayer: AudioPlayer, nowPlayingChanged nowPlaying: (any PCMDecoding)?) {
+        eventSink.yield(.playingItemDidChange)
+    }
+    
+    func audioPlayer(_ audioPlayer: AudioPlayer, encounteredError error: any Error) {
+        eventSink.yield(.encounteredError(error))
+    }
+    
+    func audioPlayerEndOfAudio(_ audioPlayer: AudioPlayer) {
+        eventSink.yield(.endOfAudio)
     }
 }
