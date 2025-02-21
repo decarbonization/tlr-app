@@ -452,12 +452,10 @@
 				INFOPLIST_FILE = M9r/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = M9r;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 15.1;
 				MARKETING_VERSION = "$(MARKETING_VERSION)";
 				PRODUCT_BUNDLE_IDENTIFIER = io.github.decarbonization.M9r;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -486,12 +484,10 @@
 				INFOPLIST_FILE = M9r/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = M9r;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 15.1;
 				MARKETING_VERSION = "$(MARKETING_VERSION)";
 				PRODUCT_BUNDLE_IDENTIFIER = io.github.decarbonization.M9r;
 				PRODUCT_NAME = "$(TARGET_NAME)";
