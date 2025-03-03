@@ -21,8 +21,16 @@ import os
 import WebKit
 
 extension Plugin {
+    @Setting("PluginPersistentIDs") private static var persistentIDs = [String: UUID]()
+    
     var persistentID: UUID {
-        fatalError()
+        if let existingPersistentID = Self.persistentIDs[id] {
+            return existingPersistentID
+        } else {
+            let newPersistentID = UUID()
+            Self.persistentIDs[id] = newPersistentID
+            return newPersistentID
+        }
     }
     
     @MainActor func webViewConfiguration() -> WKWebViewConfiguration {
