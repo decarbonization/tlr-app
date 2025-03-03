@@ -1,5 +1,5 @@
 {
-  "originHash" : "aaf1591a739186db110215851ff16f2eb34a68e39d28a39a785560537a39d049",
+  "originHash" : "039cd1c17973459337a39713d6d991360690cc44eb02e4a225c0cc2dd278b9f1",
   "pins" : [
     {
       "identity" : "avfaudioextensions",
@@ -125,6 +125,15 @@
       "state" : {
         "revision" : "52f73460dc04ba789ad3007ad004faa328b732dd",
         "version" : "0.1.2"
+      }
+    },
+    {
+      "identity" : "swift-collections",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-collections.git",
+      "state" : {
+        "revision" : "671108c96644956dddcd89dd59c203dcdb36cec7",
+        "version" : "1.1.4"
       }
     },
     {

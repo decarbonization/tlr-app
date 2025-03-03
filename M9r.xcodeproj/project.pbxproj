@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		463A9F582D413F2E00ABF576 /* SFBAudioEngine in Frameworks */ = {isa = PBXBuildFile; productRef = 463A9F572D413F2E00ABF576 /* SFBAudioEngine */; };
+		464DC2EF2D75F8A80000D944 /* OrderedCollections in Frameworks */ = {isa = PBXBuildFile; productRef = 464DC2EE2D75F8A80000D944 /* OrderedCollections */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -73,6 +74,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				464DC2EF2D75F8A80000D944 /* OrderedCollections in Frameworks */,
 				463A9F582D413F2E00ABF576 /* SFBAudioEngine in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -147,6 +149,7 @@
 			name = M9r;
 			packageProductDependencies = (
 				463A9F572D413F2E00ABF576 /* SFBAudioEngine */,
+				464DC2EE2D75F8A80000D944 /* OrderedCollections */,
 			);
 			productName = M9r;
 			productReference = 463A9F152D413AFF00ABF576 /* M9r.app */;
@@ -233,6 +236,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				463A9F552D413F2000ABF576 /* XCRemoteSwiftPackageReference "SFBAudioEngine" */,
+				464DC2ED2D75F8930000D944 /* XCRemoteSwiftPackageReference "swift-collections" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 463A9F162D413AFF00ABF576 /* Products */;
@@ -612,6 +616,14 @@
 				minimumVersion = 0.6.0;
 			};
 		};
+		464DC2ED2D75F8930000D944 /* XCRemoteSwiftPackageReference "swift-collections" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-collections.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.1.4;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -624,6 +636,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 463A9F552D413F2000ABF576 /* XCRemoteSwiftPackageReference "SFBAudioEngine" */;
 			productName = SFBAudioEngine;
+		};
+		464DC2EE2D75F8A80000D944 /* OrderedCollections */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 464DC2ED2D75F8930000D944 /* XCRemoteSwiftPackageReference "swift-collections" */;
+			productName = OrderedCollections;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
