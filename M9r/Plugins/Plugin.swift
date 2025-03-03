@@ -17,25 +17,64 @@
  */
 
 import Foundation
+import os
 
 final class Plugin: Identifiable, Sendable {
-    init(from bundleURL: URL) throws {
-        guard bundleURL.isFileURL else {
-            throw URLError(.badURL, userInfo: [
-                NSLocalizedDescriptionKey: "Plugins can only be loaded from a local file",
-                NSURLErrorKey: bundleURL,
-            ])
+    static let didReloadNotification = Notification.Name("M9r.Plugin.didReloadNotification")
+    
+    private struct LoadedState {
+        init(from bundleURL: URL) throws {
+            guard bundleURL.isFileURL else {
+                throw URLError(.badURL, userInfo: [
+                    NSLocalizedDescriptionKey: "Plugins can only be loaded from a local file",
+                    NSURLErrorKey: bundleURL,
+                ])
+            }
+            let manifestURL = bundleURL.appending(component: "manifest.json",
+                                                  directoryHint: .notDirectory)
+            let manifestData = try Data(contentsOf: manifestURL,
+                                        options: [.mappedIfSafe])
+            self.bundleURL = bundleURL.absoluteURL
+            self.manifest = try Manifest.jsonDecoder.decode(Manifest.self, from: manifestData)
         }
-        let manifestURL = bundleURL.appending(component: "manifest.json",
-                                              directoryHint: .notDirectory)
-        let manifestData = try Data(contentsOf: manifestURL,
-                                    options: [.mappedIfSafe])
-        self.bundleURL = bundleURL.absoluteURL
-        self.manifest = try Manifest.jsonDecoder.decode(Manifest.self, from: manifestData)
+        
+        let bundleURL: URL
+        let manifest: Manifest
     }
     
-    private let bundleURL: URL
-    let manifest: Manifest
+    init(from bundleURL: URL) throws {
+        _loadedState = .init(initialState: try LoadedState(from: bundleURL))
+    }
+    
+    private let _loadedState: OSAllocatedUnfairLock<LoadedState>
+    
+    var bundleURL: URL {
+        _loadedState.withLock { loadedState in
+            loadedState.bundleURL
+        }
+    }
+    
+    var manifest: Manifest {
+        _loadedState.withLock { loadedState in
+            loadedState.manifest
+        }
+    }
+    
+    var id: String {
+        manifest.name
+    }
+    
+    func reload(from newBundleURL: URL? = nil) throws {
+        let newLoadedState = try LoadedState(from: newBundleURL ?? bundleURL)
+        try _loadedState.withLock { loadedState in
+            if newLoadedState.manifest.name != loadedState.manifest.name {
+                throw PluginError.nameMismatch(oldName: loadedState.manifest.name,
+                                               newName: newLoadedState.manifest.name)
+            }
+            loadedState = newLoadedState
+        }
+        NotificationCenter.default.post(name: Self.didReloadNotification, object: self)
+    }
     
     /// Returns the local file URL to load a resource with a given relative path.
     ///
@@ -45,19 +84,19 @@ final class Plugin: Identifiable, Sendable {
     /// - throws: A `URLError` if the relative path resolves to a location outside
     /// of the plugin bundle.
     func resourceURL(_ resource: String) throws -> URL {
-        guard var absoluteURL = URL(string: resource, relativeTo: bundleURL) else {
+        guard var resourceURL = URL(string: resource, relativeTo: bundleURL) else {
             throw URLError(.badURL, userInfo: [
                 NSLocalizedDescriptionKey: "Resource <\(resource)> is invalid",
             ])
         }
-        absoluteURL.resolveSymlinksInPath() // Block symlink escapes
-        absoluteURL.standardize() // Block relative path escapes
-        guard absoluteURL.path(percentEncoded: false).hasPrefix(bundleURL.path(percentEncoded: false)) else {
+        resourceURL.resolveSymlinksInPath() // Block symlink escapes
+        resourceURL.standardize() // Block relative path escapes
+        guard resourceURL.path(percentEncoded: false).hasPrefix(bundleURL.path(percentEncoded: false)) else {
             throw URLError(.noPermissionsToReadFile, userInfo: [
                 NSLocalizedDescriptionKey: "Resource <\(resource)> is outside of plugin bundle",
-                NSURLErrorKey: absoluteURL,
+                NSURLErrorKey: resourceURL,
             ])
         }
-        return absoluteURL
+        return resourceURL
     }
 }

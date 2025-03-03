@@ -21,17 +21,17 @@ import Testing
 @testable import M9r
 
 @Suite struct PluginTests {
-    private func stubPlugin(creatingManifest createManifest: Bool = true) throws -> URL {
+    private func stubPlugin(creatingManifest createManifest: Bool = true,
+                            manifest: @autoclosure () -> Plugin.Manifest = Plugin.Manifest(manifestVersion: .v0,
+                                                                                           name: "Stub",
+                                                                                           version: "0.0.0")) throws -> URL {
         let bundleURL = URL.temporaryDirectory
             .appending(component: "\(UUID().uuidString).p4n", directoryHint: .isDirectory)
         try FileManager.default.createDirectory(at: bundleURL,
                                                 withIntermediateDirectories: true)
         
         if createManifest {
-            let manifest = Plugin.Manifest(manifestVersion: .v0,
-                                           name: "Stub",
-                                           version: "0.0.0")
-            let manifestData = try Plugin.Manifest.jsonEncoder.encode(manifest)
+            let manifestData = try Plugin.Manifest.jsonEncoder.encode(manifest())
             let manifestURL = bundleURL.appending(component: "manifest.json", directoryHint: .notDirectory)
             try manifestData.write(to: manifestURL, options: .atomic)
         }
@@ -74,5 +74,46 @@ import Testing
         #expect(throws: URLError.self, performing: {
             try plugin.resourceURL("tmp/secrets.txt")
         })
+    }
+    
+    @Test func reloadReplacesState() async throws {
+        let bundleURL = try stubPlugin()
+        let plugin = try Plugin(from: bundleURL)
+        #expect(plugin.bundleURL == bundleURL)
+        #expect(plugin.manifest.version == "0.0.0")
+        
+        let newBundleURL = try stubPlugin(manifest: Plugin.Manifest(manifestVersion: .v0,
+                                                                    name: "Stub",
+                                                                    version: "0.1.0"))
+        try plugin.reload(from: newBundleURL)
+        #expect(plugin.bundleURL == newBundleURL)
+        #expect(plugin.manifest.version == "0.1.0")
+    }
+    
+    @Test func reloadRequiresNameToNotChange() async throws {
+        let bundleURL = try stubPlugin()
+        let plugin = try Plugin(from: bundleURL)
+        #expect(plugin.bundleURL == bundleURL)
+        #expect(plugin.manifest.version == "0.0.0")
+        
+        let newBundleURL = try stubPlugin(manifest: Plugin.Manifest(manifestVersion: .v0,
+                                                                    name: "Thump",
+                                                                    version: "0.0.0"))
+        #expect(throws: PluginError.self, performing: {
+            try plugin.reload(from: newBundleURL)
+        })
+    }
+    
+    @Test func reloadPostsNotification() async throws {
+        let bundleURL = try stubPlugin()
+        let plugin = try Plugin(from: bundleURL)
+        try await confirmation { didReload in
+            let observer = NotificationCenter.default.addObserver(forName: Plugin.didReloadNotification, object: plugin, queue: nil) { _ in
+                didReload()
+            }
+            try withExtendedLifetime(observer) {
+                try plugin.reload()
+            }
+        }
     }
 }
