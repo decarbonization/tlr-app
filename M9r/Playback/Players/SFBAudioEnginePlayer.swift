@@ -31,6 +31,10 @@ final class SFBAudioEnginePlayer: NSObject, Player, AudioPlayer.Delegate {
         audioPlayer.delegate = self
     }
     
+    deinit {
+        eventSink.finish()
+    }
+    
     private let audioPlayer: AudioPlayer
     private let eventSink: AsyncStream<PlayerEvent>.Continuation
     
@@ -67,10 +71,14 @@ final class SFBAudioEnginePlayer: NSObject, Player, AudioPlayer.Delegate {
         try audioPlayer.setVolume(newVolume)
     }
     
-    func play(_ itemURL: URL, startingAt startTime: TimeInterval) async throws {
+    func enqueue(_ itemURL: URL, startingAt startTime: TimeInterval, playNow: Bool) async throws {
         try audioPlayer.enqueue(itemURL, immediate: true)
-        try await seek(toTime: startTime)
-        try audioPlayer.play()
+        if startTime > 0 {
+            try await seek(toTime: startTime)
+        }
+        if playNow {
+            try audioPlayer.play()
+        }
     }
     
     func seek(toTime newTime: TimeInterval) async throws {
@@ -84,7 +92,14 @@ final class SFBAudioEnginePlayer: NSObject, Player, AudioPlayer.Delegate {
     }
     
     func resume() async throws {
-        audioPlayer.resume()
+        switch audioPlayer.playbackState {
+        case .stopped where !audioPlayer.queueIsEmpty:
+            try audioPlayer.play()
+        case .paused:
+            audioPlayer.resume()
+        default:
+            break // Do nothing.
+        }
     }
     
     func stop() async throws {

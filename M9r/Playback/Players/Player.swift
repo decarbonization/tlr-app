@@ -46,7 +46,7 @@ protocol Player: Sendable {
     var volume: Float { get }
     
     func setVolume(_ newVolume: Float) async throws -> Void
-    func play(_ itemURL: URL, startingAt startTime: TimeInterval) async throws -> Void
+    func enqueue(_ itemURL: URL, startingAt startTime: TimeInterval, playNow: Bool) async throws -> Void
     func seek(toTime newTime: TimeInterval) async throws -> Void
     func pause() async throws -> Void
     func resume() async throws -> Void

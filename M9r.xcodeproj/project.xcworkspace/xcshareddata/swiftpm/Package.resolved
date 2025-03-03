@@ -1,5 +1,5 @@
 {
-  "originHash" : "039cd1c17973459337a39713d6d991360690cc44eb02e4a225c0cc2dd278b9f1",
+  "originHash" : "a744f3e070a5b36ff54df4ed3cbda7602b6881221c9fdafefa519e4d9f1153e4",
   "pins" : [
     {
       "identity" : "avfaudioextensions",
@@ -125,6 +125,15 @@
       "state" : {
         "revision" : "52f73460dc04ba789ad3007ad004faa328b732dd",
         "version" : "0.1.2"
+      }
+    },
+    {
+      "identity" : "swift-async-algorithms",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-async-algorithms.git",
+      "state" : {
+        "revision" : "4c3ea81f81f0a25d0470188459c6d4bf20cf2f97",
+        "version" : "1.0.3"
       }
     },
     {
