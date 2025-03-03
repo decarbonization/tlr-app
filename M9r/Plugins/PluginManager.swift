@@ -62,6 +62,31 @@ import os
     }
     
     private func refresh() {
+        var foundPlugins = [Plugin.ID: Plugin]()
+        for searchURL in searchURLs {
+            guard let searchEnumerator = FileManager.default.enumerator(at: searchURL,
+                                                                        includingPropertiesForKeys: [.isDirectoryKey],
+                                                                        options: [.skipsHiddenFiles, .skipsPackageDescendants]) else {
+                continue
+            }
+            for case let fileURL as URL in searchEnumerator {
+                guard let resourceValues = try? fileURL.resourceValues(forKeys: [.isDirectoryKey]),
+                      let isDirectory = resourceValues.isDirectory,
+                      !isDirectory && fileURL.pathExtension == "p4n" else {
+                    continue
+                }
+                guard let plugin = try? Plugin(from: fileURL) else {
+                    continue
+                }
+                foundPlugins[plugin.id] = plugin
+            }
+        }
+        let newPlugins = foundPlugins.values.sorted { lhs, rhs in
+            lhs.id < rhs.id
+        }
+        _allPlugins.withLock { allPlugins in
+            allPlugins = newPlugins // TODO: diff
+        }
     }
     
     func installPlugin(at bundleURL: URL) async throws {
