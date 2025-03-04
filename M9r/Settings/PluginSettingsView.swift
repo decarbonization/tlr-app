@@ -23,7 +23,7 @@ struct PluginSettingsView: View {
     @State private var isShowingImporter = false
     
     var body: some View {
-        @Bindable var pluginList = Plugin.List.default
+        @Bindable var pluginList = Plugin.List.installed
         
         HStack {
             VStack(alignment: .leading) {
@@ -45,7 +45,7 @@ struct PluginSettingsView: View {
                         defer {
                             importURL.stopAccessingSecurityScopedResource()
                         }
-                        try Plugin.List.default.install(importURL)
+                        try Plugin.List.installed.add(byCopying: importURL)
                     } catch {
                         TaskErrors.all.present(error)
                     }

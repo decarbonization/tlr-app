@@ -17,8 +17,6 @@
  */
 
 import Foundation
-import os
-import WebKit
 
 extension Plugin {
     struct Configuration: Codable {
@@ -26,18 +24,5 @@ extension Plugin {
         
         var ids = [String: UUID]()
         var disabled = Set<String>()
-    }
-    
-    @MainActor func webViewConfiguration() -> WKWebViewConfiguration {
-        let configuration = WKWebViewConfiguration()
-        configuration.websiteDataStore = WKWebsiteDataStore(forIdentifier: persistentID)
-        configuration.processPool = WKProcessPool()
-        configuration.setURLSchemeHandler(PluginURLSchemeHandler(plugin: self), forURLScheme: "plugin")
-        if manifest.permissions?.contains(.networking) != true {
-            configuration.setURLSchemeHandler(DisabledURLSchemeHandler(), forURLScheme: "http")
-            configuration.setURLSchemeHandler(DisabledURLSchemeHandler(), forURLScheme: "https")
-        }
-        configuration.setURLSchemeHandler(DisabledURLSchemeHandler(), forURLScheme: "file")
-        return configuration
     }
 }

@@ -16,14 +16,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import WebKit
+import SwiftUI
 
-/// A URL scheme handler which always fails.
-@MainActor final class DisabledURLSchemeHandler: NSObject, WKURLSchemeHandler {
-    func webView(_ webView: WKWebView, start urlSchemeTask: any WKURLSchemeTask) {
-        urlSchemeTask.didFailWithError(URLError(.resourceUnavailable))
-    }
+struct PluginLink: View {
+    let plugin: Plugin
     
-    func webView(_ webView: WKWebView, stop urlSchemeTask: any WKURLSchemeTask) {
+    var body: some View {
+        NavigationLink {
+            PluginContent(plugin: plugin)
+        } label: {
+            Label(plugin.manifest.shortName ?? plugin.manifest.name, systemImage: "puzzlepiece.extension")
+        }
     }
 }

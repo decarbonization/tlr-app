@@ -44,6 +44,15 @@ struct SourceList: View {
                 }
                 .onDropOfImportableItems()
             }
+            if !Plugin.List.installed.all.isEmpty {
+                Section("Plugins") {
+                    ForEach(Plugin.List.installed.all) { plugin in
+                        if plugin.isEnabled {
+                            PluginLink(plugin: plugin)
+                        }
+                    }
+                }
+            }
             Section("Playlists") {
                 
             }

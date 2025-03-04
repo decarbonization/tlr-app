@@ -36,7 +36,7 @@ extension Plugin {
             return searchURLs
         }
         
-        static let `default` = List(searchURLs: List.defaultSearchURLs)
+        static let installed = List(searchURLs: List.defaultSearchURLs)
         
         init(searchURLs: [URL]) {
             self.searchURLs = searchURLs
@@ -116,7 +116,7 @@ extension Plugin {
             }
         }
         
-        func install(_ pluginURL: URL) throws {
+        func add(byCopying pluginURL: URL) throws {
             guard let bundleID = Bundle.main.bundleIdentifier else {
                 fatalError()
             }

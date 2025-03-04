@@ -67,14 +67,14 @@ import os
     var isEnabled: Bool {
         get {
             access(keyPath: \.isEnabled)
-            return Configuration.persistent.disabled.contains(id)
+            return !Configuration.persistent.disabled.contains(id)
         }
         set {
             withMutation(keyPath: \.isEnabled) {
                 if newValue {
-                    Configuration.persistent.disabled.insert(id)
-                } else {
                     Configuration.persistent.disabled.remove(id)
+                } else {
+                    Configuration.persistent.disabled.insert(id)
                 }
             }
         }
