@@ -19,5 +19,6 @@
 import Foundation
 
 enum PluginError: Error {
-    case nameMismatch(oldName: String, newName: String)
+    case invalidBundleURL(URL)
+    case invalidResource(String)
 }

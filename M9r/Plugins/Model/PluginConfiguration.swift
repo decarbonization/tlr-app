@@ -21,16 +21,11 @@ import os
 import WebKit
 
 extension Plugin {
-    @Setting("PluginPersistentIDs") private static var persistentIDs = [String: UUID]()
-    
-    var persistentID: UUID {
-        if let existingPersistentID = Self.persistentIDs[id] {
-            return existingPersistentID
-        } else {
-            let newPersistentID = UUID()
-            Self.persistentIDs[id] = newPersistentID
-            return newPersistentID
-        }
+    struct Configuration: Codable {
+        @Setting("PluginConfiguration") static var persistent = Configuration()
+        
+        var ids = [String: UUID]()
+        var disabled = Set<String>()
     }
     
     @MainActor func webViewConfiguration() -> WKWebViewConfiguration {

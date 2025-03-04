@@ -61,7 +61,21 @@ final class FSEventStream: CustomStringConvertible, @unchecked Sendable {
         static let itemCloned = Self(rawValue: FSEventStreamEventFlags(kFSEventStreamEventFlagItemCloned))
     }
     
-    struct EventID: RawRepresentable, Hashable {
+    struct EventID: RawRepresentable, Hashable, Codable {
+        init(rawValue: FSEventStreamEventId) {
+            self.rawValue = rawValue
+        }
+        
+        init(from decoder: any Decoder) throws {
+            let container = try decoder.singleValueContainer()
+            rawValue = try container.decode(FSEventStreamEventId.self)
+        }
+        
+        func encode(to encoder: any Encoder) throws {
+            var container = encoder.singleValueContainer()
+            try container.encode(rawValue)
+        }
+        
         var rawValue: FSEventStreamEventId
         
         static let sinceNow = Self(rawValue: FSEventStreamEventId(kFSEventStreamEventIdSinceNow))
@@ -74,6 +88,13 @@ final class FSEventStream: CustomStringConvertible, @unchecked Sendable {
         let id: EventID
         let flags: EventFlags
         let url: URL
+    }
+    
+    enum InitError: Error {
+        case couldNotCreateStream(placesToWatch: [URL],
+                                  sinceWhen: EventID,
+                                  latency: TimeInterval,
+                                  flags: InitFlags)
     }
     
     private final class Callback {
@@ -112,24 +133,34 @@ final class FSEventStream: CustomStringConvertible, @unchecked Sendable {
          sinceWhen: EventID,
          latency: TimeInterval,
          flags: InitFlags,
-         callback: @escaping @Sendable ([Event]) -> Void) {
+         callback: @escaping @Sendable ([Event]) -> Void) throws {
         let callback = Callback(callback)
         var context = FSEventStreamContext(version: 0,
                                            info: Unmanaged.passUnretained(callback).toOpaque(),
                                            retain: { UnsafeRawPointer(Unmanaged<Callback>.fromOpaque($0!).retain().toOpaque()) },
                                            release: { Unmanaged<Callback>.fromOpaque($0!).release() },
                                            copyDescription: nil)
-        let pathsToWatch = placesToWatch.map { $0.path(percentEncoded: false) }
-        fsStream = FSEventStreamCreate(kCFAllocatorNull,
-                                       Callback.bridge,
-                                       &context,
-                                       pathsToWatch as CFArray,
-                                       sinceWhen.rawValue,
-                                       latency,
-                                       flags.rawValue)!
-        queue = DispatchQueue(label: "FSEventStream",
-                              qos: .background,
-                              autoreleaseFrequency: .workItem)
+        let pathsToWatch = [String](
+            placesToWatch.lazy
+                .map { $0.path(percentEncoded: false) }
+                .filter { FileManager.default.fileExists(atPath: $0) }
+        )
+        guard let fsStream = FSEventStreamCreate(kCFAllocatorDefault,
+                                                 Callback.bridge,
+                                                 &context,
+                                                 pathsToWatch as CFArray,
+                                                 sinceWhen.rawValue,
+                                                 latency,
+                                                 flags.rawValue) else {
+            throw InitError.couldNotCreateStream(placesToWatch: placesToWatch,
+                                                 sinceWhen: sinceWhen,
+                                                 latency: latency,
+                                                 flags: flags)
+        }
+        self.fsStream = fsStream
+        self.queue = DispatchQueue(label: "FSEventStream",
+                                   qos: .background,
+                                   autoreleaseFrequency: .workItem)
         FSEventStreamSetDispatchQueue(fsStream, queue)
     }
     

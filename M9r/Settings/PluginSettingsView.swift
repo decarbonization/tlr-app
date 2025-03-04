@@ -19,33 +19,44 @@
 import SwiftUI
 
 struct PluginSettingsView: View {
+    @State private var selection: Plugin.ID?
+    @State private var isShowingImporter = false
+    
     var body: some View {
-        @Bindable var pluginManager = PluginManager.shared
+        @Bindable var pluginList = Plugin.List.default
         
         HStack {
             VStack(alignment: .leading) {
-                List {
-                    Section("Enabled") {
-                        ForEach(pluginManager.enabledPlugins) { plugin in
-                            Text(verbatim: plugin.manifest.shortName ?? plugin.manifest.name)
-                        }
-                    }
-                    Section("Disabled") {
-                        ForEach(pluginManager.disabledPlugins) { plugin in
-                            Text(verbatim: plugin.manifest.shortName ?? plugin.manifest.name)
-                        }
-                    }
+                List(pluginList.all, selection: $selection) { plugin in
+                    Text(verbatim: plugin.manifest.shortName ?? plugin.manifest.name)
                 }
                 .listStyle(.bordered)
                 Button("Add", systemImage: "plus") {
-                    
+                    isShowingImporter = true
                 }
                 .buttonStyle(.accessoryBar)
                 .labelStyle(.iconOnly)
+                .fileImporter(isPresented: $isShowingImporter, allowedContentTypes: [.bundle]) { result in
+                    do {
+                        let importURL = try result.get()
+                        guard importURL.startAccessingSecurityScopedResource() else {
+                            throw CocoaError(.fileReadNoPermission)
+                        }
+                        defer {
+                            importURL.stopAccessingSecurityScopedResource()
+                        }
+                        try Plugin.List.default.install(importURL)
+                    } catch {
+                        TaskErrors.all.present(error)
+                    }
+                }
             }
             .frame(width: 200)
-            VStack {
-                
+            Form {
+                if let selectedPlugin = pluginList.all.first(where: { $0.id == selection }) {
+                    @Bindable var selectedPlugin = selectedPlugin
+                    Toggle("Enabled", isOn: $selectedPlugin.isEnabled)
+                }
             }
             .frame(width: 300)
         }
