@@ -20,7 +20,27 @@ import Foundation
 import Testing
 @testable import M9r
 
-struct QueueTests {
+@Suite struct QueueTests {
+    @Test func insertPutsItemsSequentially() async throws {
+        let subject = Queue<String>()
+        subject.append(contentsOf: ["goglga", "foblazle"])
+        
+        let newItems = ["pwba", "ojwer", "gdsin", "shoboing"]
+        subject.insert(contentsOf: newItems, at: 1)
+        
+        #expect(subject.ordered == ["goglga", "pwba", "ojwer", "gdsin", "shoboing", "foblazle"])
+    }
+    
+    @Test func insertHandlesDuplicateItems() async throws {
+        let subject = Queue<String>()
+        subject.append(contentsOf: ["goglga", "gdsin", "foblazle", "shoboing"])
+        
+        let newItems = ["pwba", "ojwer", "gdsin", "shoboing"]
+        subject.insert(contentsOf: newItems, at: 1)
+        
+        #expect(subject.ordered == ["goglga", "pwba", "ojwer", "gdsin", "foblazle", "shoboing"])
+    }
+    
     @Test func appendPutsItemsAtEnd() async throws {
         let subject = Queue<String>()
         

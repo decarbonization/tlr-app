@@ -40,6 +40,18 @@ import os
         }
     }
     
+    func insert(contentsOf newItems: some Sequence<Item>, at index: Int) {
+        _mutateItems { items in
+            var nextIndex = index
+            for newItem in newItems {
+                let (_, index) = items.insert(newItem, at: nextIndex)
+                if index == nextIndex {
+                    nextIndex += 1
+                }
+            }
+        }
+    }
+    
     func append(contentsOf newItems: some Sequence<Item>) {
         _mutateItems { items in
             items.append(contentsOf: newItems)
