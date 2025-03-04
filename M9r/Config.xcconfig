@@ -19,5 +19,5 @@
 // Configuration settings file format documentation can be found at:
 // https://help.apple.com/xcode/#/dev745c5c974
 
-MARKETING_VERSION = 0.0.0
-BUILD_NUMBER = 1
+MARKETING_VERSION = 2025.3.4 (HEAD 49d9caf)
+BUILD_NUMBER = 20250304

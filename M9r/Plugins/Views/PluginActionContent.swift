@@ -19,7 +19,7 @@
 import SwiftUI
 import WebKit
 
-struct PluginContent: NSViewRepresentable {
+struct PluginActionContent: NSViewRepresentable {
     let plugin: Plugin
     
     final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
@@ -42,11 +42,21 @@ struct PluginContent: NSViewRepresentable {
         let wkWebView = WKWebView(frame: .zero, configuration: pluginConfiguration)
         wkWebView.navigationDelegate = context.coordinator
         wkWebView.uiDelegate = context.coordinator
+        wkWebView.setValue(false, forKey: "drawsBackground")
         wkWebView.underPageBackgroundColor = .clear
         return wkWebView
     }
     
     func updateNSView(_ wkWebView: WKWebView, context: Context) {
         context.coordinator.plugin = plugin
+        do {
+            guard let action = plugin.manifest.action else {
+                throw PluginError.missingRequiredConfiguration("manifest.action")
+            }
+            let popupURL = try plugin.resourceURL(action.defaultPopup)
+            wkWebView.load(URLRequest(url: popupURL))
+        } catch {
+            // TODO: show error page
+        }
     }
 }

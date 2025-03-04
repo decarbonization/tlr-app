@@ -50,6 +50,11 @@ extension Plugin {
         static let networking = Self(rawValue: "networking")
     }
     
+    struct Action: Codable {
+        var defaultTitle: String?
+        var defaultPopup: String
+    }
+    
     struct Manifest: Codable {
         static var jsonDecoder: JSONDecoder {
             let jsonDecoder = JSONDecoder()
@@ -78,5 +83,6 @@ extension Plugin {
         var permissions: [Permission]?
         var version: String
         var versionName: String?
+        var action: Action?
     }
 }

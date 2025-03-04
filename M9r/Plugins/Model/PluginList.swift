@@ -125,8 +125,12 @@ extension Plugin {
             let libraryPluginsURL = applicationSupportURL.appending(component: "Plugins",
                                                                     directoryHint: .isDirectory)
             try FileManager.default.createDirectory(at: libraryPluginsURL, withIntermediateDirectories: true)
-            try FileManager.default.copyItem(at: pluginURL, to: libraryPluginsURL.appending(component: pluginURL.lastPathComponent,
-                                                                                            directoryHint: .isDirectory))
+            let libraryPluginURL = libraryPluginsURL.appending(component: pluginURL.lastPathComponent,
+                                                               directoryHint: .isDirectory)
+            if FileManager.default.fileExists(atPath: libraryPluginURL.path(percentEncoded: false)) {
+                try FileManager.default.removeItem(at: libraryPluginURL)
+            }
+            try FileManager.default.copyItem(at: pluginURL, to: libraryPluginURL)
         }
     }
 }

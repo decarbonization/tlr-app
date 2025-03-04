@@ -16,10 +16,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import Foundation
+import SwiftUI
 
-enum PluginError: Error {
-    case invalidBundleURL(URL)
-    case invalidResource(String)
-    case missingRequiredConfiguration(String)
+struct PluginActions: View {
+    var body: some View {
+        if !Plugin.List.installed.all.isEmpty {
+            Section("Plugins") {
+                ForEach(Plugin.List.installed.all) { plugin in
+                    if plugin.isEnabled {
+                        PluginActionLink(plugin: plugin)
+                    }
+                }
+            }
+        }
+    }
 }

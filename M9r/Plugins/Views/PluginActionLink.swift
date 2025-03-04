@@ -18,14 +18,15 @@
 
 import SwiftUI
 
-struct PluginLink: View {
+struct PluginActionLink: View {
     let plugin: Plugin
     
     var body: some View {
         NavigationLink {
-            PluginContent(plugin: plugin)
+            PluginActionContent(plugin: plugin)
         } label: {
-            Label(plugin.manifest.shortName ?? plugin.manifest.name, systemImage: "puzzlepiece.extension")
+            Label(plugin.manifest.action?.defaultTitle ?? plugin.manifest.shortName ?? plugin.manifest.name,
+                  systemImage: "puzzlepiece.extension")
         }
     }
 }
