@@ -38,6 +38,12 @@ struct PluginActionContent: NSViewRepresentable {
         let pluginConfiguration = WKWebViewConfiguration()
         pluginConfiguration.websiteDataStore = WKWebsiteDataStore(forIdentifier: plugin.persistentID)
         pluginConfiguration.processPool = WKProcessPool()
+        if let preflightURL = Bundle.main.url(forResource: "Preflight", withExtension: "js"),
+           let preflightSource = try? String(contentsOf: preflightURL, encoding: .utf8) {
+            pluginConfiguration.userContentController.addUserScript(WKUserScript(source: preflightSource,
+                                                                                 injectionTime: .atDocumentStart,
+                                                                                 forMainFrameOnly: true))
+        }
         pluginConfiguration.setURLSchemeHandler(PluginURLSchemeHandler(plugin: plugin), forURLScheme: "plugin")
         let wkWebView = WKWebView(frame: .zero, configuration: pluginConfiguration)
         wkWebView.navigationDelegate = context.coordinator

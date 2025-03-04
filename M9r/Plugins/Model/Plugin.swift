@@ -27,9 +27,9 @@ import os
     private let _source: OSAllocatedUnfairLock<Source>
     
     func updateSource(_ newSource: Source) {
-        _source.withLock { source in
-            withMutation(keyPath: \.bundleURL) {
-                withMutation(keyPath: \.manifest) {
+        withMutation(keyPath: \.bundleURL) {
+            withMutation(keyPath: \.manifest) {
+                _source.withLock { source in
                     source = newSource
                 }
             }

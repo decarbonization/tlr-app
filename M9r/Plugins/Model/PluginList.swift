@@ -41,29 +41,8 @@ extension Plugin {
         init(searchURLs: [URL]) {
             self.searchURLs = searchURLs
             self._all = .init(initialState: [])
-            Task.detached(priority: .utility) { [weak self] in
-                try await self?.reload()
-                try Task.checkCancellation()
-                let changes = AsyncStream { continuation in
-                    do {
-                        let stream = try FSEventStream(placesToWatch: searchURLs, sinceWhen: .current, latency: 1.0, flags: [.ignoreSelf]) { events in
-                            continuation.yield(events)
-                        }
-                        if !stream.start() {
-                            continuation.finish()
-                        }
-                        continuation.onTermination = { _ in
-                            stream.stop()
-                        }
-                    } catch {
-                        continuation.finish()
-                    }
-                }
-                for await _ in changes {
-                    try Task.checkCancellation()
-                    try await self?.reload()
-                    try Task.checkCancellation()
-                }
+            Task {
+                try await self.reload()
             }
         }
         
@@ -76,7 +55,6 @@ extension Plugin {
         }
         
         private func reload() async throws {
-            var results = [Result<URL, any Error>]()
             var sources = [Plugin.ID: Plugin.Source]()
             for searchURL in searchURLs {
                 guard FileManager.default.fileExists(atPath: searchURL.path(percentEncoded: false)) else {
@@ -86,12 +64,8 @@ extension Plugin {
                                                                            includingPropertiesForKeys: nil,
                                                                            options: [.skipsHiddenFiles])
                 for bundleURL in contents where bundleURL.pathExtension == "p4n" {
-                    do {
-                        let newSource = try Plugin.Source(from: bundleURL)
-                        sources[newSource.id] = newSource
-                    } catch {
-                        results.append(.failure(error))
-                    }
+                    let newSource = try Plugin.Source(from: bundleURL)
+                    sources[newSource.id] = newSource
                 }
             }
             var updatedAll = all
@@ -131,6 +105,10 @@ extension Plugin {
                 try FileManager.default.removeItem(at: libraryPluginURL)
             }
             try FileManager.default.copyItem(at: pluginURL, to: libraryPluginURL)
+            
+            Task {
+                try await self.reload()
+            }
         }
     }
 }
