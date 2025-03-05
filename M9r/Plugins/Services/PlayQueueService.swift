@@ -17,6 +17,8 @@
  */
 
 import Foundation
+import os
+import SFBAudioEngine
 
 struct PlayQueueService: PluginService {
     struct Message: Codable {
@@ -36,9 +38,36 @@ struct PlayQueueService: PluginService {
             case stopped
             case playing
             case paused
+            
+            static func from(_ playbackState: AudioPlayer.PlaybackState) -> Self {
+                switch playbackState {
+                case .stopped:
+                    return .stopped
+                case .playing:
+                    return .playing
+                case .paused:
+                    return .paused
+                @unknown default:
+                    fatalError()
+                }
+            }
         }
         
         var playbackState: PlaybackState
+    }
+    
+    private final class Publisher: PluginEventSinkPublisher {
+        private let _isStopped = OSAllocatedUnfairLock(initialState: false)
+        
+        var isStopped: Bool {
+            _isStopped.withLock { $0 }
+        }
+        
+        func stop() {
+            _isStopped.withLock { isStopped in
+                isStopped = true
+            }
+        }
     }
     
     static var name: String {
@@ -55,8 +84,29 @@ struct PlayQueueService: PluginService {
     
     let playQueue: PlayQueue
     
+    func beginDispatchingEvents(into eventSink: any PluginEventSink) -> any PluginEventSinkPublisher {
+        let publisher = Publisher()
+        @Sendable func subscribe() {
+            withObservationTracking {
+                withExtendedLifetime(playQueue.playbackState) {
+                    // do nothing.
+                }
+            } onChange: {
+                guard !publisher.isStopped else {
+                    return
+                }
+                Task {
+                    try await eventSink.dispatchEvent(of: "playbackstatechanged", with: Reply.PlaybackState.from(playQueue.playbackState))
+                }
+                subscribe()
+            }
+        }
+        subscribe()
+        return publisher
+    }
+    
     func receive(_ message: Message, with context: PluginServiceContext) async throws -> Reply {
-        try await Task { @MainActor in
+        try await MainActor.run {
             switch message.command {
             case .state:
                 break
@@ -69,18 +119,7 @@ struct PlayQueueService: PluginService {
             case .resume:
                 playQueue.resume()
             }
-        }.value
-        let playbackState: Reply.PlaybackState
-        switch playQueue.playbackState {
-        case .stopped:
-            playbackState = .stopped
-        case .playing:
-            playbackState = .playing
-        case .paused:
-            playbackState = .paused
-        @unknown default:
-            fatalError()
         }
-        return Reply(playbackState: playbackState)
+        return Reply(playbackState: .from(playQueue.playbackState))
     }
 }

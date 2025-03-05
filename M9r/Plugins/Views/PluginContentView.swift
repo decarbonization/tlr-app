@@ -28,6 +28,35 @@ final class PluginContentView: NSView, WKNavigationDelegate, WKUIDelegate {
         case action
     }
     
+    private final class EventSink: PluginEventSink {
+        let _webView = OSAllocatedUnfairLock<WKWebView?>(initialState: nil)
+        var webView: WKWebView? {
+            get {
+                _webView.withLock { $0 }
+            }
+            set {
+                _webView.withLock { webView in
+                    webView = newValue
+                }
+            }
+        }
+        
+        func dispatchEvent(of type: String, with detail: some Encodable) async throws {
+            try await Task { @MainActor in
+                let jsonEncoder = JSONEncoder()
+                jsonEncoder.keyEncodingStrategy = .convertToSnakeCase
+                jsonEncoder.dateEncodingStrategy = .iso8601
+                jsonEncoder.dataEncodingStrategy = .base64
+                let rawDetailData = try jsonEncoder.encode(detail)
+                let rawDetail = String(data: rawDetailData, encoding: .utf8)!
+                return try await webView?.callAsyncJavaScript("player.__dispatchEvent(type, detail)",
+                                                              arguments: ["type": type,
+                                                                          "detail": rawDetail],
+                                                              contentWorld: .page)
+            }.value
+        }
+    }
+    
     init(plugin: Plugin,
          role: Role,
          services: [any PluginService],
@@ -35,6 +64,7 @@ final class PluginContentView: NSView, WKNavigationDelegate, WKUIDelegate {
         self.plugin = plugin
         self.role = role
         self.services = services
+        self.eventPublishers = []
         self.errorLabel = NSTextField(wrappingLabelWithString: "")
         
         super.init(frame: frameRect)
@@ -75,6 +105,8 @@ final class PluginContentView: NSView, WKNavigationDelegate, WKUIDelegate {
     let services: [any PluginService]
     
     private let errorLabel: NSTextField
+    private var eventPublishers: [any PluginEventSinkPublisher]
+    
     private var error: (any Error)? {
         didSet {
             if let error {
@@ -112,6 +144,7 @@ final class PluginContentView: NSView, WKNavigationDelegate, WKUIDelegate {
                 pluginConfiguration.userContentController.add(try await PluginResources.filterNetworkingRuleList)
             }
             pluginConfiguration.setURLSchemeHandler(PluginURLSchemeHandler(plugin), forURLScheme: "plugin")
+            let eventSink = EventSink()
             for service in services {
                 func addService<Service: PluginService>(_ service: Service) {
                     guard Service.requiredPermissions.isSuperset(of: plugin.manifest.permissions ?? []) else {
@@ -122,6 +155,9 @@ final class PluginContentView: NSView, WKNavigationDelegate, WKUIDelegate {
                     pluginConfiguration.userContentController.addScriptMessageHandler(handler,
                                                                                       contentWorld: .page,
                                                                                       name: Service.name)
+                    
+                    let publisher = service.beginDispatchingEvents(into: eventSink)
+                    eventPublishers.append(publisher)
                 }
                 addService(service)
             }
@@ -135,6 +171,7 @@ final class PluginContentView: NSView, WKNavigationDelegate, WKUIDelegate {
                 Self.logger.error("*** -[WKWebView _setDrawsBackground:] removed, plugin appearance will be incorrect")
             }
             newWebView.underPageBackgroundColor = .clear
+            eventSink.webView = newWebView
             
             switch role {
             case .action:

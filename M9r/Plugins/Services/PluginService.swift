@@ -39,6 +39,7 @@ protocol PluginService: Sendable {
     static var messageDecoder: JSONDecoder { get }
     static var replyEncoder: JSONEncoder { get }
     
+    func beginDispatchingEvents(into eventSink: any PluginEventSink) -> any PluginEventSinkPublisher
     func receive(_ message: Message, with context: PluginServiceContext) async throws -> Reply
 }
 
@@ -58,6 +59,14 @@ extension PluginService {
         replyEncoder.dateEncodingStrategy = .iso8601
         return replyEncoder
     }
+}
+
+protocol PluginEventSink: AnyObject, Sendable {
+    func dispatchEvent(of type: String, with detail: some Encodable) async throws -> Void
+}
+
+protocol PluginEventSinkPublisher: AnyObject, Sendable {
+    func stop() -> Void
 }
 
 @MainActor final class PluginServiceMessageHandler<Service: PluginService>: NSObject, WKScriptMessageHandlerWithReply {

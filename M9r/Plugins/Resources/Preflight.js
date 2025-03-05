@@ -28,13 +28,8 @@
         }
         
         /** @private */
-        _dispatchPlayerEvent(detail) {
-            this.dispatchEvent(new CustomEvent("playerevent", { detail }));
-        }
-        
-        /** @private */
-        _dispatchLibraryEvent(detail) {
-            this.dispatchEvent(new CustomEvent("libraryevent", { detail }));
+        __dispatchEvent(type, detail) {
+            this.dispatchEvent(new CustomEvent(type, { detail }));
         }
     }
     Object.defineProperty(window, "player", {
