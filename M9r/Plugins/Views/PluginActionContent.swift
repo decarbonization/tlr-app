@@ -21,9 +21,14 @@ import SwiftUI
 struct PluginActionContent: NSViewRepresentable {
     let plugin: Plugin
     
+    @Environment(PlayQueue.self) private var playQueue
+    
     func makeNSView(context: Context) -> PluginContentView {
         PluginContentView(plugin: plugin,
-                          role: .action)
+                          role: .action,
+                          services: [
+                            PlayQueueService(playQueue: playQueue),
+                          ])
     }
     
     func updateNSView(_ pluginContentView: PluginContentView, context: Context) {

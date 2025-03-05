@@ -30,9 +30,11 @@ final class PluginContentView: NSView, WKNavigationDelegate, WKUIDelegate {
     
     init(plugin: Plugin,
          role: Role,
+         services: [any PluginService],
          frame frameRect: NSRect = .zero) {
         self.plugin = plugin
         self.role = role
+        self.services = services
         self.errorLabel = NSTextField(wrappingLabelWithString: "")
         
         super.init(frame: frameRect)
@@ -70,6 +72,7 @@ final class PluginContentView: NSView, WKNavigationDelegate, WKUIDelegate {
     
     let plugin: Plugin
     let role: Role
+    let services: [any PluginService]
     
     private let errorLabel: NSTextField
     private var error: (any Error)? {
@@ -109,6 +112,19 @@ final class PluginContentView: NSView, WKNavigationDelegate, WKUIDelegate {
                 pluginConfiguration.userContentController.add(try await PluginResources.filterNetworkingRuleList)
             }
             pluginConfiguration.setURLSchemeHandler(PluginURLSchemeHandler(plugin), forURLScheme: "plugin")
+            for service in services {
+                func addService<Service: PluginService>(_ service: Service) {
+                    guard Service.requiredPermissions.isSuperset(of: plugin.manifest.permissions ?? []) else {
+                        Self.logger.info("Skipping service \(Service.name) for plugin \(self.plugin.manifest.name)")
+                        return
+                    }
+                    let handler = PluginServiceMessageHandler(service, for: plugin)
+                    pluginConfiguration.userContentController.addScriptMessageHandler(handler,
+                                                                                      contentWorld: .page,
+                                                                                      name: Service.name)
+                }
+                addService(service)
+            }
             
             let newWebView = WKWebView(frame: .zero, configuration: pluginConfiguration)
             newWebView.navigationDelegate = self

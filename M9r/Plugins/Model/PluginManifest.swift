@@ -48,6 +48,7 @@ extension Plugin {
         var rawValue: String
         
         static let networking = Self(rawValue: "networking")
+        static let playQueue = Self(rawValue: "playQueue")
     }
     
     struct Action: Codable {
