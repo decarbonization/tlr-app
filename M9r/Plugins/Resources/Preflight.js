@@ -17,16 +17,28 @@
  */
 
 (function preflight() {
-    const __m9r__ = {
-        onPlayerEvent(data) {
-            console.error("Unhandled player event, did you forget to load the SDK?", data);
-        },
-        onLibraryEvent(data) {
-            console.error("Unhandled library event, did you forget to load the SDK?", data);
-        },
-    };
-    Object.defineProperty(window, "__m9r__", {
-        value: __m9r__,
+    class Player extends EventTarget {
+        constructor() {
+            super()
+        }
+        
+        async postMessage(service, message) {
+            const reply = await window.webkit.messageHandlers[service].postMessage(JSON.stringify(message));
+            return JSON.parse(reply);
+        }
+        
+        /** @private */
+        _dispatchPlayerEvent(detail) {
+            this.dispatchEvent(new CustomEvent("playerevent", { detail }));
+        }
+        
+        /** @private */
+        _dispatchLibraryEvent(detail) {
+            this.dispatchEvent(new CustomEvent("libraryevent", { detail }));
+        }
+    }
+    Object.defineProperty(window, "player", {
+        value: new Player(),
         enumerable: false,
         writable: false,
     });

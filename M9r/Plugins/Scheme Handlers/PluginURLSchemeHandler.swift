@@ -16,10 +16,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import UniformTypeIdentifiers
 import WebKit
 
 @MainActor final class PluginURLSchemeHandler: NSObject, WKURLSchemeHandler {
-    init(plugin: Plugin) {
+    init(_ plugin: Plugin) {
         self.plugin = plugin
         self.pendingTasks = [:]
     }
@@ -46,10 +47,11 @@ import WebKit
                 let resourceData = try Data(contentsOf: resourceURL,
                                             options: [.mappedIfSafe])
                 try Task.checkCancellation()
-                urlSchemeTask.didReceive(URLResponse(url: url,
-                                                     mimeType: nil,
-                                                     expectedContentLength: resourceData.count,
-                                                     textEncodingName: nil))
+                let mimeType = UTType(filenameExtension: url.pathExtension)?.preferredMIMEType
+                urlSchemeTask.didReceive(HTTPURLResponse(url: url,
+                                                         mimeType: mimeType,
+                                                         expectedContentLength: resourceData.count,
+                                                         textEncodingName: nil))
                 try Task.checkCancellation()
                 urlSchemeTask.didReceive(resourceData)
                 try Task.checkCancellation()
