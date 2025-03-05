@@ -36,33 +36,13 @@ protocol PluginService: Sendable {
     
     static var name: String { get }
     static var requiredPermissions: Set<Plugin.Permission> { get }
-    static var messageDecoder: JSONDecoder { get }
-    static var replyEncoder: JSONEncoder { get }
     
     func beginDispatchingEvents(into eventSink: any PluginEventSink) -> any PluginEventSinkPublisher
     func receive(_ message: Message, with context: PluginServiceContext) async throws -> Reply
 }
 
-extension PluginService {
-    static var messageDecoder: JSONDecoder {
-        let messageDecoder = JSONDecoder()
-        messageDecoder.keyDecodingStrategy = .convertFromSnakeCase
-        messageDecoder.dataDecodingStrategy = .base64
-        messageDecoder.dateDecodingStrategy = .iso8601
-        return messageDecoder
-    }
-    
-    static var replyEncoder: JSONEncoder {
-        let replyEncoder = JSONEncoder()
-        replyEncoder.keyEncodingStrategy = .convertToSnakeCase
-        replyEncoder.dataEncodingStrategy = .base64
-        replyEncoder.dateEncodingStrategy = .iso8601
-        return replyEncoder
-    }
-}
-
 protocol PluginEventSink: AnyObject, Sendable {
-    func dispatchEvent(of type: String, with detail: some Encodable) async throws -> Void
+    func dispatchEvent(of type: String, with detail: some Encodable) async -> Void
 }
 
 protocol PluginEventSinkPublisher: AnyObject, Sendable {
@@ -94,10 +74,10 @@ protocol PluginEventSinkPublisher: AnyObject, Sendable {
             guard let rawMessageBytes = rawMessage.data(using: .utf8) else {
                 throw PluginServiceError.malformedMessage
             }
-            let message = try Service.messageDecoder.decode(Service.Message.self, from: rawMessageBytes)
+            let message = try PluginResources.jsonDecoder.decode(Service.Message.self, from: rawMessageBytes)
             let context = PluginServiceContext(manifest: plugin.manifest)
             let reply = try await service.receive(message, with: context)
-            let rawReplyBytes = try Service.replyEncoder.encode(reply)
+            let rawReplyBytes = try PluginResources.jsonEncoder.encode(reply)
             let rawReply = String(data: rawReplyBytes, encoding: .utf8)
             return (rawReply, nil)
         } catch {

@@ -34,38 +34,40 @@ struct PlayQueueService: PluginService {
     }
     
     struct Reply: Codable {
-        enum PlaybackState: String, Codable {
-            case stopped
-            case playing
-            case paused
-            
-            static func from(_ playbackState: AudioPlayer.PlaybackState) -> Self {
-                switch playbackState {
-                case .stopped:
-                    return .stopped
-                case .playing:
-                    return .playing
-                case .paused:
-                    return .paused
-                @unknown default:
-                    fatalError()
-                }
-            }
-        }
-        
-        var playbackState: PlaybackState
+        var playbackState: PlayerPlaybackState
     }
     
-    private final class Publisher: PluginEventSinkPublisher {
-        private let _isStopped = OSAllocatedUnfairLock(initialState: false)
-        
-        var isStopped: Bool {
-            _isStopped.withLock { $0 }
+    private final class NotificationPublisher: NSObject, PluginEventSinkPublisher {
+        init(playQueue: PlayQueue,
+             eventSink: any PluginEventSink) {
+            self.eventSink = eventSink
+            
+            super.init()
+            
+            NotificationCenter.default.addObserver(self,
+                                                   selector: #selector(didChange(_:)),
+                                                   name: PlayQueue.playbackStateChanged,
+                                                   object: playQueue)
         }
         
+        deinit {
+            stop()
+        }
+        
+        private let eventSink: any PluginEventSink
+        
         func stop() {
-            _isStopped.withLock { isStopped in
-                isStopped = true
+            NotificationCenter.default.removeObserver(self)
+        }
+        
+        @objc private func didChange(_ notification: Notification) {
+            guard let playQueue = notification.object as? PlayQueue else {
+                return
+            }
+            
+            Task {
+                await eventSink.dispatchEvent(of: "playbackstatechanged",
+                                              with: PlayerPlaybackState.from(playQueue.playbackState))
             }
         }
     }
@@ -85,24 +87,8 @@ struct PlayQueueService: PluginService {
     let playQueue: PlayQueue
     
     func beginDispatchingEvents(into eventSink: any PluginEventSink) -> any PluginEventSinkPublisher {
-        let publisher = Publisher()
-        @Sendable func subscribe() {
-            withObservationTracking {
-                withExtendedLifetime(playQueue.playbackState) {
-                    // do nothing.
-                }
-            } onChange: {
-                guard !publisher.isStopped else {
-                    return
-                }
-                Task {
-                    try await eventSink.dispatchEvent(of: "playbackstatechanged", with: Reply.PlaybackState.from(playQueue.playbackState))
-                }
-                subscribe()
-            }
-        }
-        subscribe()
-        return publisher
+        NotificationPublisher(playQueue: playQueue,
+                              eventSink: eventSink)
     }
     
     func receive(_ message: Message, with context: PluginServiceContext) async throws -> Reply {

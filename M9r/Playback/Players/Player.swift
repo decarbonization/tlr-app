@@ -18,7 +18,7 @@
 
 import Foundation
 
-enum PlayerPlaybackState: Int, Codable {
+enum PlayerPlaybackState: String, Codable {
     case playing
     case paused
     case stopped

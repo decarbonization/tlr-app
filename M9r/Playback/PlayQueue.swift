@@ -22,6 +22,8 @@ import SFBAudioEngine
 import SwiftUI
 
 @Observable final class PlayQueue: @unchecked Sendable {
+    static let playbackStateChanged = Notification.Name("M9r.PlayQueue.playbackStateChanged")
+    
     enum RepeatMode: CaseIterable, Equatable, Codable {
         case none
         case all
@@ -375,6 +377,7 @@ import SwiftUI
         case .playbackStateChanged(let newPlaybackState):
             withMutation(keyPath: \.playbackState) {
                 Self.log.info("\(String(describing: self)).playbackState = \(newPlaybackState.rawValue)")
+                NotificationCenter.default.post(name: PlayQueue.playbackStateChanged, object: self)
                 switch newPlaybackState {
                 case .playing:
                     MPNowPlayingInfoCenter.default().playbackState = .playing

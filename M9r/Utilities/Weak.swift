@@ -16,21 +16,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import SwiftUI
+import Foundation
 
-struct PluginActionContent: NSViewRepresentable {
-    let plugin: Plugin
-    
-    @Environment(PlayQueue.self) private var playQueue
-    
-    func makeNSView(context: Context) -> PluginContentView {
-        PluginContentView(plugin: plugin,
-                          role: .action,
-                          services: [
-                            PlayQueueService(playQueue: playQueue),
-                          ])
+final class Weak<Object: AnyObject> {
+    init(wrapping object: Object) {
+        unwrap = object
     }
     
-    func updateNSView(_ pluginContentView: PluginContentView, context: Context) {
-    }
+    private(set) weak var unwrap: Object?
 }

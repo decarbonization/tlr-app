@@ -23,7 +23,8 @@ struct PluginActionLink: View {
     
     var body: some View {
         NavigationLink {
-            PluginActionContent(plugin: plugin)
+            PluginView(plugin: plugin,
+                       role: .actionPopup)
         } label: {
             Label(plugin.manifest.action?.defaultTitle ?? plugin.manifest.shortName ?? plugin.manifest.name,
                   systemImage: "puzzlepiece.extension")

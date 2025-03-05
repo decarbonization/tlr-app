@@ -19,8 +19,8 @@
 import Foundation
 import WebKit
 
-@MainActor enum PluginResources {
-    static var preflightUserScript: WKUserScript {
+enum PluginResources {
+    @MainActor static var preflightUserScript: WKUserScript {
         get async throws {
             guard let preflightURL = Bundle.main.url(forResource: "Preflight", withExtension: "js") else {
                 throw CocoaError(.fileNoSuchFile)
@@ -32,7 +32,7 @@ import WebKit
         }
     }
     
-    static var filterFilesRuleList: WKContentRuleList! {
+    @MainActor static var filterFilesRuleList: WKContentRuleList! {
         get async throws {
             guard let filterFilesURL = Bundle.main.url(forResource: "FilterFiles", withExtension: "json") else {
                 throw CocoaError(.fileNoSuchFile, userInfo: [
@@ -45,7 +45,7 @@ import WebKit
         }
     }
     
-    static var filterNetworkingRuleList: WKContentRuleList! {
+    @MainActor static var filterNetworkingRuleList: WKContentRuleList! {
         get async throws {
             guard let filterFilesURL = Bundle.main.url(forResource: "FilterNetworking", withExtension: "json") else {
                 throw CocoaError(.fileNoSuchFile, userInfo: [
@@ -56,5 +56,21 @@ import WebKit
             return try await WKContentRuleListStore.default().compileContentRuleList(forIdentifier: "FilterNetworking",
                                                                                      encodedContentRuleList: filterFilesSource)
         }
+    }
+    
+    static var jsonDecoder: JSONDecoder {
+        let messageDecoder = JSONDecoder()
+        messageDecoder.keyDecodingStrategy = .convertFromSnakeCase
+        messageDecoder.dataDecodingStrategy = .base64
+        messageDecoder.dateDecodingStrategy = .iso8601
+        return messageDecoder
+    }
+    
+    static var jsonEncoder: JSONEncoder {
+        let replyEncoder = JSONEncoder()
+        replyEncoder.keyEncodingStrategy = .convertToSnakeCase
+        replyEncoder.dataEncodingStrategy = .base64
+        replyEncoder.dateEncodingStrategy = .iso8601
+        return replyEncoder
     }
 }

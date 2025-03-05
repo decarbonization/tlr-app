@@ -19,6 +19,21 @@
 import Foundation
 @preconcurrency import SFBAudioEngine
 
+extension PlayerPlaybackState {
+    static func from(_ sfbPlaybackState: AudioPlayer.PlaybackState) -> Self {
+        switch sfbPlaybackState {
+        case .paused:
+            return .paused
+        case .playing:
+            return .playing
+        case .stopped:
+            return .stopped
+        @unknown default:
+            fatalError("Unknown playback state \(sfbPlaybackState.rawValue)")
+        }
+    }
+}
+
 final class SFBAudioEnginePlayer: NSObject, Player, AudioPlayer.Delegate {
     override init() {
         let (stream, continuation) = AsyncStream.makeStream(of: PlayerEvent.self)
@@ -43,16 +58,7 @@ final class SFBAudioEnginePlayer: NSObject, Player, AudioPlayer.Delegate {
     let events: AsyncStream<PlayerEvent>
     
     var playbackState: PlayerPlaybackState {
-        switch audioPlayer.playbackState {
-        case .paused:
-            return .paused
-        case .playing:
-            return .playing
-        case .stopped:
-            return .stopped
-        @unknown default:
-            fatalError("Unknown playback state \(audioPlayer.playbackState.rawValue)")
-        }
+        .from(audioPlayer.playbackState)
     }
     
     var totalTime: TimeInterval? {
