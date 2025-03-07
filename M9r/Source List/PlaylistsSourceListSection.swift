@@ -18,16 +18,10 @@
 
 import SwiftUI
 
-struct PluginActions: View {
+struct PlaylistsSourceListSection: View {
     var body: some View {
-        if !Plugin.List.installed.all.isEmpty {
-            Section("Plugins") {
-                ForEach(Plugin.List.installed.all) { plugin in
-                    if plugin.isEnabled {
-                        PluginActionLink(plugin: plugin)
-                    }
-                }
-            }
+        Section("Playlists") {
+            
         }
     }
 }
