@@ -20,6 +20,9 @@ import SwiftData
 import SwiftUI
 
 struct ContentView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Environment(M9rApp.Delegate.self) private var appDelegate
+    
     var body: some View {
         HSplitView {
             NavigationSplitView {
@@ -37,5 +40,13 @@ struct ContentView: View {
                 .frame(minWidth: 100, idealWidth: 200, maxWidth: 250)
         }
         .preferredColorScheme(.dark)
+        .task {
+            for await urls in appDelegate.openURLs {
+                Library.performChanges(inContainerOf: modelContext) { library in
+                    let addResults = await library.findAndAddSongs(fromContentsOf: urls.map { .success($0) })
+                    TaskErrors.all.present(addResults)
+                }
+            }
+        }
     }
 }

@@ -39,6 +39,16 @@ import SwiftData
     }
     
     static func performChanges(inContainerOf modelContext: ModelContext,
+                               _ changes: @escaping @Sendable (Library) async -> Void) {
+        performChanges(inContainerOf: modelContext) { library in
+            await changes(library)
+        } catching: { error in
+            fatalError("Unreachable \(error)")
+        }
+
+    }
+    
+    static func performChanges(inContainerOf modelContext: ModelContext,
                                _ changes: @escaping @Sendable (Library) async throws -> Void,
                                catching onError: @escaping @Sendable (any Error) async -> Void) {
         let library = Library(modelContainer: modelContext.container)

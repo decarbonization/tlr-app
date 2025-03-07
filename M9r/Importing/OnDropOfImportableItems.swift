@@ -53,37 +53,8 @@ private struct ImportDropDelegate: DropDelegate {
         Task(priority: .userInitiated) {
             let itemResults = await loadAll(URL.self, from: itemProviders)
             Library.performChanges(inContainerOf: modelContext) { library in
-                let fileResults = await findAudioFiles(fromContentsOf: itemResults)
-                
-                let progress = Progress(totalUnitCount: Int64(fileResults.count))
-                progress.localizedDescription = NSLocalizedString("Importing Songs…", comment: "")
-                Tasks.all.begin(progress)
-                defer {
-                    Tasks.all.end(progress)
-                }
-                var addResults = [Result<Song, any Error>]()
-                for fileResult in fileResults {
-                    defer {
-                        progress.completedUnitCount += 1
-                    }
-                    switch fileResult {
-                    case .success(let fileURL):
-                        progress.localizedAdditionalDescription = fileURL.lastPathComponent
-                        do {
-                            try await library.addSong(fileURL)
-                        } catch {
-                            Library.log.error("Could not import \(fileURL), reason: \(error)")
-                            addResults.append(.failure(error))
-                        }
-                    case .failure(let error):
-                        progress.localizedAdditionalDescription = error.localizedDescription
-                        addResults.append(.failure(error))
-                    }
-                }
-                
+                let addResults = await library.findAndAddSongs(fromContentsOf: itemResults)
                 TaskErrors.all.present(addResults)
-            } catching: { error in
-                TaskErrors.all.present(error)
             }
         }
         

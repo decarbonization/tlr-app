@@ -16,13 +16,29 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import AsyncAlgorithms
 import SwiftData
 import SwiftUI
 
 @main
 struct M9rApp: App {
+    @Observable final class Delegate: NSObject, NSApplicationDelegate {
+        // NOTE: There is probably a better way to handle incoming files,
+        //       but SwiftUI was only propagating the first file URL,
+        //       so here we are with a nasty delegate adapter.
+        
+        let openURLs = AsyncChannel<[URL]>()
+        
+        func application(_ application: NSApplication, open urls: [URL]) {
+            Task {
+                await openURLs.send(urls)
+            }
+        }
+    }
+    
     @State private var modelContainer = makeAppModelConatiner()
     @State private var playQueue = PlayQueue()
+    @NSApplicationDelegateAdaptor private var appDelegate: Delegate
     
     var body: some Scene {
         Window("Library", id: "library") {

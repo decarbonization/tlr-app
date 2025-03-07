@@ -20,30 +20,34 @@ import Foundation
 @preconcurrency import class Foundation.NSItemProvider
 
 extension Library {
-    @discardableResult func addSongs(fromContentsOf fileResults: [Result<URL, any Error>],
-                                     reportingTo tasks: Tasks) -> [Result<Song, any Error>] {
+    func findAndAddSongs(fromContentsOf urlResults: [Result<URL, any Error>]) async -> [Result<Song, any Error>] {
+        let fileResults = await findAudioFiles(fromContentsOf: urlResults)
+        
         let progress = Progress(totalUnitCount: Int64(fileResults.count))
         progress.localizedDescription = NSLocalizedString("Importing Songs…", comment: "")
-        tasks.begin(progress)
+        Tasks.all.begin(progress)
         defer {
-            tasks.end(progress)
+            Tasks.all.end(progress)
         }
-        var songs = [Result<Song, any Error>]()
-        songs.reserveCapacity(fileResults.count)
+        var addResults = [Result<Song, any Error>]()
         for fileResult in fileResults {
+            defer {
+                progress.completedUnitCount += 1
+            }
             switch fileResult {
             case .success(let fileURL):
                 progress.localizedAdditionalDescription = fileURL.lastPathComponent
-                let song = Result {
+                do {
                     try addSong(fileURL)
+                } catch {
+                    Library.log.error("Could not import \(fileURL), reason: \(error)")
+                    addResults.append(.failure(error))
                 }
-                Library.log.debug("Imported \(fileURL): \(String(describing: song))")
-                songs.append(song)
             case .failure(let error):
-                songs.append(.failure(error))
+                progress.localizedAdditionalDescription = error.localizedDescription
+                addResults.append(.failure(error))
             }
-            progress.completedUnitCount += 1
         }
-        return songs
+        return addResults
     }
 }
