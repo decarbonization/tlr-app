@@ -29,16 +29,51 @@ extension AppSchemaV0 {
             self.name = name
             self.userDescription = userDescription
             self.accentColor = accentColor
-            self.songs = []
+            self.playlistItems = []
         }
         
         var name: String
         var userDescription: String?
         var accentColor: RGBColor?
-        @Relationship(inverse: \Song.playlists) var songs: [Song]
+        @Relationship(deleteRule: .cascade) var playlistItems: [PlaylistItem]
+        var songs: [Song] {
+            get {
+                playlistItems
+                    .sorted { $0.order < $1.order }
+                    .compactMap { $0.song }
+            }
+            set {
+                var newPlaylistItems = [PlaylistItem]()
+                for song in newValue {
+                    if let existingItem = playlistItems.first(where: { $0.song?.id == song.id }) {
+                        existingItem.order = newPlaylistItems.count
+                        newPlaylistItems.append(existingItem)
+                    } else {
+                        newPlaylistItems.append(PlaylistItem(playlist: self,
+                                                             song: song,
+                                                             order: newPlaylistItems.count))
+                    }
+                }
+                playlistItems = newPlaylistItems
+            }
+        }
         
         var sortedSongs: [Song] {
             songs // Already in user-defined order
         }
+    }
+    
+    @Model final class PlaylistItem {
+        init(playlist: Playlist,
+             song: Song,
+             order: Int) {
+            self.playlist = playlist
+            self.song = song
+            self.order = order
+        }
+        
+        @Relationship(inverse: \Playlist.playlistItems) var playlist: Playlist?
+        @Relationship(inverse: \Song.playlistItems) var song: Song?
+        var order: Int
     }
 }

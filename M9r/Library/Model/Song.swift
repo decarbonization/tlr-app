@@ -56,7 +56,7 @@ extension AppSchemaV0 {
             self.endTime = endTime
             self.flags = []
             self.artwork = []
-            self.playlists = []
+            self.playlistItems = []
         }
         
         private(set) var creationDate: Date
@@ -76,7 +76,7 @@ extension AppSchemaV0 {
         @Relationship var artist: Artist?
         @Relationship var album: Album?
         @Relationship var artwork: [Artwork]
-        @Relationship var playlists: [Playlist]
+        @Relationship var playlistItems: [PlaylistItem]
         
         var title: String?
         var albumArtist: String?
