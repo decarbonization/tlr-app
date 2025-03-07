@@ -31,8 +31,18 @@ struct ArtistList: View {
     var body: some View {
         List(artists) { artist in
             NavigationLink(artist.name) {
-                AlbumList(filter: #Predicate { [artistID = artist.id] in $0.artist?.persistentModelID == artistID })
-                    .navigationTitle(artist.name)
+                AlbumList(filter: #Predicate { [artistID = artist.id] in $0.artist?.persistentModelID == artistID }) {
+                    NavigationLink("All Songs") {
+                        DeferView {
+                            SongList(filter: #Predicate { [artistID = artist.id] in $0.artist?.persistentModelID == artistID })
+                                .navigationTitle(artist.name)
+                        }
+                    }
+                    .buttonStyle(.borderless)
+                    .padding(.all.subtracting(.bottom))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .navigationTitle(artist.name)
             }
             .onDrag {
                 let itemProvider = NSItemProvider()

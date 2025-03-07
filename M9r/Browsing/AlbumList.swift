@@ -19,17 +19,26 @@
 import SwiftUI
 import SwiftData
 
-struct AlbumList: View {
-    init(filter: Predicate<Album>? = nil) {
+struct AlbumList<HeaderView: View>: View {
+    init(filter: Predicate<Album>? = nil) where HeaderView == EmptyView {
         _albums = .init(filter: filter, sort: \Album.title)
+        header = { EmptyView() }
+    }
+    
+    init(filter: Predicate<Album>? = nil,
+         @ViewBuilder header: @escaping () -> HeaderView) {
+        _albums = .init(filter: filter, sort: \Album.title)
+        self.header = header
     }
     
     @Query var albums: [Album]
+    private let header: () -> HeaderView
     @Environment(PlayQueue.self) private var playQueue
     @Environment(\.modelContext) private var modelContext
     
     var body: some View {
         ScrollView {
+            header()
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 128, maximum: 150))]) {
                 ForEach(albums) { album in
                     NavigationLink {
