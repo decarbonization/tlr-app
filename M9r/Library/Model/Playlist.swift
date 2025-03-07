@@ -20,6 +20,7 @@ import Foundation
 import SwiftData
 
 typealias Playlist = LatestAppSchema.Playlist
+typealias PlaylistItem = LatestAppSchema.PlaylistItem
 
 extension AppSchemaV0 {
     @Model final class Playlist: SongCollection {

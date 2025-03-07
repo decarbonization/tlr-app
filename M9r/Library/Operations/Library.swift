@@ -79,6 +79,13 @@ import SwiftData
             emptyArtist.albums = []
             modelContext.delete(emptyArtist)
         }
+        
+        var brokenPlaylistItemFetch = FetchDescriptor<PlaylistItem>(predicate: #Predicate { $0.playlist == nil || $0.song == nil })
+        brokenPlaylistItemFetch.includePendingChanges = true
+        let brokenPlaylistItems = try modelContext.fetch(brokenPlaylistItemFetch)
+        for brokenPlaylistItem in brokenPlaylistItems {
+            modelContext.delete(brokenPlaylistItem)
+        }
     }
     
     func save() throws {
