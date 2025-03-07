@@ -20,20 +20,12 @@
 			remoteGlobalIDString = 463A9F142D413AFF00ABF576;
 			remoteInfo = M9r;
 		};
-		463A9F312D413AFF00ABF576 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 463A9F0D2D413AFF00ABF576 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 463A9F142D413AFF00ABF576;
-			remoteInfo = M9r;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		463377EB2D62AF1400859BC3 /* MAINTAINERS */ = {isa = PBXFileReference; lastKnownFileType = text; path = MAINTAINERS; sourceTree = "<group>"; };
 		463A9F152D413AFF00ABF576 /* M9r.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = M9r.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		463A9F262D413AFF00ABF576 /* M9rTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = M9rTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		463A9F302D413AFF00ABF576 /* M9rUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = M9rUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		463A9F532D413B1C00ABF576 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		463A9F542D413B1C00ABF576 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -63,11 +55,6 @@
 			path = M9rTests;
 			sourceTree = "<group>";
 		};
-		463A9F332D413AFF00ABF576 /* M9rUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = M9rUITests;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -88,13 +75,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		463A9F2D2D413AFF00ABF576 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -106,7 +86,6 @@
 				463377EB2D62AF1400859BC3 /* MAINTAINERS */,
 				463A9F172D413AFF00ABF576 /* M9r */,
 				463A9F292D413AFF00ABF576 /* M9rTests */,
-				463A9F332D413AFF00ABF576 /* M9rUITests */,
 				463A9F562D413F2E00ABF576 /* Frameworks */,
 				463A9F162D413AFF00ABF576 /* Products */,
 			);
@@ -117,7 +96,6 @@
 			children = (
 				463A9F152D413AFF00ABF576 /* M9r.app */,
 				463A9F262D413AFF00ABF576 /* M9rTests.xctest */,
-				463A9F302D413AFF00ABF576 /* M9rUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -181,29 +159,6 @@
 			productReference = 463A9F262D413AFF00ABF576 /* M9rTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		463A9F2F2D413AFF00ABF576 /* M9rUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 463A9F402D413AFF00ABF576 /* Build configuration list for PBXNativeTarget "M9rUITests" */;
-			buildPhases = (
-				463A9F2C2D413AFF00ABF576 /* Sources */,
-				463A9F2D2D413AFF00ABF576 /* Frameworks */,
-				463A9F2E2D413AFF00ABF576 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				463A9F322D413AFF00ABF576 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				463A9F332D413AFF00ABF576 /* M9rUITests */,
-			);
-			name = M9rUITests;
-			packageProductDependencies = (
-			);
-			productName = M9rUITests;
-			productReference = 463A9F302D413AFF00ABF576 /* M9rUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -219,10 +174,6 @@
 						CreatedOnToolsVersion = 16.2;
 					};
 					463A9F252D413AFF00ABF576 = {
-						CreatedOnToolsVersion = 16.2;
-						TestTargetID = 463A9F142D413AFF00ABF576;
-					};
-					463A9F2F2D413AFF00ABF576 = {
 						CreatedOnToolsVersion = 16.2;
 						TestTargetID = 463A9F142D413AFF00ABF576;
 					};
@@ -249,7 +200,6 @@
 			targets = (
 				463A9F142D413AFF00ABF576 /* M9r */,
 				463A9F252D413AFF00ABF576 /* M9rTests */,
-				463A9F2F2D413AFF00ABF576 /* M9rUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -263,13 +213,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		463A9F242D413AFF00ABF576 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		463A9F2E2D413AFF00ABF576 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -293,13 +236,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		463A9F2C2D413AFF00ABF576 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -307,11 +243,6 @@
 			isa = PBXTargetDependency;
 			target = 463A9F142D413AFF00ABF576 /* M9r */;
 			targetProxy = 463A9F272D413AFF00ABF576 /* PBXContainerItemProxy */;
-		};
-		463A9F322D413AFF00ABF576 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 463A9F142D413AFF00ABF576 /* M9r */;
-			targetProxy = 463A9F312D413AFF00ABF576 /* PBXContainerItemProxy */;
 		};
 		463A9F5A2D413F3200ABF576 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -540,36 +471,6 @@
 			};
 			name = Release;
 		};
-		463A9F412D413AFF00ABF576 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = io.github.decarbonization.M9rUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TEST_TARGET_NAME = M9r;
-			};
-			name = Debug;
-		};
-		463A9F422D413AFF00ABF576 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = io.github.decarbonization.M9rUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TEST_TARGET_NAME = M9r;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -596,15 +497,6 @@
 			buildConfigurations = (
 				463A9F3E2D413AFF00ABF576 /* Debug */,
 				463A9F3F2D413AFF00ABF576 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		463A9F402D413AFF00ABF576 /* Build configuration list for PBXNativeTarget "M9rUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				463A9F412D413AFF00ABF576 /* Debug */,
-				463A9F422D413AFF00ABF576 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
