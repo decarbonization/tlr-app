@@ -16,30 +16,35 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import SwiftData
 import SwiftUI
 
-struct SourceList: View {
+struct ItemAddToPlaylistMenu: View {
+    init(selection: Set<PersistentIdentifier>) {
+        self.selection = selection
+    }
+    
+    private let selection: Set<PersistentIdentifier>
+    @Query(sort: \Playlist.name) private var playlists: [Playlist]
     @Environment(\.modelContext) private var modelContext
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            List {
-                LibrarySourceListSection()
-                PluginSourceListSection()
-                PlaylistsSourceListSection()
-                OtherSourceListSection()
-            }
-            .listStyle(.sidebar)
-            HStack {
+        Menu("Add to Playlist") {
+            ForEach(playlists) { playlist in
                 Button {
-                    modelContext.insert(Playlist(name: "Untitled Playlist"))
+                    add(to: playlist)
                 } label: {
-                    Label("New Playlist", systemImage: "plus")
-                        .labelStyle(.iconOnly)
+                    Label(playlist.name, systemImage: "music.note.list")
                 }
-                .buttonStyle(.borderless)
             }
-            .padding()
         }
+        .disabled(playlists.isEmpty)
+    }
+    
+    private func add(to playlist: Playlist) {
+        let toAdd = selection.lazy
+            .compactMap { modelContext.model(for: $0) as? SongCollection }
+            .flatMap { $0.sortedSongs }
+        playlist.songs.append(contentsOf: toAdd)
     }
 }

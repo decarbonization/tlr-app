@@ -52,24 +52,6 @@ struct SongList: View {
     @Environment(PlayQueue.self) private var playQueue
     @Environment(\.modelContext) private var modelContext
     
-    private func addToQueue(_ selection: Set<PersistentIdentifier>) {
-        guard !selection.isEmpty else {
-            return
-        }
-        let toAdd = selection.compactMap { modelContext.model(for: $0) as? Song }
-        playQueue.withItems { items in
-            items.append(contentsOf: toAdd)
-        }
-    }
-    
-    private func revealSelectionInFinder(_ selection: Set<PersistentIdentifier>) {
-        guard !selection.isEmpty else {
-            return
-        }
-        let toReveal = selection.compactMap { modelContext.model(for: $0) as? Song }.map{ $0.url }
-        NSWorkspace.shared.activateFileViewerSelecting(toReveal)
-    }
-    
     private func deleteSelection(_ selection: Set<PersistentIdentifier>) {
         guard !selection.isEmpty else {
             return

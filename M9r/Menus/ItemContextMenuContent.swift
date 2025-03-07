@@ -29,6 +29,8 @@ struct ItemContextMenuContent: View {
     @Environment(PlayQueue.self) private var playQueue
     
     var body: some View {
+        ItemAddToPlaylistMenu(selection: selection)
+        Divider()
         Button("Play Next") {
             guard let playingIndex = playQueue.playingIndex else {
                 return
