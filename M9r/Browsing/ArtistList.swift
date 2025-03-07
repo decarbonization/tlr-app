@@ -40,19 +40,7 @@ struct ArtistList: View {
                 return itemProvider
             }
             .contextMenu {
-                Button("Add to Queue") {
-                    playQueue.withItems { items in
-                        items.append(contentsOf: artist.sortedSongs)
-                    }
-                }
-                RatingButton(itemIDs: [artist.persistentModelID])
-                Button("Remove from Library") {
-                    Library.performChanges(inContainerOf: modelContext) { library in
-                        try await library.deleteArtists(withIDs: [artist.persistentModelID])
-                    } catching: { error in
-                        TaskErrors.all.present(error)
-                    }
-                }
+                ItemContextMenuContent(selection: [artist.id])
             }
         }
         .onDropOfImportableItems()

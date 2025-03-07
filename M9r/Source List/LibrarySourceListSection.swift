@@ -18,7 +18,6 @@
 
 import SwiftUI
 
-
 struct LibrarySourceListSection: View {
     var body: some View {
         Section("Library") {

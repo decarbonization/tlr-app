@@ -19,25 +19,14 @@
 import SwiftData
 import SwiftUI
 
-struct RatingButton: View {
-    init(itemIDs: Set<PersistentIdentifier>) {
-        self.itemIDs = itemIDs
+struct ItemRatingMenu: View {
+    init(selection: Set<PersistentIdentifier>) {
+        self.selection = selection
     }
     
-    private let itemIDs: Set<PersistentIdentifier>
+    private let selection: Set<PersistentIdentifier>
     @Environment(\.modelContext) private var modelContext
     @AppStorage("RatingStyle") private var ratingStyle = RatingStyle.default
-    
-    private func updateRatings(to newRating: Float?) {
-        for itemID in itemIDs {
-            guard let collection = modelContext.model(for: itemID) as? SongCollection else {
-                continue
-            }
-            for song in collection.sortedSongs {
-                song.rating = newRating
-            }
-        }
-    }
     
     var body: some View {
         Menu("Rating") {
@@ -57,6 +46,17 @@ struct RatingButton: View {
                     }
                     .accessibilityLabel("\(rating) Stars")
                 }
+            }
+        }
+    }
+    
+    private func updateRatings(to newRating: Float?) {
+        for itemID in selection {
+            guard let collection = modelContext.model(for: itemID) as? SongCollection else {
+                continue
+            }
+            for song in collection.sortedSongs {
+                song.rating = newRating
             }
         }
     }

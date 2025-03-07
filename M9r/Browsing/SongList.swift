@@ -199,16 +199,7 @@ struct SongList: View {
                 deleteSelection(selection)
             }
             .contextMenu(forSelectionType: PersistentIdentifier.self) { selection in
-                Button("Add to Queue") {
-                    addToQueue(selection)
-                }
-                RatingButton(itemIDs: selection)
-                Button("Show in Finder") {
-                    revealSelectionInFinder(selection)
-                }
-                Button("Remove from Library") {
-                    deleteSelection(selection)
-                }
+                ItemContextMenuContent(selection: selection)
             } primaryAction: { selection in
                 guard let songID = selection.first,
                       let songPosition = songs.firstIndex(where: { $0.id == songID }) else {

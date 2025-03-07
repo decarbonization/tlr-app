@@ -64,19 +64,7 @@ struct AlbumList: View {
                         return itemProvider
                     }
                     .contextMenu {
-                        Button("Add to Queue") {
-                            playQueue.withItems { items in
-                                items.append(contentsOf: album.sortedSongs)
-                            }
-                        }
-                        RatingButton(itemIDs: [album.persistentModelID])
-                        Button("Remove from Library") {
-                            Library.performChanges(inContainerOf: modelContext) { library in
-                                try await library.deleteAlbums(withIDs: [album.persistentModelID])
-                            } catching: { error in
-                                TaskErrors.all.present(error)
-                            }
-                        }
+                        ItemContextMenuContent(selection: [album.id])
                     }
                 }
             }
