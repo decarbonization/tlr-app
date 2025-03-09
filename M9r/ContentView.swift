@@ -42,6 +42,8 @@ struct ContentView: View {
                 Library.performChanges(inContainerOf: modelContext) { library in
                     let addResults = await library.findAndAddSongs(fromContentsOf: urls.map { .success($0) })
                     TaskErrors.all.present(addResults)
+                } catching: { error in
+                    TaskErrors.all.present(error)
                 }
             }
         }

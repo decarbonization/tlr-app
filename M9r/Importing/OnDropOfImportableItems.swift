@@ -55,6 +55,8 @@ private struct ImportDropDelegate: DropDelegate {
             Library.performChanges(inContainerOf: modelContext) { library in
                 let addResults = await library.findAndAddSongs(fromContentsOf: itemResults)
                 TaskErrors.all.present(addResults)
+            } catching: { error in
+                TaskErrors.all.present(error)
             }
         }
         

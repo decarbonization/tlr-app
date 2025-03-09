@@ -46,6 +46,10 @@ struct M9rApp: App {
         }
         .environment(playQueue)
         .modelContainer(modelContainer)
+        .commands {
+            MainMenu(playQueue: playQueue,
+                     modelContainer: modelContainer)
+        }
         Settings {
             SettingsView()
         }
