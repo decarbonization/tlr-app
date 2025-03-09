@@ -48,16 +48,11 @@ struct QueueList: View {
     var body: some View {
         VStack(spacing: 0) {
             if playQueue.items.isEmpty {
-                VStack(alignment: .center) {
-                    Text("No Songs")
-                        .font(.largeTitle)
-                        .foregroundStyle(.tertiary)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .onDrop(of: [.libraryItem], isTargeted: nil) { providers in
-                    insert(contentsOf: providers, at: 0)
-                    return providers.contains { $0.hasItemConformingToTypeIdentifier(UTType.libraryItem.identifier) }
-                }
+                NoContentView("No Songs")
+                    .onDrop(of: [.libraryItem], isTargeted: nil) { providers in
+                        insert(contentsOf: providers, at: 0)
+                        return providers.contains { $0.hasItemConformingToTypeIdentifier(UTType.libraryItem.identifier) }
+                    }
             } else {
                 ScrollViewReader { proxy in
                     List(selection: $selectedItems) {

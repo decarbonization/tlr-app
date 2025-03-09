@@ -29,11 +29,8 @@ struct ContentView: View {
                 SourceList()
             } detail: {
                 NavigationStack {
-                    VStack {
-                        Text("No Selection")
-                            .font(.largeTitle)
-                            .foregroundStyle(.tertiary)
-                    }
+                    NoContentView("No Selection")
+                        .onDropOfImportableItems()
                 }
             }
             QueueList()
