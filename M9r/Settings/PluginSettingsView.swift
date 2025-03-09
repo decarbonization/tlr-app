@@ -21,6 +21,7 @@ import SwiftUI
 struct PluginSettingsView: View {
     @State private var selection: Plugin.ID?
     @State private var isShowingImporter = false
+    @State private var isShowingConfirmUninstall = false
     
     var body: some View {
         @Bindable var pluginList = Plugin.List.installed
@@ -46,21 +47,39 @@ struct PluginSettingsView: View {
                 .border(.tertiary, width: 1.0)
             }
             
-            Button("Install") {
-                isShowingImporter = true
-            }
-            .fileImporter(isPresented: $isShowingImporter, allowedContentTypes: [.bundle]) { result in
-                do {
-                    let importURL = try result.get()
-                    guard importURL.startAccessingSecurityScopedResource() else {
-                        throw CocoaError(.fileReadNoPermission)
+            HStack {
+                Button("Install") {
+                    isShowingImporter = true
+                }
+                .fileImporter(isPresented: $isShowingImporter, allowedContentTypes: [.bundle]) { result in
+                    do {
+                        let importURL = try result.get()
+                        guard importURL.startAccessingSecurityScopedResource() else {
+                            throw CocoaError(.fileReadNoPermission)
+                        }
+                        defer {
+                            importURL.stopAccessingSecurityScopedResource()
+                        }
+                        try Plugin.List.installed.add(byCopying: importURL)
+                    } catch {
+                        TaskErrors.all.present(error)
                     }
-                    defer {
-                        importURL.stopAccessingSecurityScopedResource()
+                }
+                Button("Uninstall") {
+                    isShowingConfirmUninstall = true
+                }
+                .disabled(selection == nil)
+                .alert("Are you sure you want to uninstall this plugin?", isPresented: $isShowingConfirmUninstall, presenting: selection) { selection in
+                    Button("Cancel", role: .cancel) {
+                        // Do nothing.
                     }
-                    try Plugin.List.installed.add(byCopying: importURL)
-                } catch {
-                    TaskErrors.all.present(error)
+                    Button("Uninstall", role: .destructive) {
+                        do {
+                            try Plugin.List.installed.remove(selection)
+                        } catch {
+                            TaskErrors.all.present(error)
+                        }
+                    }
                 }
             }
         }

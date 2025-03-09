@@ -110,5 +110,17 @@ extension Plugin {
                 try await self.reload()
             }
         }
+        
+        func remove(_ pluginID: Plugin.ID) throws {
+            guard let toRemove = all.first(where: { $0.id == pluginID }) else {
+                fatalError()
+            }
+            
+            try FileManager.default.removeItem(at: toRemove.bundleURL)
+            
+            Task {
+                try await self.reload()
+            }
+        }
     }
 }
