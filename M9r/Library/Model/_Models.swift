@@ -26,7 +26,7 @@ extension UTType {
                                      conformingTo: .database)
     
     static let libraryItem = UTType(exportedAs: "io.github.decarbonization.M9r.item",
-                                    conformingTo: .content)
+                                    conformingTo: .data)
 }
 
 struct LibraryItem: Identifiable, Equatable, Transferable {
