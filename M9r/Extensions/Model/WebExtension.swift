@@ -18,6 +18,12 @@
 
 import Foundation
 import os
+import UniformTypeIdentifiers
+
+extension UTType {
+    static let musicPlayerWebExtension = UTType(exportedAs: "io.github.decarbonization.M9r.webExtension",
+                                                conformingTo: .directory)
+}
 
 @Observable final class WebExtension: Identifiable, Sendable {
     init(source: Source) {

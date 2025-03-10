@@ -26,7 +26,7 @@ import Testing
                                                                                                              name: "Stub",
                                                                                                              version: "0.0.0")) throws -> URL {
         let bundleURL = URL.temporaryDirectory
-            .appending(component: "\(UUID().uuidString).p4n", directoryHint: .isDirectory)
+            .appending(component: "\(UUID().uuidString).mpext", directoryHint: .isDirectory)
         try FileManager.default.createDirectory(at: bundleURL,
                                                 withIntermediateDirectories: true)
         

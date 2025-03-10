@@ -67,7 +67,7 @@ extension WebExtension {
                 let contents = try FileManager.default.contentsOfDirectory(at: searchURL,
                                                                            includingPropertiesForKeys: nil,
                                                                            options: [.skipsHiddenFiles])
-                for bundleURL in contents where bundleURL.pathExtension == "p4n" {
+                for bundleURL in contents where bundleURL.pathExtension == "mpext" {
                     let newSource = try WebExtension.Source(from: bundleURL)
                     sources[newSource.id] = newSource
                 }

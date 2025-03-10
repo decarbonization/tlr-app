@@ -51,7 +51,7 @@ struct ExtensionSettingsView: View {
                 Button("Install") {
                     isShowingImporter = true
                 }
-                .fileImporter(isPresented: $isShowingImporter, allowedContentTypes: [.bundle]) { result in
+                .fileImporter(isPresented: $isShowingImporter, allowedContentTypes: [.musicPlayerWebExtension]) { result in
                     do {
                         let importURL = try result.get()
                         guard importURL.startAccessingSecurityScopedResource() else {
