@@ -20,7 +20,7 @@ import Foundation
 
 extension WebExtension {
     struct Configuration: Codable {
-        @Setting("PluginConfiguration") static var persistent = Configuration()
+        @Setting("WebExtensionConfiguration") static var persistent = Configuration()
         
         var ids = [String: UUID]()
         var disabled = Set<String>()

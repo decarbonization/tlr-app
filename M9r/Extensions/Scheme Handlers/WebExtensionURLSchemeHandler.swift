@@ -19,7 +19,7 @@
 import UniformTypeIdentifiers
 import WebKit
 
-@MainActor final class PluginURLSchemeHandler: NSObject, WKURLSchemeHandler {
+@MainActor final class WebExtensionURLSchemeHandler: NSObject, WKURLSchemeHandler {
     init(_ webExtension: WebExtension) {
         self.webExtension = webExtension
         self.pendingTasks = [:]

@@ -155,7 +155,7 @@ private struct _WebExtensionContent: NSViewRepresentable {
         for rule in rules {
             configuration.userContentController.add(rule)
         }
-        configuration.setURLSchemeHandler(PluginURLSchemeHandler(webExtension), forURLScheme: "plugin")
+        configuration.setURLSchemeHandler(WebExtensionURLSchemeHandler(webExtension), forURLScheme: "webex")
         
         let permissions = webExtension.manifest.permissions ?? []
         for service in services {
@@ -188,7 +188,7 @@ private struct _WebExtensionContent: NSViewRepresentable {
         
         if let action = webExtension.manifest.action {
             let popupURL = URL(string: action.defaultPopup,
-                               relativeTo: URL(string: "plugin://")!)
+                               relativeTo: URL(string: "webex://")!)
             wkWebView.load(URLRequest(url: popupURL!))
         } else {
             WebExtensionView.logger.error("*** Web extension does not have action")
