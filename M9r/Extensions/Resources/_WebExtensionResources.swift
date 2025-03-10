@@ -60,7 +60,7 @@ enum WebExtensionResources {
     
     static var jsonDecoder: JSONDecoder {
         let messageDecoder = JSONDecoder()
-        messageDecoder.keyDecodingStrategy = .convertFromSnakeCase
+        messageDecoder.keyDecodingStrategy = .useDefaultKeys
         messageDecoder.dataDecodingStrategy = .base64
         messageDecoder.dateDecodingStrategy = .iso8601
         return messageDecoder
@@ -68,7 +68,7 @@ enum WebExtensionResources {
     
     static var jsonEncoder: JSONEncoder {
         let replyEncoder = JSONEncoder()
-        replyEncoder.keyEncodingStrategy = .convertToSnakeCase
+        replyEncoder.keyEncodingStrategy = .useDefaultKeys
         replyEncoder.dataEncodingStrategy = .base64
         replyEncoder.dateEncodingStrategy = .iso8601
         return replyEncoder
