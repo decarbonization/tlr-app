@@ -19,65 +19,65 @@
 import Foundation
 import WebKit
 
-enum PluginServiceError: Error {
+enum WebExtensionServiceError: Error {
     case framePermissionDenied
     case unexpectedName
     case badBody
     case malformedMessage
 }
 
-struct PluginServiceContext: Sendable {
-    let manifest: Plugin.Manifest
+struct WebExtensionServiceContext: Sendable {
+    let manifest: WebExtension.Manifest
 }
 
-protocol PluginService: Sendable {
+protocol WebExtensionService: Sendable {
     associatedtype Message: Decodable
     associatedtype Reply: Encodable
     
     static var name: String { get }
-    static var requiredPermissions: Set<Plugin.Permission> { get }
+    static var requiredPermissions: Set<WebExtension.Permission> { get }
     
-    func beginDispatchingEvents(into eventSink: any PluginEventSink) -> any PluginEventSinkPublisher
-    func receive(_ message: Message, with context: PluginServiceContext) async throws -> Reply
+    func beginDispatchingEvents(into eventSink: any WebExtensionServiceEventSink) -> any WebExtensionEventPublisher
+    func receive(_ message: Message, with context: WebExtensionServiceContext) async throws -> Reply
 }
 
-protocol PluginEventSink: AnyObject, Sendable {
+protocol WebExtensionServiceEventSink: AnyObject, Sendable {
     func dispatchEvent(of type: String, with detail: some Encodable) async -> Void
 }
 
-protocol PluginEventSinkPublisher: AnyObject, Sendable {
+protocol WebExtensionEventPublisher: AnyObject, Sendable {
     func stop() -> Void
 }
 
-@MainActor final class PluginServiceMessageHandler<Service: PluginService>: NSObject, WKScriptMessageHandlerWithReply {
+@MainActor final class WebExtensionServiceMessageHandler<Service: WebExtensionService>: NSObject, WKScriptMessageHandlerWithReply {
     init(_ service: Service,
-         for plugin: Plugin) {
+         for webExtension: WebExtension) {
         self.service = service
-        self.plugin = plugin
+        self.webExtension = webExtension
     }
     
     private let service: Service
-    private let plugin: Plugin
+    private let webExtension: WebExtension
     
     func userContentController(_ userContentController: WKUserContentController,
                                didReceive message: WKScriptMessage) async -> (Any?, String?) {
         do {
             guard message.frameInfo.isMainFrame else {
-                throw PluginServiceError.framePermissionDenied
+                throw WebExtensionServiceError.framePermissionDenied
             }
             guard message.name == Service.name else {
-                throw PluginServiceError.unexpectedName
+                throw WebExtensionServiceError.unexpectedName
             }
             guard let rawMessage = message.body as? String else {
-                throw PluginServiceError.badBody
+                throw WebExtensionServiceError.badBody
             }
             guard let rawMessageBytes = rawMessage.data(using: .utf8) else {
-                throw PluginServiceError.malformedMessage
+                throw WebExtensionServiceError.malformedMessage
             }
-            let message = try PluginResources.jsonDecoder.decode(Service.Message.self, from: rawMessageBytes)
-            let context = PluginServiceContext(manifest: plugin.manifest)
+            let message = try WebExtensionResources.jsonDecoder.decode(Service.Message.self, from: rawMessageBytes)
+            let context = WebExtensionServiceContext(manifest: webExtension.manifest)
             let reply = try await service.receive(message, with: context)
-            let rawReplyBytes = try PluginResources.jsonEncoder.encode(reply)
+            let rawReplyBytes = try WebExtensionResources.jsonEncoder.encode(reply)
             let rawReply = String(data: rawReplyBytes, encoding: .utf8)
             return (rawReply, nil)
         } catch {

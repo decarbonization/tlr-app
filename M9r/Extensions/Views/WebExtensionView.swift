@@ -21,14 +21,14 @@ import os
 import SwiftUI
 import WebKit
 
-struct PluginView: View {
-    nonisolated static let logger = Logger(subsystem: "io.github.decarbonization.M9r", category: "PluginView")
+struct WebExtensionView: View {
+    nonisolated static let logger = Logger(subsystem: "io.github.decarbonization.M9r", category: "WebExtensionView")
     
     enum Role {
         case actionPopup
     }
     
-    let plugin: Plugin
+    let webExtension: WebExtension
     let role: Role
     @State private var resources: Result<([WKUserScript], [WKContentRuleList]), any Error>?
     @Environment(PlayQueue.self) private var playQueue
@@ -41,11 +41,11 @@ struct PluginView: View {
                     ProgressView()
                 }
             case .success((let scripts, let rules)):
-                _PluginContent(plugin: plugin,
-                               role: role,
-                               scripts: scripts,
-                               rules: rules,
-                               services: [PlayQueueService(playQueue: playQueue)])
+                _WebExtensionContent(webExtension: webExtension,
+                                     role: role,
+                                     scripts: scripts,
+                                     rules: rules,
+                                     services: [PlayQueueService(playQueue: playQueue)])
             case .failure(let error):
                 VStack {
                     Text(verbatim: error.localizedDescription)
@@ -60,12 +60,12 @@ struct PluginView: View {
             }
             do {
                 var scripts = [WKUserScript]()
-                scripts.append(try await PluginResources.preflightUserScript)
+                scripts.append(try await WebExtensionResources.preflightUserScript)
                 
                 var rules = [WKContentRuleList]()
-                rules.append(try await PluginResources.filterFilesRuleList)
-                if plugin.manifest.permissions?.contains(.networking) != true {
-                    rules.append(try await PluginResources.filterNetworkingRuleList)
+                rules.append(try await WebExtensionResources.filterFilesRuleList)
+                if webExtension.manifest.permissions?.contains(.networking) != true {
+                    rules.append(try await WebExtensionResources.filterNetworkingRuleList)
                 }
                 
                 resources = .success((scripts, rules))
@@ -78,14 +78,14 @@ struct PluginView: View {
 
 // MARK: -
 
-private struct _PluginContent: NSViewRepresentable {
-    let plugin: Plugin
-    let role: PluginView.Role
+private struct _WebExtensionContent: NSViewRepresentable {
+    let webExtension: WebExtension
+    let role: WebExtensionView.Role
     let scripts: [WKUserScript]
     let rules: [WKContentRuleList]
-    let services: [any PluginService]
+    let services: [any WebExtensionService]
     
-    final class EventSink: PluginEventSink {
+    final class EventSink: WebExtensionServiceEventSink {
         let _webView = OSAllocatedUnfairLock<Weak<WKWebView>?>(initialState: nil)
         var webView: WKWebView? {
             get {
@@ -104,68 +104,68 @@ private struct _PluginContent: NSViewRepresentable {
         
         func dispatchEvent(of type: String, with detail: some Encodable) async {
             do {
-                let rawDetailData = try PluginResources.jsonEncoder.encode(detail)
+                let rawDetailData = try WebExtensionResources.jsonEncoder.encode(detail)
                 let rawDetail = String(data: rawDetailData, encoding: .utf8)!
                 let result = try await webView?.callAsyncJavaScript("player.__dispatchEvent(type, detail)",
                                                                     arguments: ["type": type,
                                                                                 "detail": rawDetail],
                                                                     contentWorld: .page)
-                PluginView.logger.debug("Dispatched plugin event \(type) with \(String(describing: detail)), got \(String(describing: result)) back")
+                WebExtensionView.logger.debug("Dispatched web extension event \(type) with \(String(describing: detail)), got \(String(describing: result)) back")
             } catch {
-                PluginView.logger.error("*** Failed to dispatch plugin event \(type) with \(String(describing: detail)), reason \(String(describing: error))")
+                WebExtensionView.logger.error("*** Failed to dispatch web extension event \(type) with \(String(describing: detail)), reason \(String(describing: error))")
             }
         }
     }
     
     final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
-        init(plugin: Plugin) {
-            self.plugin = plugin
+        init(webExtension: WebExtension) {
+            self.webExtension = webExtension
             self.eventSink = EventSink()
             self.eventPublishers = []
         }
         
-        let plugin: Plugin
+        let webExtension: WebExtension
         let eventSink: EventSink
-        var eventPublishers: [any PluginEventSinkPublisher]
+        var eventPublishers: [any WebExtensionEventPublisher]
         
         func webView(_ webView: WKWebView,
                      didFailProvisionalNavigation navigation: WKNavigation!,
                      withError error: any Error) {
-            PluginView.logger.error("*** Web view did fail provisional navigation \(String(describing: navigation)), reason: \(error)")
+            WebExtensionView.logger.error("*** Web view did fail provisional navigation \(String(describing: navigation)), reason: \(error)")
         }
         
         func webView(_ webView: WKWebView,
                      didFail navigation: WKNavigation!,
                      withError error: any Error) {
-            PluginView.logger.error("*** Web view did fail navigation \(String(describing: navigation)), reason: \(error)")
+            WebExtensionView.logger.error("*** Web view did fail navigation \(String(describing: navigation)), reason: \(error)")
         }
     }
     
     func makeCoordinator() -> Coordinator {
-        Coordinator(plugin: plugin)
+        Coordinator(webExtension: webExtension)
     }
     
     func makeNSView(context: Context) -> WKWebView {
-        let pluginConfiguration = WKWebViewConfiguration()
-        pluginConfiguration.websiteDataStore = WKWebsiteDataStore(forIdentifier: plugin.persistentID)
-        pluginConfiguration.processPool = WKProcessPool()
+        let configuration = WKWebViewConfiguration()
+        configuration.websiteDataStore = WKWebsiteDataStore(forIdentifier: webExtension.persistentID)
+        configuration.processPool = WKProcessPool()
         for script in scripts {
-            pluginConfiguration.userContentController.addUserScript(script)
+            configuration.userContentController.addUserScript(script)
         }
         for rule in rules {
-            pluginConfiguration.userContentController.add(rule)
+            configuration.userContentController.add(rule)
         }
-        pluginConfiguration.setURLSchemeHandler(PluginURLSchemeHandler(plugin), forURLScheme: "plugin")
+        configuration.setURLSchemeHandler(PluginURLSchemeHandler(webExtension), forURLScheme: "plugin")
         
-        let pluginPermissions = plugin.manifest.permissions ?? []
+        let permissions = webExtension.manifest.permissions ?? []
         for service in services {
-            func addService<Service: PluginService>(_ service: Service) {
-                guard Service.requiredPermissions.isSuperset(of: pluginPermissions) else {
-                    PluginView.logger.debug("Skipping service \(Service.name) for plugin \(self.plugin.manifest.name)")
+            func addService<Service: WebExtensionService>(_ service: Service) {
+                guard Service.requiredPermissions.isSuperset(of: permissions) else {
+                    WebExtensionView.logger.debug("Skipping service \(Service.name) for web extension \(self.webExtension.manifest.name)")
                     return
                 }
-                let handler = PluginServiceMessageHandler(service, for: plugin)
-                pluginConfiguration.userContentController.addScriptMessageHandler(handler,
+                let handler = WebExtensionServiceMessageHandler(service, for: webExtension)
+                configuration.userContentController.addScriptMessageHandler(handler,
                                                                                   contentWorld: .page,
                                                                                   name: Service.name)
                 
@@ -175,23 +175,23 @@ private struct _PluginContent: NSViewRepresentable {
             addService(service)
         }
         
-        let wkWebView = WKWebView(frame: .zero, configuration: pluginConfiguration)
+        let wkWebView = WKWebView(frame: .zero, configuration: configuration)
         wkWebView.navigationDelegate = context.coordinator
         wkWebView.uiDelegate = context.coordinator
         if wkWebView.responds(to: NSSelectorFromString("_setDrawsBackground:")) {
             wkWebView.setValue(false, forKey: "drawsBackground")
         } else {
-            PluginView.logger.warning("*** -[WKWebView _setDrawsBackground:] removed, plugin appearance will be incorrect")
+            WebExtensionView.logger.warning("*** -[WKWebView _setDrawsBackground:] removed, web extension appearance will be incorrect")
         }
         wkWebView.underPageBackgroundColor = .clear
         context.coordinator.eventSink.webView = wkWebView
         
-        if let action = plugin.manifest.action {
+        if let action = webExtension.manifest.action {
             let popupURL = URL(string: action.defaultPopup,
                                relativeTo: URL(string: "plugin://")!)
             wkWebView.load(URLRequest(url: popupURL!))
         } else {
-            PluginView.logger.error("*** Plugin does not have action")
+            WebExtensionView.logger.error("*** Web extension does not have action")
         }
         
         return wkWebView

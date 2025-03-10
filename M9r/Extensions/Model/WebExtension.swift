@@ -19,7 +19,7 @@
 import Foundation
 import os
 
-@Observable final class Plugin: Identifiable, Sendable {
+@Observable final class WebExtension: Identifiable, Sendable {
     init(source: Source) {
         _source = .init(initialState: source)
     }
@@ -83,16 +83,16 @@ import os
     /// Returns the local file URL to load a resource with a given relative path.
     ///
     /// - important: This method does not check for the existence of the file.
-    /// - parameter resource: A relative path to a resource in the plugin's bundle.
-    /// - returns: A file URL which can be used by the plugin infrastructure.
+    /// - parameter resource: A relative path to a resource in the extension's bundle.
+    /// - returns: A file URL which can be used by the web extension infrastructure.
     /// - throws: A `URLError` if the relative path resolves to a location outside
-    /// of the plugin bundle.
+    /// of the web extension bundle.
     func resourceURL(_ resource: String) throws -> URL {
         var resourceURL = bundleURL.appending(path: resource, directoryHint: .inferFromPath)
         resourceURL.resolveSymlinksInPath() // Block symlink escapes
         resourceURL.standardize() // Block relative path escapes
         guard resourceURL.path(percentEncoded: false).hasPrefix(bundleURL.path(percentEncoded: false)) else {
-            throw PluginError.invalidResource(resource)
+            throw WebExtensionError.invalidResource(resource)
         }
         return resourceURL
     }

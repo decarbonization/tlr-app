@@ -20,12 +20,12 @@ import UniformTypeIdentifiers
 import WebKit
 
 @MainActor final class PluginURLSchemeHandler: NSObject, WKURLSchemeHandler {
-    init(_ plugin: Plugin) {
-        self.plugin = plugin
+    init(_ webExtension: WebExtension) {
+        self.webExtension = webExtension
         self.pendingTasks = [:]
     }
     
-    private let plugin: Plugin
+    private let webExtension: WebExtension
     private var pendingTasks: [ObjectIdentifier: Task<Void, Never>]
     
     func webView(_ webView: WKWebView, start urlSchemeTask: any WKURLSchemeTask) {
@@ -42,7 +42,7 @@ import WebKit
                     ])
                 }
                 
-                let resourceURL = try self.plugin.resourceURL(url.path(percentEncoded: false))
+                let resourceURL = try self.webExtension.resourceURL(url.path(percentEncoded: false))
                 try Task.checkCancellation()
                 let resourceData = try Data(contentsOf: resourceURL,
                                             options: [.mappedIfSafe])

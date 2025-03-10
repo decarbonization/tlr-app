@@ -19,24 +19,24 @@
 import Foundation
 import os
 
-extension Plugin {
+extension WebExtension {
+    static let installed = List(searchURLs: List.defaultSearchURLs)
+    
     @Observable final class List: Sendable {
         static var defaultSearchURLs: [URL] {
             var searchURLs = [URL]()
-            if let builtInPlugInsURL = Bundle.main.builtInPlugInsURL {
-                searchURLs.append(builtInPlugInsURL)
+            if let builtInURL = Bundle.main.builtInPlugInsURL {
+                searchURLs.append(builtInURL)
             }
             if let bundleID = Bundle.main.bundleIdentifier {
                 let applicationSupportURL = URL.applicationSupportDirectory
                     .appending(component: bundleID, directoryHint: .isDirectory)
-                let libraryPluginsURL = applicationSupportURL.appending(component: "Plugins",
-                                                                        directoryHint: .isDirectory)
-                searchURLs.append(libraryPluginsURL)
+                let libraryURL = applicationSupportURL.appending(component: "Plugins",
+                                                                 directoryHint: .isDirectory)
+                searchURLs.append(libraryURL)
             }
             return searchURLs
         }
-        
-        static let installed = List(searchURLs: List.defaultSearchURLs)
         
         init(searchURLs: [URL]) {
             self.searchURLs = searchURLs
@@ -47,15 +47,19 @@ extension Plugin {
         }
         
         private let searchURLs: [URL]
-        private let _all: OSAllocatedUnfairLock<[Plugin]>
+        private let _all: OSAllocatedUnfairLock<[WebExtension]>
         
-        var all: [Plugin] {
+        var all: [WebExtension] {
             access(keyPath: \.all)
             return _all.withLock { $0 }
         }
         
+        var enabled: [WebExtension] {
+            all.filter { $0.isEnabled }
+        }
+        
         private func reload() async throws {
-            var sources = [Plugin.ID: Plugin.Source]()
+            var sources = [WebExtension.ID: WebExtension.Source]()
             for searchURL in searchURLs {
                 guard FileManager.default.fileExists(atPath: searchURL.path(percentEncoded: false)) else {
                     continue
@@ -64,55 +68,55 @@ extension Plugin {
                                                                            includingPropertiesForKeys: nil,
                                                                            options: [.skipsHiddenFiles])
                 for bundleURL in contents where bundleURL.pathExtension == "p4n" {
-                    let newSource = try Plugin.Source(from: bundleURL)
+                    let newSource = try WebExtension.Source(from: bundleURL)
                     sources[newSource.id] = newSource
                 }
             }
             var updatedAll = all
             updatedAll.removeAll(where: { sources[$0.id] == nil })
             var toRemove = IndexSet()
-            for (index, plugin) in zip(updatedAll.indices, updatedAll) {
-                guard let newSource = sources.removeValue(forKey: plugin.id) else {
+            for (index, webExtension) in zip(updatedAll.indices, updatedAll) {
+                guard let newSource = sources.removeValue(forKey: webExtension.id) else {
                     toRemove.insert(index)
                     continue
                 }
-                plugin.updateSource(newSource)
+                webExtension.updateSource(newSource)
             }
             updatedAll.remove(atOffsets: toRemove)
             
             for (_, newSource) in sources {
-                updatedAll.append(Plugin(source: newSource))
+                updatedAll.append(WebExtension(source: newSource))
             }
             withMutation(keyPath: \.all) {
-                _all.withLock { [/* copy */ updatedAll] plugins in
-                    plugins = updatedAll
+                _all.withLock { [/* copy */ updatedAll] all in
+                    all = updatedAll
                 }
             }
         }
         
-        func add(byCopying pluginURL: URL) throws {
+        func add(byCopying bundleURL: URL) throws {
             guard let bundleID = Bundle.main.bundleIdentifier else {
                 fatalError()
             }
             let applicationSupportURL = URL.applicationSupportDirectory
                 .appending(component: bundleID, directoryHint: .isDirectory)
-            let libraryPluginsURL = applicationSupportURL.appending(component: "Plugins",
-                                                                    directoryHint: .isDirectory)
-            try FileManager.default.createDirectory(at: libraryPluginsURL, withIntermediateDirectories: true)
-            let libraryPluginURL = libraryPluginsURL.appending(component: pluginURL.lastPathComponent,
-                                                               directoryHint: .isDirectory)
-            if FileManager.default.fileExists(atPath: libraryPluginURL.path(percentEncoded: false)) {
-                try FileManager.default.removeItem(at: libraryPluginURL)
+            let libraryURL = applicationSupportURL.appending(component: "Plugins",
+                                                             directoryHint: .isDirectory)
+            try FileManager.default.createDirectory(at: libraryURL, withIntermediateDirectories: true)
+            let libraryBundleURL = libraryURL.appending(component: bundleURL.lastPathComponent,
+                                                        directoryHint: .isDirectory)
+            if FileManager.default.fileExists(atPath: libraryBundleURL.path(percentEncoded: false)) {
+                try FileManager.default.removeItem(at: libraryBundleURL)
             }
-            try FileManager.default.copyItem(at: pluginURL, to: libraryPluginURL)
+            try FileManager.default.copyItem(at: bundleURL, to: libraryBundleURL)
             
             Task {
                 try await self.reload()
             }
         }
         
-        func remove(_ pluginID: Plugin.ID) throws {
-            guard let toRemove = all.first(where: { $0.id == pluginID }) else {
+        func remove(_ id: WebExtension.ID) throws {
+            guard let toRemove = all.first(where: { $0.id == id }) else {
                 fatalError()
             }
             

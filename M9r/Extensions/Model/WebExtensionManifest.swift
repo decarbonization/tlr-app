@@ -20,7 +20,7 @@ import Foundation
 
 // Loosely based on <https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json>.
 
-extension Plugin {
+extension WebExtension {
     enum ManifestVersion: UInt8, Codable {
         case v0 = 0
     }

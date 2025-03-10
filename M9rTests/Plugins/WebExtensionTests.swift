@@ -20,18 +20,18 @@ import Foundation
 import Testing
 @testable import M9r
 
-@Suite struct PluginTests {
-    private func stubPlugin(creatingManifest createManifest: Bool = true,
-                            manifest: @autoclosure () -> Plugin.Manifest = Plugin.Manifest(manifestVersion: .v0,
-                                                                                           name: "Stub",
-                                                                                           version: "0.0.0")) throws -> URL {
+@Suite struct WebExtensionTests {
+    private func stubWebExtension(creatingManifest createManifest: Bool = true,
+                                  manifest: @autoclosure () -> WebExtension.Manifest = WebExtension.Manifest(manifestVersion: .v0,
+                                                                                                             name: "Stub",
+                                                                                                             version: "0.0.0")) throws -> URL {
         let bundleURL = URL.temporaryDirectory
             .appending(component: "\(UUID().uuidString).p4n", directoryHint: .isDirectory)
         try FileManager.default.createDirectory(at: bundleURL,
                                                 withIntermediateDirectories: true)
         
         if createManifest {
-            let manifestData = try Plugin.Manifest.jsonEncoder.encode(manifest())
+            let manifestData = try WebExtension.Manifest.jsonEncoder.encode(manifest())
             let manifestURL = bundleURL.appending(component: "manifest.json", directoryHint: .notDirectory)
             try manifestData.write(to: manifestURL, options: .atomic)
         }
@@ -40,30 +40,30 @@ import Testing
     
     @Test func sourceRejectsNonFileURLs() throws {
         #expect(throws: Error.self, performing: {
-            try Plugin.Source(from: try #require(URL(string: "http://localhost:8000")))
+            try WebExtension.Source(from: try #require(URL(string: "http://localhost:8000")))
         })
     }
     
     @Test func sourceRequiresManifest() throws {
-        let bundleURL = try stubPlugin(creatingManifest: false)
+        let bundleURL = try stubWebExtension(creatingManifest: false)
         #expect(throws: Error.self, performing: {
-            try Plugin.Source(from: bundleURL)
+            try WebExtension.Source(from: bundleURL)
         })
     }
     
-    @Test func canLoadPlugin() throws {
-        let bundleURL = try stubPlugin()
-        let stubSource = try Plugin.Source(from: bundleURL)
-        let plugin = Plugin(source: stubSource)
-        #expect(plugin.manifest.name == "Stub")
+    @Test func canLoadWebExtension() throws {
+        let bundleURL = try stubWebExtension()
+        let stubSource = try WebExtension.Source(from: bundleURL)
+        let subject = WebExtension(source: stubSource)
+        #expect(subject.manifest.name == "Stub")
     }
     
     @Test func blocksResourceAccessOutsideBundle() throws {
-        let bundleURL = try stubPlugin()
-        let stubSource = try Plugin.Source(from: bundleURL)
-        let plugin = Plugin(source: stubSource)
-        #expect(throws: PluginError.self, performing: {
-            try plugin.resourceURL("../secrets.txt")
+        let bundleURL = try stubWebExtension()
+        let stubSource = try WebExtension.Source(from: bundleURL)
+        let subject = WebExtension(source: stubSource)
+        #expect(throws: WebExtensionError.self, performing: {
+            try subject.resourceURL("../secrets.txt")
         })
         
         try FileManager.default.createSymbolicLink(at: bundleURL.appending(component: "tmp",
@@ -73,8 +73,8 @@ import Testing
                                                                  directoryHint: .notDirectory),
                             atomically: true,
                             encoding: .utf8)
-        #expect(throws: PluginError.self, performing: {
-            try plugin.resourceURL("tmp/secrets.txt")
+        #expect(throws: WebExtensionError.self, performing: {
+            try subject.resourceURL("tmp/secrets.txt")
         })
     }
 }

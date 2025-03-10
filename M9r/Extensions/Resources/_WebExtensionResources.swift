@@ -19,7 +19,7 @@
 import Foundation
 import WebKit
 
-enum PluginResources {
+enum WebExtensionResources {
     @MainActor static var preflightUserScript: WKUserScript {
         get async throws {
             guard let preflightURL = Bundle.main.url(forResource: "Preflight", withExtension: "js") else {

@@ -18,11 +18,11 @@
 
 import Foundation
 
-extension Plugin {
+extension WebExtension {
     struct Source: Identifiable {
         init(from bundleURL: URL) throws {
             guard bundleURL.isFileURL else {
-                throw PluginError.invalidBundleURL(bundleURL)
+                throw WebExtensionError.invalidBundleURL(bundleURL)
             }
             let manifestURL = bundleURL.appending(component: "manifest.json",
                                                   directoryHint: .notDirectory)

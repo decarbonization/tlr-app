@@ -24,8 +24,8 @@ struct SettingsView: View {
             Tab("General", systemImage: "gear") {
                 GeneralSettingsView()
             }
-            Tab("Plugins", systemImage: "puzzlepiece.extension") {
-                PluginSettingsView()
+            Tab("Extensions", systemImage: "puzzlepiece.extension") {
+                ExtensionSettingsView()
             }
         }
         .scenePadding()

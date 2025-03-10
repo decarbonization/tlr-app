@@ -16,10 +16,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import Foundation
+import SwiftUI
 
-enum PluginError: Error {
-    case invalidBundleURL(URL)
-    case invalidResource(String)
-    case missingRequiredConfiguration(String)
+struct ExtensionSourceListSection: View {
+    var body: some View {
+        let enabledWebExtensions = WebExtension.installed.enabled
+        if !enabledWebExtensions.isEmpty {
+            Section("Extensions") {
+                ForEach(enabledWebExtensions) { webExtension in
+                    PluginActionLink(webExtension: webExtension)
+                }
+            }
+        }
+    }
 }

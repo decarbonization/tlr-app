@@ -18,7 +18,7 @@
 
 import Foundation
 
-extension Plugin {
+extension WebExtension {
     struct Configuration: Codable {
         @Setting("PluginConfiguration") static var persistent = Configuration()
         

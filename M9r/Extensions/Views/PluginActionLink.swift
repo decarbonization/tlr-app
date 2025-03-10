@@ -19,14 +19,14 @@
 import SwiftUI
 
 struct PluginActionLink: View {
-    let plugin: Plugin
+    let webExtension: WebExtension
     
     var body: some View {
         NavigationLink {
-            PluginView(plugin: plugin,
-                       role: .actionPopup)
+            WebExtensionView(webExtension: webExtension,
+                             role: .actionPopup)
         } label: {
-            Label(plugin.manifest.action?.defaultTitle ?? plugin.manifest.shortName ?? plugin.manifest.name,
+            Label(webExtension.manifest.action?.defaultTitle ?? webExtension.manifest.shortName ?? webExtension.manifest.name,
                   systemImage: "puzzlepiece.extension")
         }
     }

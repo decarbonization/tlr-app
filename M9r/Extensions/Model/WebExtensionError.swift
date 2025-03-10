@@ -16,18 +16,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import SwiftUI
+import Foundation
 
-struct PluginSourceListSection: View {
-    var body: some View {
-        if !Plugin.List.installed.all.isEmpty {
-            Section("Plugins") {
-                ForEach(Plugin.List.installed.all) { plugin in
-                    if plugin.isEnabled {
-                        PluginActionLink(plugin: plugin)
-                    }
-                }
-            }
-        }
-    }
+enum WebExtensionError: Error {
+    case invalidBundleURL(URL)
+    case invalidResource(String)
+    case missingRequiredConfiguration(String)
 }

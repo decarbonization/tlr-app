@@ -18,26 +18,26 @@
 
 import SwiftUI
 
-struct PluginSettingsView: View {
-    @State private var selection: Plugin.ID?
+struct ExtensionSettingsView: View {
+    @State private var selection: WebExtension.ID?
     @State private var isShowingImporter = false
     @State private var isShowingConfirmUninstall = false
     
     var body: some View {
-        @Bindable var pluginList = Plugin.List.installed
+        @Bindable var installed = WebExtension.installed
         VStack(alignment: .leading) {
             HStack {
-                List(pluginList.all, selection: $selection) { plugin in
-                    Text(verbatim: plugin.manifest.shortName ?? plugin.manifest.name)
+                List(installed.all, selection: $selection) { webExtension in
+                    Text(verbatim: webExtension.manifest.shortName ?? webExtension.manifest.name)
                 }
                 .listStyle(.bordered)
                 .frame(width: 200)
                 
                 VStack(alignment: .leading) {
                     Form {
-                        if let selectedPlugin = pluginList.all.first(where: { $0.id == selection }) {
-                            @Bindable var selectedPlugin = selectedPlugin
-                            Toggle("Enabled", isOn: $selectedPlugin.isEnabled)
+                        if let selectedWebExtension = installed.all.first(where: { $0.id == selection }) {
+                            @Bindable var selectedWebExtension = selectedWebExtension
+                            Toggle("Enabled", isOn: $selectedWebExtension.isEnabled)
                         }
                     }
                     .padding()
@@ -60,7 +60,7 @@ struct PluginSettingsView: View {
                         defer {
                             importURL.stopAccessingSecurityScopedResource()
                         }
-                        try Plugin.List.installed.add(byCopying: importURL)
+                        try WebExtension.installed.add(byCopying: importURL)
                     } catch {
                         TaskErrors.all.present(error)
                     }
@@ -69,13 +69,13 @@ struct PluginSettingsView: View {
                     isShowingConfirmUninstall = true
                 }
                 .disabled(selection == nil)
-                .alert("Are you sure you want to uninstall this plugin?", isPresented: $isShowingConfirmUninstall, presenting: selection) { selection in
+                .alert("Are you sure you want to uninstall this extension?", isPresented: $isShowingConfirmUninstall, presenting: selection) { selection in
                     Button("Cancel", role: .cancel) {
                         // Do nothing.
                     }
                     Button("Uninstall", role: .destructive) {
                         do {
-                            try Plugin.List.installed.remove(selection)
+                            try WebExtension.installed.remove(selection)
                         } catch {
                             TaskErrors.all.present(error)
                         }

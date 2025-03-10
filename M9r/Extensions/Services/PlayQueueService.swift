@@ -20,7 +20,7 @@ import Foundation
 import os
 import SFBAudioEngine
 
-struct PlayQueueService: PluginService {
+struct PlayQueueService: WebExtensionService {
     struct Message: Codable {
         enum Command: String, Codable {
             case state
@@ -37,9 +37,9 @@ struct PlayQueueService: PluginService {
         var playbackState: PlayerPlaybackState
     }
     
-    private final class NotificationPublisher: NSObject, PluginEventSinkPublisher {
+    private final class NotificationPublisher: NSObject, WebExtensionEventPublisher {
         init(playQueue: PlayQueue,
-             eventSink: any PluginEventSink) {
+             eventSink: any WebExtensionServiceEventSink) {
             self.eventSink = eventSink
             
             super.init()
@@ -54,7 +54,7 @@ struct PlayQueueService: PluginService {
             stop()
         }
         
-        private let eventSink: any PluginEventSink
+        private let eventSink: any WebExtensionServiceEventSink
         
         func stop() {
             NotificationCenter.default.removeObserver(self)
@@ -76,7 +76,7 @@ struct PlayQueueService: PluginService {
         "playQueue"
     }
     
-    static var requiredPermissions: Set<Plugin.Permission> {
+    static var requiredPermissions: Set<WebExtension.Permission> {
         [.playQueue]
     }
     
@@ -86,12 +86,12 @@ struct PlayQueueService: PluginService {
     
     let playQueue: PlayQueue
     
-    func beginDispatchingEvents(into eventSink: any PluginEventSink) -> any PluginEventSinkPublisher {
+    func beginDispatchingEvents(into eventSink: any WebExtensionServiceEventSink) -> any WebExtensionEventPublisher {
         NotificationPublisher(playQueue: playQueue,
                               eventSink: eventSink)
     }
     
-    func receive(_ message: Message, with context: PluginServiceContext) async throws -> Reply {
+    func receive(_ message: Message, with context: WebExtensionServiceContext) async throws -> Reply {
         try await MainActor.run {
             switch message.command {
             case .state:

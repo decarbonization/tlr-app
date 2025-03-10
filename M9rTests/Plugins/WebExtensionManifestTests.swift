@@ -20,14 +20,14 @@ import Foundation
 import Testing
 @testable import M9r
 
-@Suite struct PluginManifestTests {
+@Suite struct WebExtensionManifestTests {
     @Test func disallowsUnknownManifestVersions() throws {
         let jsonData = try #require("""
         2
         """.data(using: .utf8))
         
         #expect(throws: Error.self, performing: {
-            try Plugin.Manifest.jsonDecoder.decode(Plugin.ManifestVersion.self, from: jsonData)
+            try WebExtension.Manifest.jsonDecoder.decode(WebExtension.ManifestVersion.self, from: jsonData)
         })
     }
     
@@ -36,17 +36,17 @@ import Testing
         "podBayDoors"
         """.data(using: .utf8))
         
-        let permission = try Plugin.Manifest.jsonDecoder.decode(Plugin.Permission.self, from: jsonData)
-        #expect(permission == Plugin.Permission(rawValue: "podBayDoors"))
+        let permission = try WebExtension.Manifest.jsonDecoder.decode(WebExtension.Permission.self, from: jsonData)
+        #expect(permission == WebExtension.Permission(rawValue: "podBayDoors"))
     }
     
     @Test func decodesWellformedManifest() throws {
         let jsonData = try #require("""
         {
             "manifestVersion": 0,
-            "name": "A Test Plugin",
+            "name": "A Test Extension",
             "shortName": "Test",
-            "description": "Not a real plugin",
+            "description": "Not a real web extension",
             "developer": {
                 "name": "Alistair McFaker",
                 "url": "about:blank",
@@ -63,17 +63,17 @@ import Testing
         }
         """.data(using: .utf8))
         
-        let plugin = try Plugin.Manifest.jsonDecoder.decode(Plugin.Manifest.self, from: jsonData)
-        #expect(plugin.manifestVersion == .v0)
-        #expect(plugin.name == "A Test Plugin")
-        #expect(plugin.shortName == "Test")
-        #expect(plugin.description == "Not a real plugin")
-        #expect(plugin.developer?.name == "Alistair McFaker")
-        #expect(plugin.developer?.url == "about:blank")
-        #expect(plugin.homepageUrl == "about:blank")
-        #expect(plugin.icons == ["48": "about:blank"])
-        #expect(plugin.permissions == [Plugin.Permission(rawValue: "readLibrary")])
-        #expect(plugin.version == "0.0.0")
-        #expect(plugin.versionName == "0.0 (nightly)")
+        let subject = try WebExtension.Manifest.jsonDecoder.decode(WebExtension.Manifest.self, from: jsonData)
+        #expect(subject.manifestVersion == .v0)
+        #expect(subject.name == "A Test Extension")
+        #expect(subject.shortName == "Test")
+        #expect(subject.description == "Not a real web extension")
+        #expect(subject.developer?.name == "Alistair McFaker")
+        #expect(subject.developer?.url == "about:blank")
+        #expect(subject.homepageUrl == "about:blank")
+        #expect(subject.icons == ["48": "about:blank"])
+        #expect(subject.permissions == [WebExtension.Permission(rawValue: "readLibrary")])
+        #expect(subject.version == "0.0.0")
+        #expect(subject.versionName == "0.0 (nightly)")
     }
 }
