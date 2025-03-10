@@ -47,6 +47,17 @@ extension WebExtension {
         
         var rawValue: String
         
+        var displayName: String {
+            switch self {
+            case .networking:
+                return NSLocalizedString("Networking", comment: "")
+            case .playQueue:
+                return NSLocalizedString("Play Queue", comment: "")
+            default:
+                return rawValue
+            }
+        }
+        
         static let networking = Self(rawValue: "networking")
         static let playQueue = Self(rawValue: "playQueue")
     }

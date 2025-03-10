@@ -22,6 +22,7 @@ struct ExtensionSettingsView: View {
     @State private var selection: WebExtension.ID?
     @State private var isShowingImporter = false
     @State private var isShowingConfirmUninstall = false
+    @State private var importingSource: WebExtension.Source?
     
     var body: some View {
         @Bindable var installed = WebExtension.installed
@@ -57,14 +58,42 @@ struct ExtensionSettingsView: View {
                         guard importURL.startAccessingSecurityScopedResource() else {
                             throw CocoaError(.fileReadNoPermission)
                         }
-                        defer {
-                            importURL.stopAccessingSecurityScopedResource()
-                        }
-                        try WebExtension.installed.add(byCopying: importURL)
+                        
+                        importingSource = try WebExtension.Source(from: importURL)
                     } catch {
+                        importingSource?.bundleURL.stopAccessingSecurityScopedResource()
+                        importingSource = nil
                         TaskErrors.all.present(error)
                     }
                 }
+                .sheet(item: $importingSource) { importingSource in
+                    VStack(alignment: .leading) {
+                        Text("Are you sure you want to install this plugin?")
+                            .font(.body.bold())
+                            .foregroundStyle(.primary)
+                        WebExtensionManifestView(manifest: importingSource.manifest)
+                            .padding(.vertical)
+                        HStack {
+                            Button("Cancel", role: .cancel) {
+                                importingSource.bundleURL.stopAccessingSecurityScopedResource()
+                                self.importingSource = nil
+                            }
+                            Button("Install") {
+                                do {
+                                    try installed.add(byCopying: importingSource.bundleURL)
+                                } catch {
+                                    TaskErrors.all.present(error)
+                                }
+                                importingSource.bundleURL.stopAccessingSecurityScopedResource()
+                                self.importingSource = nil
+                            }
+                            .keyboardShortcut(.return)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                    }
+                    .padding()
+                }
+                
                 Button("Uninstall") {
                     isShowingConfirmUninstall = true
                 }
