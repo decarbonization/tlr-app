@@ -18,15 +18,15 @@
 
 import SwiftUI
 
-struct PluginActionLink: View {
+struct WebExtensionSidebarLink: View {
     let webExtension: WebExtension
     
     var body: some View {
         NavigationLink {
             WebExtensionView(webExtension: webExtension,
-                             role: .actionPopup)
+                             action: .sidebarPanel)
         } label: {
-            Label(webExtension.manifest.action?.defaultTitle ?? webExtension.manifest.shortName ?? webExtension.manifest.name,
+            Label(webExtension.manifest.sidebarAction?.defaultTitle ?? webExtension.manifest.shortName ?? webExtension.manifest.name,
                   systemImage: "puzzlepiece.extension")
         }
     }

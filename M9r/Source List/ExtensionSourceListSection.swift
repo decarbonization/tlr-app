@@ -24,7 +24,7 @@ struct ExtensionSourceListSection: View {
         if !enabledWebExtensions.isEmpty {
             Section("Extensions") {
                 ForEach(enabledWebExtensions) { webExtension in
-                    PluginActionLink(webExtension: webExtension)
+                    WebExtensionSidebarLink(webExtension: webExtension)
                 }
             }
         }

@@ -51,9 +51,9 @@ extension WebExtension {
         static let playQueue = Self(rawValue: "playQueue")
     }
     
-    struct Action: Codable {
+    struct SidebarAction: Codable {
         var defaultTitle: String?
-        var defaultPopup: String
+        var defaultPanel: String
     }
     
     struct Manifest: Codable {
@@ -84,6 +84,6 @@ extension WebExtension {
         var permissions: [Permission]?
         var version: String
         var versionName: String?
-        var action: Action?
+        var sidebarAction: SidebarAction?
     }
 }

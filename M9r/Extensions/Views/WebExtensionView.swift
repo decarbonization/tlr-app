@@ -24,12 +24,12 @@ import WebKit
 struct WebExtensionView: View {
     nonisolated static let logger = Logger(subsystem: "io.github.decarbonization.M9r", category: "WebExtensionView")
     
-    enum Role {
-        case actionPopup
+    enum ActionSelector {
+        case sidebarPanel
     }
     
     let webExtension: WebExtension
-    let role: Role
+    let action: ActionSelector
     @State private var resources: Result<([WKUserScript], [WKContentRuleList]), any Error>?
     @Environment(PlayQueue.self) private var playQueue
     
@@ -42,7 +42,7 @@ struct WebExtensionView: View {
                 }
             case .success((let scripts, let rules)):
                 _WebExtensionContent(webExtension: webExtension,
-                                     role: role,
+                                     action: action,
                                      scripts: scripts,
                                      rules: rules,
                                      services: [PlayQueueService(playQueue: playQueue)])
@@ -80,7 +80,7 @@ struct WebExtensionView: View {
 
 private struct _WebExtensionContent: NSViewRepresentable {
     let webExtension: WebExtension
-    let role: WebExtensionView.Role
+    let action: WebExtensionView.ActionSelector
     let scripts: [WKUserScript]
     let rules: [WKContentRuleList]
     let services: [any WebExtensionService]
@@ -186,12 +186,15 @@ private struct _WebExtensionContent: NSViewRepresentable {
         wkWebView.underPageBackgroundColor = .clear
         context.coordinator.eventSink.webView = wkWebView
         
-        if let action = webExtension.manifest.action {
-            let popupURL = URL(string: action.defaultPopup,
-                               relativeTo: URL(string: "webex://")!)
-            wkWebView.load(URLRequest(url: popupURL!))
-        } else {
-            WebExtensionView.logger.error("*** Web extension does not have action")
+        switch action {
+        case .sidebarPanel:
+            if let action = webExtension.manifest.sidebarAction {
+                let popupURL = URL(string: action.defaultPanel,
+                                   relativeTo: URL(string: "webex://")!)
+                wkWebView.load(URLRequest(url: popupURL!))
+            } else {
+                WebExtensionView.logger.error("*** Web extension does not have action")
+            }
         }
         
         return wkWebView
