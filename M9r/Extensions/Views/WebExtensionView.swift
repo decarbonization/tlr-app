@@ -102,17 +102,23 @@ private struct _WebExtensionContent: NSViewRepresentable {
             }
         }
         
-        func dispatchEvent(of type: String, with detail: some Encodable) async {
+        func dispatchEvent(of type: WebExtensionEventName, with detail: some Encodable) async {
+            guard let webView else {
+                WebExtensionView.logger.debug("*** No web view to receive web extension event \(type.rawValue)")
+                return
+            }
             do {
                 let rawDetailData = try WebExtensionResources.jsonEncoder.encode(detail)
-                let rawDetail = String(data: rawDetailData, encoding: .utf8)!
-                let result = try await webView?.callAsyncJavaScript("player.__dispatchEvent(type, detail)",
-                                                                    arguments: ["type": type,
-                                                                                "detail": rawDetail],
-                                                                    contentWorld: .page)
-                WebExtensionView.logger.debug("Dispatched web extension event \(type) with \(String(describing: detail)), got \(String(describing: result)) back")
+                guard let rawDetail = String(data: rawDetailData, encoding: .utf8) else {
+                    throw WebExtensionServiceError.jsonDataBadEncoding
+                }
+                let result = try await webView.callAsyncJavaScript("player.__dispatchEvent(type, detail)",
+                                                                   arguments: ["type": type.rawValue,
+                                                                               "detail": rawDetail],
+                                                                   contentWorld: .page)
+                WebExtensionView.logger.debug("Dispatched web extension event \(type.rawValue) with \(String(describing: detail)), got \(String(describing: result)) back")
             } catch {
-                WebExtensionView.logger.error("*** Failed to dispatch web extension event \(type) with \(String(describing: detail)), reason \(String(describing: error))")
+                WebExtensionView.logger.error("*** Failed to dispatch web extension event \(type.rawValue) with \(String(describing: detail)), reason \(String(describing: error))")
             }
         }
     }

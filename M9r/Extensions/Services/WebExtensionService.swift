@@ -20,10 +20,15 @@ import Foundation
 import WebKit
 
 enum WebExtensionServiceError: Error {
+    case jsonDataBadEncoding
     case framePermissionDenied
     case unexpectedName
     case badBody
     case malformedMessage
+}
+
+struct WebExtensionEventName: RawRepresentable, Hashable {
+    var rawValue: String
 }
 
 struct WebExtensionServiceContext: Sendable {
@@ -37,12 +42,12 @@ protocol WebExtensionService: Sendable {
     static var name: String { get }
     static var requiredPermissions: Set<WebExtension.Permission> { get }
     
-    func beginDispatchingEvents(into eventSink: any WebExtensionServiceEventSink) -> any WebExtensionEventPublisher
+    func beginDispatchingEvents(into eventSink: some WebExtensionServiceEventSink) -> any WebExtensionEventPublisher
     func receive(_ message: Message, with context: WebExtensionServiceContext) async throws -> Reply
 }
 
 protocol WebExtensionServiceEventSink: AnyObject, Sendable {
-    func dispatchEvent(of type: String, with detail: some Encodable) async -> Void
+    func dispatchEvent(of type: WebExtensionEventName, with detail: some Encodable) async -> Void
 }
 
 protocol WebExtensionEventPublisher: AnyObject, Sendable {
@@ -78,7 +83,9 @@ protocol WebExtensionEventPublisher: AnyObject, Sendable {
             let context = WebExtensionServiceContext(manifest: webExtension.manifest)
             let reply = try await service.receive(message, with: context)
             let rawReplyBytes = try WebExtensionResources.jsonEncoder.encode(reply)
-            let rawReply = String(data: rawReplyBytes, encoding: .utf8)
+            guard let rawReply = String(data: rawReplyBytes, encoding: .utf8) else {
+                throw WebExtensionServiceError.jsonDataBadEncoding
+            }
             return (rawReply, nil)
         } catch {
             return (nil, "\(type(of: error)): \(error.localizedDescription)")

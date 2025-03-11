@@ -20,6 +20,10 @@ import Foundation
 import os
 import SFBAudioEngine
 
+extension WebExtensionEventName {
+    static let playbackStateChanged = Self(rawValue: "playbackstatechanged")
+}
+
 struct PlayQueueService: WebExtensionService {
     struct Message: Codable {
         enum Command: String, Codable {
@@ -66,7 +70,7 @@ struct PlayQueueService: WebExtensionService {
             }
             
             Task {
-                await eventSink.dispatchEvent(of: "playbackstatechanged",
+                await eventSink.dispatchEvent(of: .playbackStateChanged,
                                               with: PlayerPlaybackState.from(playQueue.playbackState))
             }
         }
@@ -86,7 +90,7 @@ struct PlayQueueService: WebExtensionService {
     
     let playQueue: PlayQueue
     
-    func beginDispatchingEvents(into eventSink: any WebExtensionServiceEventSink) -> any WebExtensionEventPublisher {
+    func beginDispatchingEvents(into eventSink: some WebExtensionServiceEventSink) -> any WebExtensionEventPublisher {
         NotificationPublisher(playQueue: playQueue,
                               eventSink: eventSink)
     }
