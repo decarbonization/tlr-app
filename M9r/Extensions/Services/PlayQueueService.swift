@@ -25,20 +25,16 @@ extension WebExtensionEventName {
 }
 
 struct PlayQueueService: WebExtensionService {
-    struct Message: Codable {
-        enum Command: String, Codable {
-            case state
-            case previous
-            case next
-            case pause
-            case resume
-        }
-        
-        var command: Command
+    enum Message: Codable {
+        case previous
+        case next
+        case pause
+        case resume
+        case getState
     }
     
-    struct Reply: Codable {
-        var playbackState: PlayerPlaybackState
+    enum Reply: Codable {
+        case playbackState(state: PlayerPlaybackState)
     }
     
     private final class NotificationPublisher: NSObject, WebExtensionEventPublisher {
@@ -97,19 +93,22 @@ struct PlayQueueService: WebExtensionService {
     
     func receive(_ message: Message, with context: WebExtensionServiceContext) async throws -> Reply {
         try await MainActor.run {
-            switch message.command {
-            case .state:
-                break
+            switch message {
             case .previous:
                 try playQueue.previousTrack()
+                return .playbackState(state: .from(playQueue.playbackState))
             case .next:
                 try playQueue.nextTrack()
+                return .playbackState(state: .from(playQueue.playbackState))
             case .pause:
                 playQueue.pause()
+                return .playbackState(state: .from(playQueue.playbackState))
             case .resume:
                 playQueue.resume()
+                return .playbackState(state: .from(playQueue.playbackState))
+            case .getState:
+                return .playbackState(state: .from(playQueue.playbackState))
             }
         }
-        return Reply(playbackState: .from(playQueue.playbackState))
     }
 }
