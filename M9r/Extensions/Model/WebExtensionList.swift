@@ -87,9 +87,11 @@ extension WebExtension {
             for (_, newSource) in sources {
                 updatedAll.append(WebExtension(source: newSource))
             }
-            withMutation(keyPath: \.all) {
-                _all.withLock { [/* copy */ updatedAll] all in
-                    all = updatedAll
+            await MainActor.run { [/* copy */ updatedAll] in
+                withMutation(keyPath: \.all) {
+                    _all.withLock { all in
+                        all = updatedAll
+                    }
                 }
             }
         }
