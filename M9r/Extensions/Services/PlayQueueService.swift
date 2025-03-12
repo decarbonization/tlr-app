@@ -19,9 +19,11 @@
 import Foundation
 import os
 import SFBAudioEngine
+import SwiftData
 
 extension WebExtensionEventName {
     static let playbackStateChanged = Self(rawValue: "playbackstatechanged")
+    static let nowPlayingChanged = Self(rawValue: "nowplayingchanged")
 }
 
 struct PlayQueueService: WebExtensionService {
@@ -30,11 +32,26 @@ struct PlayQueueService: WebExtensionService {
         case next
         case pause
         case resume
+        case play
         case getState
+        case getQueue
     }
     
     enum Reply: Codable {
-        case playbackState(state: PlayerPlaybackState)
+        case state(playbackState: PlayerPlaybackState,
+                   nowPlaying: PersistentIdentifier?)
+        case queue(items: [PersistentIdentifier],
+                   playingIndex: Int?)
+        
+        static func state(of playQueue: PlayQueue) -> Self {
+            .state(playbackState: .from(playQueue.playbackState),
+                   nowPlaying: playQueue.playingItem?.id)
+        }
+        
+        static func queue(of playQueue: PlayQueue) -> Self {
+            .queue(items: playQueue.items.map { $0.id },
+                   playingIndex: playQueue.playingIndex)
+        }
     }
     
     private final class NotificationPublisher: NSObject, WebExtensionEventPublisher {
@@ -45,8 +62,12 @@ struct PlayQueueService: WebExtensionService {
             super.init()
             
             NotificationCenter.default.addObserver(self,
-                                                   selector: #selector(didChange(_:)),
-                                                   name: PlayQueue.playbackStateChanged,
+                                                   selector: #selector(playbackStateDidChange(_:)),
+                                                   name: PlayQueue.playbackStateDidChange,
+                                                   object: playQueue)
+            NotificationCenter.default.addObserver(self,
+                                                   selector: #selector(nowPlayingDidChange(_:)),
+                                                   name: PlayQueue.nowPlayingDidChange,
                                                    object: playQueue)
         }
         
@@ -60,7 +81,7 @@ struct PlayQueueService: WebExtensionService {
             NotificationCenter.default.removeObserver(self)
         }
         
-        @objc private func didChange(_ notification: Notification) {
+        @objc private func playbackStateDidChange(_ notification: Notification) {
             guard let playQueue = notification.object as? PlayQueue else {
                 return
             }
@@ -68,6 +89,17 @@ struct PlayQueueService: WebExtensionService {
             Task {
                 await eventSink.dispatchEvent(of: .playbackStateChanged,
                                               with: PlayerPlaybackState.from(playQueue.playbackState))
+            }
+        }
+        
+        @objc private func nowPlayingDidChange(_ notification: Notification) {
+            guard let playQueue = notification.object as? PlayQueue else {
+                return
+            }
+            
+            Task {
+                await eventSink.dispatchEvent(of: .nowPlayingChanged,
+                                              with: playQueue.playingItem?.id)
             }
         }
     }
@@ -96,18 +128,25 @@ struct PlayQueueService: WebExtensionService {
             switch message {
             case .previous:
                 try playQueue.previousTrack()
-                return .playbackState(state: .from(playQueue.playbackState))
+                return .state(of: playQueue)
             case .next:
                 try playQueue.nextTrack()
-                return .playbackState(state: .from(playQueue.playbackState))
+                return .state(of: playQueue)
             case .pause:
                 playQueue.pause()
-                return .playbackState(state: .from(playQueue.playbackState))
+                return .state(of: playQueue)
             case .resume:
                 playQueue.resume()
-                return .playbackState(state: .from(playQueue.playbackState))
+                return .state(of: playQueue)
+            case .play:
+                if playQueue.playbackState == .stopped && !playQueue.items.isEmpty {
+                    try playQueue.play(playQueue.items)
+                }
+                return .state(of: playQueue)
             case .getState:
-                return .playbackState(state: .from(playQueue.playbackState))
+                return .state(of: playQueue)
+            case .getQueue:
+                return .queue(of: playQueue)
             }
         }
     }
