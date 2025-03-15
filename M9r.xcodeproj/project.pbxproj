@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		463A9F582D413F2E00ABF576 /* SFBAudioEngine in Frameworks */ = {isa = PBXBuildFile; productRef = 463A9F572D413F2E00ABF576 /* SFBAudioEngine */; };
+		464C04332D85D20C00C699E7 /* ListeningRoomExtensionSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 464C04322D85D20C00C699E7 /* ListeningRoomExtensionSDK */; };
+		464C04402D85D28600C699E7 /* AppleMusic.appex in Copy Extensions */ = {isa = PBXBuildFile; fileRef = 464C04382D85D28600C699E7 /* AppleMusic.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		464C04462D85D29100C699E7 /* ListeningRoomExtensionSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 464C04452D85D29100C699E7 /* ListeningRoomExtensionSDK */; };
 		464DC2EF2D75F8A80000D944 /* OrderedCollections in Frameworks */ = {isa = PBXBuildFile; productRef = 464DC2EE2D75F8A80000D944 /* OrderedCollections */; };
 		464DC3AF2D7602C90000D944 /* AsyncAlgorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 464DC3AE2D7602C90000D944 /* AsyncAlgorithms */; };
 /* End PBXBuildFile section */
@@ -20,16 +23,25 @@
 			remoteGlobalIDString = 463A9F142D413AFF00ABF576;
 			remoteInfo = M9r;
 		};
+		464C043E2D85D28600C699E7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 463A9F0D2D413AFF00ABF576 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 464C04372D85D28600C699E7;
+			remoteInfo = AppleMusic;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		464C03502D85CAE300C699E7 /* CopyFiles */ = {
+		464C03502D85CAE300C699E7 /* Copy Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "$(EXTENSIONS_FOLDER_PATH)";
 			dstSubfolderSpec = 16;
 			files = (
+				464C04402D85D28600C699E7 /* AppleMusic.appex in Copy Extensions */,
 			);
+			name = "Copy Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -40,9 +52,18 @@
 		463A9F262D413AFF00ABF576 /* M9rTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = M9rTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		463A9F532D413B1C00ABF576 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		463A9F542D413B1C00ABF576 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		464C04312D85D1E900C699E7 /* ListeningRoomExtensionSDK */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = ListeningRoomExtensionSDK; sourceTree = "<group>"; };
+		464C04382D85D28600C699E7 /* AppleMusic.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.extensionkit-extension"; includeInIndex = 0; path = AppleMusic.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		464C04442D85D28600C699E7 /* Exceptions for "AppleMusic" folder in "AppleMusic" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 464C04372D85D28600C699E7 /* AppleMusic */;
+		};
 		467A01382D4C12520067EB43 /* Exceptions for "M9r" folder in "M9r" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -55,9 +76,9 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-		464C03522D85CAF000C699E7 /* Exceptions for "M9r" folder in "Copy Files" phase from "M9r" target */ = {
+		464C03522D85CAF000C699E7 /* Exceptions for "M9r" folder in "Copy Extensions" phase from "M9r" target */ = {
 			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
-			buildPhase = 464C03502D85CAE300C699E7 /* CopyFiles */;
+			buildPhase = 464C03502D85CAE300C699E7 /* Copy Extensions */;
 			membershipExceptions = (
 				ExtensionKit/io.github.decarbonization.M9r.appextensionpoint,
 			);
@@ -69,7 +90,7 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				467A01382D4C12520067EB43 /* Exceptions for "M9r" folder in "M9r" target */,
-				464C03522D85CAF000C699E7 /* Exceptions for "M9r" folder in "Copy Files" phase from "M9r" target */,
+				464C03522D85CAF000C699E7 /* Exceptions for "M9r" folder in "Copy Extensions" phase from "M9r" target */,
 			);
 			path = M9r;
 			sourceTree = "<group>";
@@ -77,6 +98,14 @@
 		463A9F292D413AFF00ABF576 /* M9rTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = M9rTests;
+			sourceTree = "<group>";
+		};
+		464C04392D85D28600C699E7 /* AppleMusic */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				464C04442D85D28600C699E7 /* Exceptions for "AppleMusic" folder in "AppleMusic" target */,
+			);
+			path = AppleMusic;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -88,6 +117,7 @@
 			files = (
 				464DC2EF2D75F8A80000D944 /* OrderedCollections in Frameworks */,
 				463A9F582D413F2E00ABF576 /* SFBAudioEngine in Frameworks */,
+				464C04332D85D20C00C699E7 /* ListeningRoomExtensionSDK in Frameworks */,
 				464DC3AF2D7602C90000D944 /* AsyncAlgorithms in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -96,6 +126,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		464C04352D85D28600C699E7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				464C04462D85D29100C699E7 /* ListeningRoomExtensionSDK in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -110,6 +148,8 @@
 				463377EB2D62AF1400859BC3 /* MAINTAINERS */,
 				463A9F172D413AFF00ABF576 /* M9r */,
 				463A9F292D413AFF00ABF576 /* M9rTests */,
+				464C04312D85D1E900C699E7 /* ListeningRoomExtensionSDK */,
+				464C04392D85D28600C699E7 /* AppleMusic */,
 				463A9F562D413F2E00ABF576 /* Frameworks */,
 				463A9F162D413AFF00ABF576 /* Products */,
 			);
@@ -120,6 +160,7 @@
 			children = (
 				463A9F152D413AFF00ABF576 /* M9r.app */,
 				463A9F262D413AFF00ABF576 /* M9rTests.xctest */,
+				464C04382D85D28600C699E7 /* AppleMusic.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -141,12 +182,13 @@
 				463A9F112D413AFF00ABF576 /* Sources */,
 				463A9F122D413AFF00ABF576 /* Frameworks */,
 				463A9F132D413AFF00ABF576 /* Resources */,
-				464C03502D85CAE300C699E7 /* CopyFiles */,
+				464C03502D85CAE300C699E7 /* Copy Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				463A9F5A2D413F3200ABF576 /* PBXTargetDependency */,
+				464C043F2D85D28600C699E7 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				463A9F172D413AFF00ABF576 /* M9r */,
@@ -156,6 +198,7 @@
 				463A9F572D413F2E00ABF576 /* SFBAudioEngine */,
 				464DC2EE2D75F8A80000D944 /* OrderedCollections */,
 				464DC3AE2D7602C90000D944 /* AsyncAlgorithms */,
+				464C04322D85D20C00C699E7 /* ListeningRoomExtensionSDK */,
 			);
 			productName = M9r;
 			productReference = 463A9F152D413AFF00ABF576 /* M9r.app */;
@@ -184,6 +227,29 @@
 			productReference = 463A9F262D413AFF00ABF576 /* M9rTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		464C04372D85D28600C699E7 /* AppleMusic */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 464C04412D85D28600C699E7 /* Build configuration list for PBXNativeTarget "AppleMusic" */;
+			buildPhases = (
+				464C04342D85D28600C699E7 /* Sources */,
+				464C04352D85D28600C699E7 /* Frameworks */,
+				464C04362D85D28600C699E7 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				464C04392D85D28600C699E7 /* AppleMusic */,
+			);
+			name = AppleMusic;
+			packageProductDependencies = (
+				464C04452D85D29100C699E7 /* ListeningRoomExtensionSDK */,
+			);
+			productName = AppleMusic;
+			productReference = 464C04382D85D28600C699E7 /* AppleMusic.appex */;
+			productType = "com.apple.product-type.extensionkit-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -201,6 +267,9 @@
 					463A9F252D413AFF00ABF576 = {
 						CreatedOnToolsVersion = 16.2;
 						TestTargetID = 463A9F142D413AFF00ABF576;
+					};
+					464C04372D85D28600C699E7 = {
+						CreatedOnToolsVersion = 16.2;
 					};
 				};
 			};
@@ -225,6 +294,7 @@
 			targets = (
 				463A9F142D413AFF00ABF576 /* M9r */,
 				463A9F252D413AFF00ABF576 /* M9rTests */,
+				464C04372D85D28600C699E7 /* AppleMusic */,
 			);
 		};
 /* End PBXProject section */
@@ -238,6 +308,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		463A9F242D413AFF00ABF576 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		464C04362D85D28600C699E7 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -261,6 +338,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		464C04342D85D28600C699E7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -272,6 +356,11 @@
 		463A9F5A2D413F3200ABF576 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			productRef = 463A9F592D413F3200ABF576 /* SFBAudioEngine */;
+		};
+		464C043F2D85D28600C699E7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 464C04372D85D28600C699E7 /* AppleMusic */;
+			targetProxy = 464C043E2D85D28600C699E7 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -496,6 +585,60 @@
 			};
 			name = Release;
 		};
+		464C04422D85D28600C699E7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = AppleMusic/AppleMusic.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5S5M6S4H56;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = AppleMusic/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = AppleMusic;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 M9r Project. All rights reserved.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = io.github.decarbonization.M9r.AppleMusic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		464C04432D85D28600C699E7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = AppleMusic/AppleMusic.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5S5M6S4H56;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = AppleMusic/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = AppleMusic;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 M9r Project. All rights reserved.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = io.github.decarbonization.M9r.AppleMusic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -522,6 +665,15 @@
 			buildConfigurations = (
 				463A9F3E2D413AFF00ABF576 /* Debug */,
 				463A9F3F2D413AFF00ABF576 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		464C04412D85D28600C699E7 /* Build configuration list for PBXNativeTarget "AppleMusic" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				464C04422D85D28600C699E7 /* Debug */,
+				464C04432D85D28600C699E7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -565,6 +717,14 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 463A9F552D413F2000ABF576 /* XCRemoteSwiftPackageReference "SFBAudioEngine" */;
 			productName = SFBAudioEngine;
+		};
+		464C04322D85D20C00C699E7 /* ListeningRoomExtensionSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ListeningRoomExtensionSDK;
+		};
+		464C04452D85D29100C699E7 /* ListeningRoomExtensionSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ListeningRoomExtensionSDK;
 		};
 		464DC2EE2D75F8A80000D944 /* OrderedCollections */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -2,10 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>io.github.decarbonization.M9r.service.extension</key>
-    <dict>
-        <key>EXPresentsUserInterface</key>
-        <true/>
-    </dict>
+	<key>EXAppExtensionAttributes</key>
+	<dict>
+		<key>EXExtensionPointIdentifier</key>
+		<string>io.github.decarbonization.M9r.service.extension</string>
+	</dict>
 </dict>
 </plist>

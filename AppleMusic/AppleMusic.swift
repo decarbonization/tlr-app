@@ -16,30 +16,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import ListeningRoomExtensionSDK
 import SwiftUI
 
-struct SourceList: View {
-    @Environment(\.modelContext) private var modelContext
-    
+@main struct AppleMusicExtension: ListeningRoomExtension {
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            List {
-                LibrarySourceListSection()
-                ExtensionsSourceListSection()
-                PlaylistsSourceListSection()
-                OtherSourceListSection()
-            }
-            .listStyle(.sidebar)
-            HStack {
-                Button {
-                    modelContext.insert(Playlist(name: "Untitled Playlist"))
-                } label: {
-                    Label("New Playlist", systemImage: "plus")
-                        .labelStyle(.iconOnly)
-                }
-                .buttonStyle(.borderless)
-            }
-            .padding()
+        VStack {
+            Text("hello, world")
+                .font(.largeTitle)
+                .foregroundStyle(.primary)
         }
     }
 }
