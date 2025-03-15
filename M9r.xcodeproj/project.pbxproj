@@ -22,6 +22,18 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		464C03502D85CAE300C699E7 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(EXTENSIONS_FOLDER_PATH)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		463377EB2D62AF1400859BC3 /* MAINTAINERS */ = {isa = PBXFileReference; lastKnownFileType = text; path = MAINTAINERS; sourceTree = "<group>"; };
 		463A9F152D413AFF00ABF576 /* M9r.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = M9r.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -35,17 +47,29 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Config.xcconfig,
+				ExtensionKit/io.github.decarbonization.M9r.appextensionpoint,
 				Info.plist,
 			);
 			target = 463A9F142D413AFF00ABF576 /* M9r */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		464C03522D85CAF000C699E7 /* Exceptions for "M9r" folder in "Copy Files" phase from "M9r" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = 464C03502D85CAE300C699E7 /* CopyFiles */;
+			membershipExceptions = (
+				ExtensionKit/io.github.decarbonization.M9r.appextensionpoint,
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		463A9F172D413AFF00ABF576 /* M9r */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				467A01382D4C12520067EB43 /* Exceptions for "M9r" folder in "M9r" target */,
+				464C03522D85CAF000C699E7 /* Exceptions for "M9r" folder in "Copy Files" phase from "M9r" target */,
 			);
 			path = M9r;
 			sourceTree = "<group>";
@@ -117,6 +141,7 @@
 				463A9F112D413AFF00ABF576 /* Sources */,
 				463A9F122D413AFF00ABF576 /* Frameworks */,
 				463A9F132D413AFF00ABF576 /* Resources */,
+				464C03502D85CAE300C699E7 /* CopyFiles */,
 			);
 			buildRules = (
 			);

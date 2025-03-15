@@ -16,19 +16,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import ExtensionKit
 import SwiftUI
 
-struct SettingsView: View {
-    var body: some View {
-        TabView {
-            Tab("General", systemImage: "gear") {
-                GeneralSettingsView()
-            }
-            Tab("Extensions", systemImage: "puzzlepiece.extension") {
-                ExtensionsSettingsView()
-            }
-        }
-        .scenePadding()
-        .frame(minWidth: 700, minHeight: 200)
+struct ExtensionsSettingsView: NSViewControllerRepresentable {
+    func makeNSViewController(context: Context) -> EXAppExtensionBrowserViewController {
+        EXAppExtensionBrowserViewController()
+    }
+    
+    func updateNSViewController(_ nsViewController: EXAppExtensionBrowserViewController, context: Context) {
     }
 }
