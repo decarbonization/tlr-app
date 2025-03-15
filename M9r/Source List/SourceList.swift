@@ -25,7 +25,6 @@ struct SourceList: View {
         VStack(alignment: .leading, spacing: 0) {
             List {
                 LibrarySourceListSection()
-                ExtensionSourceListSection()
                 PlaylistsSourceListSection()
                 OtherSourceListSection()
             }
