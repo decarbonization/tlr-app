@@ -21,28 +21,23 @@ import ListeningRoomExtensionSDK
 import SwiftUI
 
 struct ExtensionsSourceListSection: View {
-    @State private var identities = [AppExtensionIdentity]()
-    
     var body: some View {
-        Section("Extensions") {
-            ForEach(identities, id: \.bundleIdentifier) { identity in
-                NavigationLink {
-                    ListeningRoomExtensionHostView(identity: identity,
-                                                   placeholder: { ProgressView() })
-                } label: {
-                    Label(identity.localizedName, systemImage: "puzzlepiece.extension")
+        @Bindable var extensionManager = ExtensionManager.shared
+        ForEach(extensionManager.sidebarSections) { sidebarSection in
+            Section(sidebarSection.localizedTitle) {
+                ForEach(sidebarSection.items, id: \.sceneID) { item in
+                    NavigationLink {
+                        ExtensionHostView(process: sidebarSection.process,
+                                          sceneID: item.sceneID)
+                    } label: {
+                        switch item.image {
+                        case .systemImage(let name):
+                            Label(item.localizedTitle, systemImage: name)
+                        case nil:
+                            Text(verbatim: item.localizedTitle)
+                        }
+                    }
                 }
-                .navigationTitle(identity.localizedName)
-            }
-        }
-        .task {
-            do {
-                let matches = try AppExtensionIdentity.matching(appExtensionPointIDs: "io.github.decarbonization.M9r.service.extension")
-                for await newMatches in matches {
-                    identities = newMatches
-                }
-            } catch {
-                
             }
         }
     }

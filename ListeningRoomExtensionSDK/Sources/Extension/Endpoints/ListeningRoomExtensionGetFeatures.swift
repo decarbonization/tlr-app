@@ -19,10 +19,21 @@
 
 import Foundation
 
-final class ListeningRoomExtensionClient<E: ListeningRoomExtension>: NSObject, _ListeningRoomExtensionService, @unchecked Sendable {
+public struct ListeningRoomExtensionGetFeatures: XPCRequest {
+    public typealias Response = [ListeningRoomExtensionFeature]
+    
+    public init() {
+    }
+}
+
+internal struct ListeningRoomExtensionGetFeaturesEndpoint<E: ListeningRoomExtension>: XPCEndpoint, @unchecked Sendable {
     init(_ appExtension: E) {
         self.appExtension = appExtension
     }
     
     private let appExtension: E
+    
+    func callAsFunction(_ request: ListeningRoomExtensionGetFeatures) async throws -> [ListeningRoomExtensionFeature] {
+        appExtension.features
+    }
 }

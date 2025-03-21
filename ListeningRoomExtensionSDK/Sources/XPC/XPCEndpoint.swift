@@ -19,5 +19,9 @@
 
 import Foundation
 
-@objc public protocol _ListeningRoomExtensionService: NSObjectProtocol {
+public protocol XPCEndpoint<Request>: Sendable {
+    associatedtype Request: XPCRequest
+    typealias Response = Request.Response
+    
+    @MainActor func callAsFunction(_ request: Request) async throws -> Response
 }

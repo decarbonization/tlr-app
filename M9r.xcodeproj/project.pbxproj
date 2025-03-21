@@ -68,7 +68,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Config.xcconfig,
-				ExtensionKit/io.github.decarbonization.M9r.appextensionpoint,
+				ExtensionKit/io.github.decarbonization.TheListeningRoom.appextensionpoint,
 				Info.plist,
 			);
 			target = 463A9F142D413AFF00ABF576 /* M9r */;
@@ -80,7 +80,7 @@
 			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
 			buildPhase = 464C03502D85CAE300C699E7 /* Copy Extensions */;
 			membershipExceptions = (
-				ExtensionKit/io.github.decarbonization.M9r.appextensionpoint,
+				ExtensionKit/io.github.decarbonization.TheListeningRoom.appextensionpoint,
 			);
 		};
 /* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */

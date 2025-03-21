@@ -5,7 +5,7 @@
 	<key>EXAppExtensionAttributes</key>
 	<dict>
 		<key>EXExtensionPointIdentifier</key>
-		<string>io.github.decarbonization.M9r.service.extension</string>
+		<string>io.github.decarbonization.TheListeningRoom.uiextension</string>
 	</dict>
 </dict>
 </plist>

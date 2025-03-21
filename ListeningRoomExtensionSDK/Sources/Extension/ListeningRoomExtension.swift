@@ -19,22 +19,18 @@
 
 import Foundation
 import ExtensionFoundation
+import ExtensionKit
+import SwiftUI
 
-public struct ListeningRoomExtensionConfiguration<E: ListeningRoomExtension>: AppExtensionConfiguration {
-    init(_ appExtension: E) {
-        self.appExtension = appExtension
-        self.client = ListeningRoomExtensionClient(appExtension)
-    }
+public protocol ListeningRoomExtension: AppExtension where Configuration == AppExtensionSceneConfiguration {
+    associatedtype Body: AppExtensionScene
     
-    private let appExtension: E
-    private let client: ListeningRoomExtensionClient<E>
-    
-    public func accept(connection: NSXPCConnection) -> Bool {
-        connection.exportedInterface = _XPCInterfaces._listeningRoomExtensionService
-        connection.exportedObject = client
-        
-        connection.resume()
-        
-        return true
+    @MainActor var features: [ListeningRoomExtensionFeature] { get }
+    @MainActor @AppExtensionSceneBuilder var body: Body { get }
+}
+
+extension ListeningRoomExtension {
+    @MainActor public var configuration: Configuration {
+        AppExtensionSceneConfiguration(body, configuration: ListeningRoomExtensionConfiguration(self))
     }
 }

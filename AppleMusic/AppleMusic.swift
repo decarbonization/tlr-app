@@ -16,15 +16,34 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import ExtensionKit
 import ListeningRoomExtensionSDK
 import SwiftUI
 
 @main struct AppleMusicExtension: ListeningRoomExtension {
-    var body: some View {
-        VStack {
-            Text("hello, world")
-                .font(.largeTitle)
-                .foregroundStyle(.primary)
+    var features: [ListeningRoomExtensionFeature] {
+        [
+            .sidebarSection(localizedTitle: "Apple Music", items: [
+                ListeningRoomExtensionFeatureLink(sceneID: "radio", localizedTitle: "Radio", image: .systemImage(name: "radio")),
+                ListeningRoomExtensionFeatureLink(sceneID: "search", localizedTitle: "Search", image: .systemImage(name: "magnifyingglass")),
+            ])
+        ]
+    }
+    
+    var body: some AppExtensionScene {
+        ListeningRoomExtensionScene(id: "radio") {
+            VStack {
+                Label("Radio", systemImage: "radio")
+                    .font(.largeTitle)
+                    .foregroundStyle(.primary)
+            }
+        }
+        ListeningRoomExtensionScene(id: "search") {
+            VStack {
+                Label("Search", systemImage: "magnifyingglass")
+                    .font(.largeTitle)
+                    .foregroundStyle(.primary)
+            }
         }
     }
 }

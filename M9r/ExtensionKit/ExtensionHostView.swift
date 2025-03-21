@@ -20,24 +20,34 @@ import ExtensionKit
 import ListeningRoomExtensionSDK
 import SwiftUI
 
-public struct ListeningRoomExtensionHostView<Placeholder: View>: View {
-    public init(identity: AppExtensionIdentity,
-                @ViewBuilder placeholder: @escaping () -> Placeholder) {
-        self.identity = identity
+struct ExtensionHostView<Placeholder: View>: View {
+    init(process: ExtensionProcess,
+         sceneID: String,
+         @ViewBuilder placeholder: @escaping () -> Placeholder) {
+        self.process = process
+        self.sceneID = sceneID
         self.placeholder = placeholder
     }
     
-    private let identity: AppExtensionIdentity
+    init(process: ExtensionProcess,
+         sceneID: String) where Placeholder == ProgressView<EmptyView, EmptyView> {
+        self.init(process: process, sceneID: sceneID, placeholder: { ProgressView<EmptyView, EmptyView>() })
+    }
+    
+    private let process: ExtensionProcess
+    private let sceneID: String
     private let placeholder: () -> Placeholder
     
-    public var body: some View {
-        _ListeningRoomExtensionHostContent(identity: identity,
+    var body: some View {
+        _ListeningRoomExtensionHostContent(process: process,
+                                           sceneID: sceneID,
                                            placeholder: placeholder)
     }
 }
 
 private struct _ListeningRoomExtensionHostContent<Placeholder: View>: NSViewControllerRepresentable {
-    let identity: AppExtensionIdentity
+    let process: ExtensionProcess
+    let sceneID: String
     let placeholder: () -> Placeholder
     
     final class Coordinator: NSObject, EXHostViewControllerDelegate {
@@ -56,12 +66,14 @@ private struct _ListeningRoomExtensionHostContent<Placeholder: View>: NSViewCont
         let hostViewController = EXHostViewController()
         hostViewController.delegate = context.coordinator
         hostViewController.placeholderView = NSHostingView(rootView: placeholder())
-        hostViewController.configuration = EXHostViewController.Configuration(appExtension: identity,
-                                                                              sceneID: _ListeningRoomExtensionSceneName)
+        hostViewController.configuration = EXHostViewController.Configuration(appExtension: process.identity,
+                                                                              sceneID: sceneID)
         return hostViewController
     }
     
     func updateNSViewController(_ hostViewController: EXHostViewController, context: Context) {
-        
+        hostViewController.placeholderView = NSHostingView(rootView: placeholder())
+        hostViewController.configuration = EXHostViewController.Configuration(appExtension: process.identity,
+                                                                              sceneID: sceneID)
     }
 }

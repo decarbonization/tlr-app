@@ -18,20 +18,22 @@
  */
 
 import Foundation
-import ExtensionFoundation
-import ExtensionKit
-import SwiftUI
 
-public let _ListeningRoomExtensionSceneName = "extension-scene"
-
-public protocol ListeningRoomExtension: AppExtension where Configuration == AppExtensionSceneConfiguration {
-    associatedtype Body: View
-    @MainActor @ViewBuilder var body: Body { get }
-}
-
-extension ListeningRoomExtension {
-    @MainActor public var configuration: Configuration {
-        AppExtensionSceneConfiguration(ListeningRoomExtensionScene { self.body },
-                                       configuration: ListeningRoomExtensionConfiguration(self))
+public struct ListeningRoomHostNotify: XPCRequest {
+    public typealias Response = Nothing
+    
+    public init(notification: Notification.Name) {
+        notificationName = notification.rawValue
+    }
+    
+    private var notificationName: String
+    
+    public var notification: Notification.Name {
+        get {
+            Notification.Name(rawValue: notificationName)
+        }
+        set {
+            notificationName = newValue.rawValue
+        }
     }
 }

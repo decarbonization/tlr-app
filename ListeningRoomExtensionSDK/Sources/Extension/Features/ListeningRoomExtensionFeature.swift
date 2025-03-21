@@ -19,8 +19,6 @@
 
 import Foundation
 
-public enum _XPCInterfaces {
-    public static var _listeningRoomExtensionService: NSXPCInterface {
-        NSXPCInterface(with: _ListeningRoomExtensionService.self)
-    }
+public enum ListeningRoomExtensionFeature: Codable, Sendable {
+    case sidebarSection(localizedTitle: String, items: [ListeningRoomExtensionFeatureLink])
 }

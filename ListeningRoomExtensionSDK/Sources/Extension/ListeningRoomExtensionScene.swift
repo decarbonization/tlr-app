@@ -20,21 +20,28 @@
 import ExtensionKit
 import SwiftUI
 
-struct ListeningRoomExtensionScene<Content: View>: AppExtensionScene {
-    init(@ViewBuilder content: @escaping @MainActor () -> Content) {
+public struct ListeningRoomExtensionScene<Content: View>: AppExtensionScene {
+    public init(id: String,
+                @ViewBuilder content: @escaping @MainActor () -> Content) {
+        self.id = id
         self.content = content
     }
     
-    private let content: @MainActor () -> Content
+    public init(id: some RawRepresentable<String>,
+                @ViewBuilder content: @escaping @MainActor () -> Content) {
+        self.id = id.rawValue
+        self.content = content
+    }
     
-    var body: some AppExtensionScene {
-        PrimitiveAppExtensionScene(id: _ListeningRoomExtensionSceneName) {
+    private let id: String
+    private let content: @MainActor () -> Content
+    @State private var listeningRoomHost = ListeningRoomHost()
+    
+    public var body: some AppExtensionScene {
+        PrimitiveAppExtensionScene(id: id) {
             content()
         } onConnection: { connection in
-            connection.resume()
-            
-            return true
+            listeningRoomHost.takeOwnership(of: connection)
         }
-
     }
 }
