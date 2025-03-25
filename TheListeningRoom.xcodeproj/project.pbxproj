@@ -11,8 +11,8 @@
 		464DC2EF2D75F8A80000D944 /* OrderedCollections in Frameworks */ = {isa = PBXBuildFile; productRef = 464DC2EE2D75F8A80000D944 /* OrderedCollections */; };
 		464DC3AF2D7602C90000D944 /* AsyncAlgorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 464DC3AE2D7602C90000D944 /* AsyncAlgorithms */; };
 		4681EC122D92FD630067679B /* ExtensionTester.appex in Copy Extensions */ = {isa = PBXBuildFile; fileRef = 4681EC0A2D92FD630067679B /* ExtensionTester.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		46B6A9452D93511200BCE8CA /* TheListeningRoomExtensionSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 46B6A9442D93511200BCE8CA /* TheListeningRoomExtensionSDK */; };
-		46B6A9472D93511600BCE8CA /* TheListeningRoomExtensionSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 46B6A9462D93511600BCE8CA /* TheListeningRoomExtensionSDK */; };
+		46D124E42D93708B00233B3F /* TheListeningRoomExtensionSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 46B6A9442D93511200BCE8CA /* TheListeningRoomExtensionSDK */; };
+		46D124E62D93708B00233B3F /* TheListeningRoomExtensionSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 46B6A9462D93511600BCE8CA /* TheListeningRoomExtensionSDK */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -115,9 +115,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				46D124E42D93708B00233B3F /* TheListeningRoomExtensionSDK in Frameworks */,
 				464DC2EF2D75F8A80000D944 /* OrderedCollections in Frameworks */,
 				463A9F582D413F2E00ABF576 /* SFBAudioEngine in Frameworks */,
-				46B6A9452D93511200BCE8CA /* TheListeningRoomExtensionSDK in Frameworks */,
 				464DC3AF2D7602C90000D944 /* AsyncAlgorithms in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -133,7 +133,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				46B6A9472D93511600BCE8CA /* TheListeningRoomExtensionSDK in Frameworks */,
+				46D124E62D93708B00233B3F /* TheListeningRoomExtensionSDK in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
