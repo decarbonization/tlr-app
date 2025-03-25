@@ -74,7 +74,7 @@ import os
         identity.bundleIdentifier
     }
     
-    var features: [ListeningRoomExtensionFeature] {
+    var features: [ListeningRoomExtensionTopLevelFeature] {
         get async throws {
             try await extensionMain.dispatch(.features)
         }

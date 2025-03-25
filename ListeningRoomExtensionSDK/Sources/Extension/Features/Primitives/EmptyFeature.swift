@@ -19,18 +19,15 @@
 
 import Foundation
 
-public struct ListeningRoomExtensionFeatureImage: ListeningRoomExtensionFeature, Codable, Sendable {
-    public enum _Representation: Codable, Sendable {
-        case systemImage(name: String)
+struct _EmptyFeature: ListeningRoomExtensionFeature {
+    init() {
     }
     
-    public init(systemImage: String) {
-        _representation = .systemImage(name: systemImage)
-    }
-    
-    public let _representation: _Representation
-    
-    public var feature: some ListeningRoomExtensionFeature {
+    var feature: some ListeningRoomExtensionFeature {
         self
+    }
+    
+    func _visit(_ visitor: inout some _ListeningRoomExtensionVisitor) {
+        // Do nothing.
     }
 }

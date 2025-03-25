@@ -19,18 +19,26 @@
 
 import Foundation
 
-public struct ListeningRoomExtensionFeatureImage: ListeningRoomExtensionFeature, Codable, Sendable {
-    public enum _Representation: Codable, Sendable {
-        case systemImage(name: String)
+public struct ListeningRoomSidebarSection: ListeningRoomExtensionFeature, Codable, Sendable {
+    public init(@ListeningRoomExtensionFeatureBuilder title: () -> some ListeningRoomExtensionFeature,
+                @ListeningRoomExtensionFeatureBuilder items: () -> some ListeningRoomExtensionFeature) {
+        let textFeatures = title()._collectAll(ListeningRoomExtensionFeatureText.self)
+        self._title = textFeatures.reduce("") { acc, next in acc + next._content }
+        
+        let itemFeatures = items()._collectAll(ListeningRoomExtensionFeatureLink.self)
+        self._items = itemFeatures
     }
     
-    public init(systemImage: String) {
-        _representation = .systemImage(name: systemImage)
+    public init(title: String,
+                @ListeningRoomExtensionFeatureBuilder items: () -> some ListeningRoomExtensionFeature) {
+        self.init(title: { ListeningRoomExtensionFeatureText(verbatim: title) },
+                  items: items)
     }
     
-    public let _representation: _Representation
+    public let _title: String
+    public let _items: [ListeningRoomExtensionFeatureLink]
     
     public var feature: some ListeningRoomExtensionFeature {
-        self
+        ListeningRoomExtensionTopLevelFeature.sidebarSection(self)
     }
 }

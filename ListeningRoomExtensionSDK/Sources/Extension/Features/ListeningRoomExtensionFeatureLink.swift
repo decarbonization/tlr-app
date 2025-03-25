@@ -19,16 +19,39 @@
 
 import Foundation
 
-public struct ListeningRoomExtensionFeatureLink: Codable, Sendable {
+public struct ListeningRoomExtensionFeatureLink: ListeningRoomExtensionFeature, Codable, Sendable {
     public init(sceneID: String,
-                localizedTitle: String,
-                image: ListeningRoomExtensionFeatureImage? = nil) {
-        self.sceneID = sceneID
-        self.localizedTitle = localizedTitle
-        self.image = image
+                @ListeningRoomExtensionFeatureBuilder title: () -> some ListeningRoomExtensionFeature,
+                @ListeningRoomExtensionFeatureBuilder image: () -> some ListeningRoomExtensionFeature) {
+        self._sceneID = sceneID
+        
+        let titleFeatures = title()._collectAll(ListeningRoomExtensionFeatureText.self)
+        self._title = titleFeatures.reduce("") { acc, next in acc + next._content }
+        
+        let imageFeatures = image()._collectAll(ListeningRoomExtensionFeatureImage.self)
+        self._image = imageFeatures.first?._representation
     }
     
-    public var sceneID: String
-    public var localizedTitle: String
-    public var image: ListeningRoomExtensionFeatureImage?
+    public init(sceneID: String,
+                title: String,
+                systemImage: String) {
+        self.init(sceneID: sceneID,
+                  title: { ListeningRoomExtensionFeatureText(verbatim: title) },
+                  image: { ListeningRoomExtensionFeatureImage(systemImage: systemImage) })
+    }
+    
+    public init(sceneID: String,
+                title: String) {
+        self.init(sceneID: sceneID,
+                  title: { ListeningRoomExtensionFeatureText(verbatim: title) },
+                  image: { })
+    }
+    
+    public var _sceneID: String
+    public var _title: String
+    public var _image: ListeningRoomExtensionFeatureImage._Representation?
+    
+    public var feature: some ListeningRoomExtensionFeature {
+        self
+    }
 }

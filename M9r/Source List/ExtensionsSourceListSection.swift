@@ -25,16 +25,16 @@ struct ExtensionsSourceListSection: View {
         @Bindable var extensionManager = ExtensionManager.shared
         ForEach(extensionManager.sidebarSections) { sidebarSection in
             Section(sidebarSection.localizedTitle) {
-                ForEach(sidebarSection.items, id: \.sceneID) { item in
+                ForEach(sidebarSection.items, id: \._sceneID) { item in
                     NavigationLink {
                         ExtensionHostView(process: sidebarSection.process,
-                                          sceneID: item.sceneID)
+                                          sceneID: item._sceneID)
                     } label: {
-                        switch item.image {
+                        switch item._image {
                         case .systemImage(let name):
-                            Label(item.localizedTitle, systemImage: name)
+                            Label(item._title, systemImage: name)
                         case nil:
-                            Text(verbatim: item.localizedTitle)
+                            Text(verbatim: item._title)
                         }
                     }
                 }

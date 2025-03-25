@@ -23,9 +23,10 @@ import ExtensionKit
 import SwiftUI
 
 public protocol ListeningRoomExtension: AppExtension where Configuration == AppExtensionSceneConfiguration {
+    associatedtype Features: ListeningRoomExtensionFeature
     associatedtype Body: AppExtensionScene
     
-    @MainActor var features: [ListeningRoomExtensionFeature] { get }
+    @MainActor @ListeningRoomExtensionFeatureBuilder var features: Features { get }
     @MainActor @AppExtensionSceneBuilder var body: Body { get }
 }
 

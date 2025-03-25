@@ -20,7 +20,7 @@
 import Foundation
 
 public struct ListeningRoomExtensionGetFeatures: ListeningRoomXPCRequest {
-    public typealias Response = [ListeningRoomExtensionFeature]
+    public typealias Response = [ListeningRoomExtensionTopLevelFeature]
     
     public init() {
     }
@@ -39,7 +39,7 @@ internal struct ListeningRoomExtensionGetFeaturesEndpoint<E: ListeningRoomExtens
     
     private let appExtension: E
     
-    func callAsFunction(_ request: ListeningRoomExtensionGetFeatures) async throws -> [ListeningRoomExtensionFeature] {
-        appExtension.features
+    func callAsFunction(_ request: ListeningRoomExtensionGetFeatures) async throws -> [ListeningRoomExtensionTopLevelFeature] {
+        appExtension.features._collectAll(ListeningRoomExtensionTopLevelFeature.self)
     }
 }

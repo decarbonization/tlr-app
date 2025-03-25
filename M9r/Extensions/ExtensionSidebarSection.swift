@@ -25,6 +25,6 @@ struct ExtensionSidebarSection: Identifiable {
     var items: [ListeningRoomExtensionFeatureLink]
     
     var id: String {
-        process.id
+        "\(process.id)-\(localizedTitle)-\(items.count)"
     }
 }

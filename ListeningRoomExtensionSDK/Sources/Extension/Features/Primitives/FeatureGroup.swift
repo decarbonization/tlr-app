@@ -19,18 +19,18 @@
 
 import Foundation
 
-public struct ListeningRoomExtensionFeatureImage: ListeningRoomExtensionFeature, Codable, Sendable {
-    public enum _Representation: Codable, Sendable {
-        case systemImage(name: String)
+struct _FeatureGroup<each F: ListeningRoomExtensionFeature>: ListeningRoomExtensionFeature {
+    init(_ content: repeat (each F)) {
+        self.content = (repeat each content)
     }
     
-    public init(systemImage: String) {
-        _representation = .systemImage(name: systemImage)
-    }
+    private let content: (repeat each F)
     
-    public let _representation: _Representation
-    
-    public var feature: some ListeningRoomExtensionFeature {
+    var feature: some ListeningRoomExtensionFeature {
         self
+    }
+    
+    func _visit(_ visitor: inout some _ListeningRoomExtensionVisitor) {
+        repeat (each content)._visit(&visitor)
     }
 }

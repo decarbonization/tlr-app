@@ -67,8 +67,11 @@ import os
         for process in processes {
             do {
                 let features = try await process.features
-                for case .sidebarSection(let localizedTitle, let items) in features {
-                    newSidebarSections.append(ExtensionSidebarSection(process: process, localizedTitle: localizedTitle, items: items))
+                for feature in features {
+                    switch feature {
+                    case .sidebarSection(let sidebarSection):
+                        newSidebarSections.append(ExtensionSidebarSection(process: process, localizedTitle: sidebarSection._title, items: sidebarSection._items))
+                    }
                 }
             } catch {
                 Self.logger.error("*** Could not get features for \(process.identity.bundleIdentifier), reason: \(error)")

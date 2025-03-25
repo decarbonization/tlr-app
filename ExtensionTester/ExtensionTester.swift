@@ -22,14 +22,12 @@ import ExtensionKit
 import SwiftUI
 
 @main struct ExtensionTester: ListeningRoomExtension {
-    var features: [ListeningRoomExtensionFeature] {
-        [
-            .sidebarSection(localizedTitle: "Extension Tester", items: [
-                ListeningRoomExtensionFeatureLink(sceneID: "play-queue",
-                                                  localizedTitle: "Play Queue",
-                                                  image: .systemImage(name: "music.note.list"))
-            ])
-        ]
+    var features: some ListeningRoomExtensionFeature {
+        ListeningRoomSidebarSection(title: "Extension Tester") {
+            ListeningRoomExtensionFeatureLink(sceneID: "play-queue",
+                                              title: "Play Queue",
+                                              systemImage: "music.note.list")
+        }
     }
     
     var body: some AppExtensionScene {
