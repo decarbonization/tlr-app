@@ -49,14 +49,29 @@ private struct _ListeningRoomExtensionHostContent<Placeholder: View>: NSViewCont
     let process: ExtensionProcess
     let sceneID: String
     let placeholder: () -> Placeholder
+    @Environment(PlayQueue.self) private var playQueue
     
     final class Coordinator: NSObject, EXHostViewControllerDelegate {
-        let extensionScene = ListeningRoomXPCConnection(dispatcher: ListeningRoomXPCDispatcher(role: .hostView,
-                                                                                               endpoints: []))
+        init(playQueue: PlayQueue) {
+            extensionScene = ListeningRoomXPCConnection(dispatcher: ListeningRoomXPCDispatcher(role: .hostView,
+                                                                                               endpoints: [PlayQueueActionEndpoint(playQueue),
+                                                                                                           PlayQueueGetStateEndpoint(playQueue),
+                                                                                                           ListeningRoomRemotePingEndpoint()]))
+        }
+        
+        let extensionScene: ListeningRoomXPCConnection
         
         func hostViewControllerDidActivate(_ viewController: EXHostViewController) {
             do {
                 extensionScene.takeOwnership(of: try viewController.makeXPCConnection())
+                Task {
+                    do {
+                        // NOTE: Scene connection is lazily initialized
+                        let _ = try await extensionScene.dispatch(.ping)
+                    } catch {
+                        ExtensionProcess.logger.error("Pinging extension scene failed \(viewController), reason: \(error)")
+                    }
+                }
             } catch {
                 ExtensionProcess.logger.error("Could not establish extension scene connection to \(viewController), reason: \(error)")
             }
@@ -71,7 +86,7 @@ private struct _ListeningRoomExtensionHostContent<Placeholder: View>: NSViewCont
     }
     
     func makeCoordinator() -> Coordinator {
-        Coordinator()
+        Coordinator(playQueue: playQueue)
     }
     
     func makeNSViewController(context: Context) -> EXHostViewController {

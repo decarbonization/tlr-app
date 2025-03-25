@@ -26,6 +26,7 @@ final class ListeningRoomExtensionConfiguration<E: ListeningRoomExtension>: AppE
                                                                                           endpoints: [
                                                                                             ListeningRoomExtensionGetFeaturesEndpoint(appExtension),
                                                                                             ListeningRoomPostRemoteNotificationEndpoint(),
+                                                                                            ListeningRoomRemotePingEndpoint(),
                                                                                           ]))
     }
     

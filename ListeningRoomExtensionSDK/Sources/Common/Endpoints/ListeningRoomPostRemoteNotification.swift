@@ -19,6 +19,10 @@
 
 import Foundation
 
+extension Notification.Name {
+    public static let ListeningRoomPlayQueueDidChange = Notification.Name("ListeningRoomPlayQueueDidChange")
+}
+
 public struct ListeningRoomPostRemoteNotification: ListeningRoomXPCRequest {
     public typealias Response = Nothing
     

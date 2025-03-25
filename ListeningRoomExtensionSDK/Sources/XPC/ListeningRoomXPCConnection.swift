@@ -25,6 +25,15 @@ import os
     
     public init(dispatcher: ListeningRoomXPCDispatcher) {
         self.dispatcher = dispatcher
+        self.isPlaceholder = false
+        self.stateLock = .init()
+        self.withStateLock_connectionWaiters = []
+    }
+    
+    internal init(_placeholder: Void) {
+        self.dispatcher = ListeningRoomXPCDispatcher(role: .placeholder,
+                                                     endpoints: [])
+        self.isPlaceholder = true
         self.stateLock = .init()
         self.withStateLock_connectionWaiters = []
     }
@@ -43,6 +52,7 @@ import os
     }
     
     private let dispatcher: ListeningRoomXPCDispatcher
+    private let isPlaceholder: Bool
     private let stateLock: OSAllocatedUnfairLock<Void>
     private var withStateLock_connectionWaiters: [UnsafeContinuation<Void, any Error>]
     private var withStateLock_currentConnection: NSXPCConnection?
@@ -63,6 +73,12 @@ import os
     /// - returns: An active XPC connection.
     /// - throws: A `CocoaError` if the XPC connection could not be retrieved.
     private func xpcConnection(wait: Bool) async throws -> NSXPCConnection {
+        guard !isPlaceholder else {
+            throw CocoaError(.xpcConnectionInvalid, userInfo: [
+                NSLocalizedDescriptionKey: "Cannot use placeholder connection",
+            ])
+        }
+        
         repeat {
             if let currentXPCConnection {
                 return currentXPCConnection
@@ -83,7 +99,7 @@ import os
     /// - parameter connection: An XPC connection to take ownership of.
     /// - returns: `true` if ownership was taken of the connection; `false` otherwise.
     @discardableResult public func takeOwnership(of connection: NSXPCConnection) -> Bool {
-        guard currentXPCConnection == nil else {
+        guard currentXPCConnection == nil && !isPlaceholder else {
             return false
         }
         
@@ -115,7 +131,7 @@ import os
             }
         }
         
-        Self.logger.info("XPC connection \(String(describing: self)) resumed")
+        Self.logger.info("\(String(describing: self)) resumed")
         
         return true
     }
@@ -124,14 +140,14 @@ import os
     ///
     /// The existing connection object may be used to re-establish communication with the remote process.
     private func xpcConnectionInterrupted() {
-        Self.logger.info("XPC connection \(String(describing: self)) interrupted")
+        Self.logger.info("\(String(describing: self)) interrupted")
     }
     
     /// Handle the XPC connection being invalidated.
     ///
     /// The existing connection object may not be used to re-establish communication with the remote process.
     private func xpcConnectionInvalidated() {
-        Self.logger.error("XPC connection \(String(describing: self)) invalidated")
+        Self.logger.error("\(String(describing: self)) invalidated")
         stateLock.lock()
         withStateLock_currentConnection = nil
         stateLock.unlock()
@@ -165,6 +181,9 @@ import os
     }
     
     public var description: String {
+        guard !isPlaceholder else {
+            return "ListeningRoomXPCConnection(placeholder)"
+        }
         var currentConnectionDescription = "(unknown)"
         if stateLock.lockIfAvailable() {
             if let withStateLock_currentConnection {

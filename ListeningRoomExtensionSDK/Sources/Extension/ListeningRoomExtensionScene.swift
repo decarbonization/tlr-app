@@ -35,13 +35,14 @@ public struct ListeningRoomExtensionScene<Content: View>: AppExtensionScene {
     
     private let id: String
     private let content: @MainActor () -> Content
-    @State private var hostView = ListeningRoomXPCConnection(dispatcher: ListeningRoomXPCDispatcher(role: .extensionScene,
-                                                                                                    endpoints: []))
+    private let hostView = ListeningRoomXPCConnection(dispatcher: ListeningRoomXPCDispatcher(role: .extensionScene,
+                                                                                             endpoints: [ListeningRoomRemotePingEndpoint()]))
     
     public var body: some AppExtensionScene {
         PrimitiveAppExtensionScene(id: id) {
             content()
-        } onConnection: { connection in
+                .environment(\.listeningRoomPlayQueue, ListeningRoomPlayQueue(connection: hostView))
+        } onConnection: { @Sendable connection in
             hostView.takeOwnership(of: connection)
         }
     }

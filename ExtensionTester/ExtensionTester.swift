@@ -34,11 +34,7 @@ import SwiftUI
     
     var body: some AppExtensionScene {
         ListeningRoomExtensionScene(id: "play-queue") {
-            VStack {
-                Label("Play Queue", systemImage: "music.note.list")
-                    .font(.largeTitle)
-                    .foregroundStyle(.tertiary)
-            }
+            PlayQueueTesterView()
         }
     }
 }

@@ -21,6 +21,7 @@ import Foundation
 
 public final class ListeningRoomXPCDispatcher: NSObject, Sendable {
     public enum Role: String, Sendable {
+        case placeholder
         case extensionMain
         case extensionScene
         case hostMain

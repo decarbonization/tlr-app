@@ -1,0 +1,49 @@
+/*
+ * MIT No Attribution
+ *
+ * Copyright 2025 Peter "Kevin" Contreras
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this
+ * software and associated documentation files (the "Software"), to deal in the Software
+ * without restriction, including without limitation the rights to use, copy, modify,
+ * merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+import Foundation
+import SwiftData
+
+public struct ListeningRoomHostPlayQueueState: Codable, Sendable {
+    public static var empty: Self {
+        Self(playbackState: .stopped,
+             canSkipPreviousTrack: false,
+             canSkipNextTrack: false,
+             playingItemIndex: nil,
+             items: [])
+    }
+    
+    public init(playbackState: ListeningRoomPlaybackState,
+                canSkipPreviousTrack: Bool,
+                canSkipNextTrack: Bool,
+                playingItemIndex: Int?,
+                items: [PersistentIdentifier]) {
+        self.playbackState = playbackState
+        self.canSkipPreviousTrack = canSkipPreviousTrack
+        self.canSkipNextTrack = canSkipNextTrack
+        self.playingItemIndex = playingItemIndex
+        self.items = items
+    }
+    
+    public var playbackState: ListeningRoomPlaybackState
+    public var canSkipPreviousTrack: Bool
+    public var canSkipNextTrack: Bool
+    public var playingItemIndex: Int?
+    public var items: [PersistentIdentifier]
+}

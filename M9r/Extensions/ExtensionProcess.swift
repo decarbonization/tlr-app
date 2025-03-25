@@ -35,8 +35,34 @@ import os
         })
         self.process = try await AppExtensionProcess(configuration: processConfiguration)
         self.extensionMain = ListeningRoomXPCConnection(dispatcher: ListeningRoomXPCDispatcher(role: .hostMain,
-                                                                                               endpoints: [ListeningRoomPostRemoteNotificationEndpoint()]))
+                                                                                               endpoints: [ListeningRoomPostRemoteNotificationEndpoint(),
+                                                                                                           ListeningRoomRemotePingEndpoint()]))
         extensionMain.takeOwnership(of: try process.makeXPCConnection())
+        
+        Task { [weak self] in
+            for await _ in NotificationCenter.default.notifications(named: PlayQueue.nowPlayingDidChange) {
+                guard let self else {
+                    break
+                }
+                do {
+                    _ = try await self.extensionMain.dispatch(.postRemoteNotification(name: .ListeningRoomPlayQueueDidChange), waitForConnection: false)
+                } catch {
+                    
+                }
+            }
+        }
+        Task { [weak self] in
+            for await _ in NotificationCenter.default.notifications(named: PlayQueue.playbackStateDidChange) {
+                guard let self else {
+                    break
+                }
+                do {
+                    _ = try await self.extensionMain.dispatch(.postRemoteNotification(name: .ListeningRoomPlayQueueDidChange), waitForConnection: false)
+                } catch {
+                    
+                }
+            }
+        }
     }
     
     let identity: AppExtensionIdentity
