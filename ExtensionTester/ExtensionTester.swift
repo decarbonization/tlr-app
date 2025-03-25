@@ -28,11 +28,29 @@ import SwiftUI
                                               title: "Play Queue",
                                               systemImage: "music.note.list")
         }
+        ListeningRoomFeatureSettings {
+            ListeningRoomExtensionFeatureLink(sceneID: "general-settings",
+                                              title: "General",
+                                              systemImage: "gear")
+            ListeningRoomExtensionFeatureLink(sceneID: "advanced-settings",
+                                              title: "Advanced",
+                                              systemImage: "gearshape.2")
+        }
     }
     
     var body: some AppExtensionScene {
         ListeningRoomExtensionScene(id: "play-queue") {
             PlayQueueTesterView()
+        }
+        ListeningRoomExtensionScene(id: "general-settings") {
+            Label("General", systemImage: "gear")
+                .font(.largeTitle)
+                .foregroundStyle(.tertiary)
+        }
+        ListeningRoomExtensionScene(id: "advanced-settings") {
+            Label("Advanced", systemImage: "gearshape.2")
+                .font(.largeTitle)
+                .foregroundStyle(.tertiary)
         }
     }
 }

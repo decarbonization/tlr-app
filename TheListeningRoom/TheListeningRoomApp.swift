@@ -52,6 +52,7 @@ struct TheListeningRoomApp: App {
         }
         Settings {
             SettingsView()
+                .environment(playQueue)
         }
     }
 }

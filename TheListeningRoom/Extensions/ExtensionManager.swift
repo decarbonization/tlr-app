@@ -84,6 +84,7 @@ import os
             }
         }
         newSidebarSections.sort(by: { $0._title < $1._title })
+        self.settings = newSettings
         self.sidebarSections = newSidebarSections
     }
 }
