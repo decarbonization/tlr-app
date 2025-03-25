@@ -16,23 +16,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import ListeningRoomExtensionSDK
-import ExtensionFoundation
-import ExtensionKit
-import SwiftUI
+import Foundation
+import SwiftData
 
-@main struct ExtensionTester: ListeningRoomExtension {
-    var features: some ListeningRoomExtensionFeature {
-        ListeningRoomSidebarSection(title: "Extension Tester") {
-            ListeningRoomExtensionFeatureLink(sceneID: "play-queue",
-                                              title: "Play Queue",
-                                              systemImage: "music.note.list")
+extension Library {
+    func deleteArtists(withIDs ids: Set<PersistentIdentifier>) throws {
+        let whatArtists = FetchDescriptor<Artist>(predicate: #Predicate { ids.contains($0.persistentModelID) })
+        let toDelete = try modelContext.fetch(whatArtists)
+        for artist in toDelete {
+            artist.albums = []
+            artist.songs = []
+            modelContext.delete(artist)
         }
     }
     
-    var body: some AppExtensionScene {
-        ListeningRoomExtensionScene(id: "play-queue") {
-            PlayQueueTesterView()
+    func getOrInsertArtist(named artistName: String) throws -> Artist {
+        try getOrInsert(matching: #Predicate { $0.name == artistName }) {
+            Artist(name: artistName)
         }
     }
 }

@@ -24,7 +24,7 @@ jobs:
   deploy:
     needs: check_new_commits
     if: ${{ needs.check_new_commits.outputs.should_run != 'false' }}
-    name: M9r
+    name: TheListeningRoom
     environment: CI
     runs-on: macos-15
 
@@ -52,26 +52,26 @@ jobs:
           security list-keychain -d user -s "$KEYCHAIN_PATH"
       - name: Build
         env:
-          scheme: ${{ 'M9r' }}
+          scheme: ${{ 'TheListeningRoom' }}
           platform: ${{ 'macOS' }}
         run: |
           xcodebuild archive \
             -scheme "$scheme" \
-            -project "M9r.xcodeproj" \
+            -project "TheListeningRoom.xcodeproj" \
             -destination "platform=$platform" \
-            -archivePath "dist/M9r.xcarchive"
+            -archivePath "dist/TheListeningRoom.xcarchive"
       - name: Package
         run: |
           xcodebuild -exportArchive \
-            -archivePath "dist/M9r.xcarchive" \
+            -archivePath "dist/TheListeningRoom.xcarchive" \
             -exportOptionsPlist ".github/workflows/NightlyExportOptions.plist" \
             -exportPath "dist/" \
             -allowProvisioningUpdates
           npm install --global create-dmg
           pushd dist
-          create-dmg M9r.app --overwrite
-          DMGS=$(echo M9r*.dmg)
-          mv "${DMGS[0]}" "M9r.dmg"
+          create-dmg TheListeningRoom.app --overwrite
+          DMGS=$(echo TheListeningRoom*.dmg)
+          mv "${DMGS[0]}" "TheListeningRoom.dmg"
           popd
       - name: Notarize
         env:
@@ -84,16 +84,16 @@ jobs:
             --apple-id "$APPLE_ID" \
             --password "$NOTARY_PASSWORD" \
             --wait \
-            dist/M9r.dmg
-          xcrun stapler staple dist/M9r.dmg
+            dist/TheListeningRoom.dmg
+          xcrun stapler staple dist/TheListeningRoom.dmg
       - name: Update Nightly Release
         uses: andelf/nightly-release@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: nightly
-          name: 'M9r Nightly Release $$'
+          name: 'The Listening Room Nightly Release $$'
           prerelease: true
           body: 'Nightly build of main branch'
           files: |
-            ./dist/M9r.dmg
+            ./dist/TheListeningRoom.dmg

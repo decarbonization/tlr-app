@@ -16,23 +16,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import ListeningRoomExtensionSDK
-import ExtensionFoundation
 import ExtensionKit
 import SwiftUI
 
-@main struct ExtensionTester: ListeningRoomExtension {
-    var features: some ListeningRoomExtensionFeature {
-        ListeningRoomSidebarSection(title: "Extension Tester") {
-            ListeningRoomExtensionFeatureLink(sceneID: "play-queue",
-                                              title: "Play Queue",
-                                              systemImage: "music.note.list")
-        }
+struct ExtensionsSettingsView: NSViewControllerRepresentable {
+    func makeNSViewController(context: Context) -> EXAppExtensionBrowserViewController {
+        EXAppExtensionBrowserViewController()
     }
     
-    var body: some AppExtensionScene {
-        ListeningRoomExtensionScene(id: "play-queue") {
-            PlayQueueTesterView()
-        }
+    func updateNSViewController(_ nsViewController: EXAppExtensionBrowserViewController, context: Context) {
     }
 }

@@ -16,23 +16,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import ListeningRoomExtensionSDK
-import ExtensionFoundation
-import ExtensionKit
 import SwiftUI
 
-@main struct ExtensionTester: ListeningRoomExtension {
-    var features: some ListeningRoomExtensionFeature {
-        ListeningRoomSidebarSection(title: "Extension Tester") {
-            ListeningRoomExtensionFeatureLink(sceneID: "play-queue",
-                                              title: "Play Queue",
-                                              systemImage: "music.note.list")
+struct TaskList: View {
+    var body: some View {
+        List(Tasks.all.inProgress, id: \.self) { progress in
+            ProgressView(progress)
+                .padding()
         }
-    }
-    
-    var body: some AppExtensionScene {
-        ListeningRoomExtensionScene(id: "play-queue") {
-            PlayQueueTesterView()
-        }
+        .progressViewStyle(.linear)
     }
 }

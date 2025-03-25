@@ -16,23 +16,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import ListeningRoomExtensionSDK
-import ExtensionFoundation
-import ExtensionKit
 import SwiftUI
 
-@main struct ExtensionTester: ListeningRoomExtension {
-    var features: some ListeningRoomExtensionFeature {
-        ListeningRoomSidebarSection(title: "Extension Tester") {
-            ListeningRoomExtensionFeatureLink(sceneID: "play-queue",
-                                              title: "Play Queue",
-                                              systemImage: "music.note.list")
-        }
-    }
+struct GeneralSettingsView: View {
+    @AppStorage("RatingStyle") private var ratingStyle = RatingStyle.default
     
-    var body: some AppExtensionScene {
-        ListeningRoomExtensionScene(id: "play-queue") {
-            PlayQueueTesterView()
+    var body: some View {
+        Form {
+            Picker("Rating Style", selection: $ratingStyle) {
+                Label("Like / Dislike", systemImage: "hand.thumbsup")
+                    .tag(RatingStyle.binary)
+                Label("Stars", systemImage: "star")
+                    .tag(RatingStyle.stars)
+            }
         }
     }
 }

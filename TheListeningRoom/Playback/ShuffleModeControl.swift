@@ -16,23 +16,29 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import ListeningRoomExtensionSDK
-import ExtensionFoundation
-import ExtensionKit
 import SwiftUI
 
-@main struct ExtensionTester: ListeningRoomExtension {
-    var features: some ListeningRoomExtensionFeature {
-        ListeningRoomSidebarSection(title: "Extension Tester") {
-            ListeningRoomExtensionFeatureLink(sceneID: "play-queue",
-                                              title: "Play Queue",
-                                              systemImage: "music.note.list")
-        }
+struct ShuffleModeControl: View {
+    init(isEnabled: Binding<Bool>) {
+        _isEnabled = isEnabled
     }
     
-    var body: some AppExtensionScene {
-        ListeningRoomExtensionScene(id: "play-queue") {
-            PlayQueueTesterView()
+    @Binding private var isEnabled: Bool
+    
+    var body: some View {
+        Button {
+            isEnabled.toggle()
+        } label: {
+            Label(isEnabled ? "Shuffle On" : "Shuffle Off", systemImage: "shuffle")
+                .labelStyle(.iconOnly)
+                .foregroundStyle(isEnabled ? Color.accentColor : .primary)
+                .opacity(isEnabled ? 1.0 : 0.6)
         }
     }
+}
+
+#Preview {
+    @Previewable @State var isEnabled = false
+    
+    ShuffleModeControl(isEnabled: $isEnabled)
 }

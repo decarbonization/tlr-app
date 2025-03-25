@@ -16,23 +16,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import ListeningRoomExtensionSDK
-import ExtensionFoundation
-import ExtensionKit
-import SwiftUI
+import Foundation
+import Testing
+@testable import TheListeningRoom
 
-@main struct ExtensionTester: ListeningRoomExtension {
-    var features: some ListeningRoomExtensionFeature {
-        ListeningRoomSidebarSection(title: "Extension Tester") {
-            ListeningRoomExtensionFeatureLink(sceneID: "play-queue",
-                                              title: "Play Queue",
-                                              systemImage: "music.note.list")
-        }
-    }
-    
-    var body: some AppExtensionScene {
-        ListeningRoomExtensionScene(id: "play-queue") {
-            PlayQueueTesterView()
-        }
+@Suite struct TaskErrorsTests {
+    @Test func presentingErrors() {
+        let subject = TaskErrors()
+        subject.present([
+            CocoaError(.fileNoSuchFile),
+            URLError(.badURL),
+        ] as [any Error])
+        #expect(subject.presented.count == 2)
+        
+        subject.clearPresented()
+        #expect(subject.presented.isEmpty)
     }
 }

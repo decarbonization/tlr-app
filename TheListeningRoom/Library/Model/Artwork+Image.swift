@@ -16,23 +16,24 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import ListeningRoomExtensionSDK
-import ExtensionFoundation
-import ExtensionKit
+
+import AppKit
+import Foundation
 import SwiftUI
 
-@main struct ExtensionTester: ListeningRoomExtension {
-    var features: some ListeningRoomExtensionFeature {
-        ListeningRoomSidebarSection(title: "Extension Tester") {
-            ListeningRoomExtensionFeatureLink(sceneID: "play-queue",
-                                              title: "Play Queue",
-                                              systemImage: "music.note.list")
-        }
-    }
+extension Artwork {
+    @MainActor private static var cachedNSImages: [String: Image] = [:]
     
-    var body: some AppExtensionScene {
-        ListeningRoomExtensionScene(id: "play-queue") {
-            PlayQueueTesterView()
+    @MainActor var image: Image? {
+        if let existingImage = Self.cachedNSImages[payloadHash] {
+            return existingImage
+        } else {
+            guard let nsImage = NSImage(data: payload) else {
+                return nil
+            }
+            let newImage = Image(nsImage: nsImage)
+            Self.cachedNSImages[payloadHash] = newImage
+            return newImage
         }
     }
 }

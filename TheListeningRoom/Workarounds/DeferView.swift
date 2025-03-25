@@ -16,23 +16,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import ListeningRoomExtensionSDK
-import ExtensionFoundation
-import ExtensionKit
 import SwiftUI
 
-@main struct ExtensionTester: ListeningRoomExtension {
-    var features: some ListeningRoomExtensionFeature {
-        ListeningRoomSidebarSection(title: "Extension Tester") {
-            ListeningRoomExtensionFeatureLink(sceneID: "play-queue",
-                                              title: "Play Queue",
-                                              systemImage: "music.note.list")
-        }
+/// Defers the evaluation of some view. This can be useful to workaround SwiftUI bugs.
+struct DeferView<RootView: View>: NSViewRepresentable {
+    init(@ViewBuilder rootView: @escaping () -> RootView) {
+        self.rootView = rootView
     }
     
-    var body: some AppExtensionScene {
-        ListeningRoomExtensionScene(id: "play-queue") {
-            PlayQueueTesterView()
-        }
+    private let rootView: () -> RootView
+    
+    func makeNSView(context: Context) -> NSHostingView<RootView> {
+        NSHostingView(rootView: rootView())
+    }
+    
+    func updateNSView(_ nsView: NSHostingView<RootView>, context: Context) {
+        // Do nothing.
     }
 }

@@ -1,5 +1,5 @@
 /*
- * M9r
+ * The Listening Room Project
  * Copyright (C) 2025  MAINTAINERS
  *
  * This program is free software: you can redistribute it and/or modify

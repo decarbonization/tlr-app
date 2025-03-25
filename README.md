@@ -1,10 +1,10 @@
-# m9r
+# tlr-app
+
+[![Build and Test](https://github.com/decarbonization/tlr-app/actions/workflows/test.yml/badge.svg)](https://github.com/decarbonization/tlr-app/actions/workflows/test.yml) [![Nightly](https://github.com/decarbonization/tlr-app/actions/workflows/nightly.yml/badge.svg)](https://github.com/decarbonization/tlr-app/actions/workflows/nightly.yml)
 
 Local file music player for macOS
 
-[![Build and Test](https://github.com/decarbonization/m9r/actions/workflows/test.yml/badge.svg)](https://github.com/decarbonization/m9r/actions/workflows/test.yml) [![Nightly](https://github.com/decarbonization/m9r/actions/workflows/nightly.yml/badge.svg)](https://github.com/decarbonization/m9r/actions/workflows/nightly.yml)
-
-⚠️ M9r's library format is not yet stable and may change at any time. Use at your own risk.
+⚠️ The Listening Room's library format is not yet stable and may change at any time. Use at your own risk.
 
 ## License
 

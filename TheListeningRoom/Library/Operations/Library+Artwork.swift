@@ -16,23 +16,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import ListeningRoomExtensionSDK
-import ExtensionFoundation
-import ExtensionKit
-import SwiftUI
+import Foundation
+import SFBAudioEngine
+import SwiftData
 
-@main struct ExtensionTester: ListeningRoomExtension {
-    var features: some ListeningRoomExtensionFeature {
-        ListeningRoomSidebarSection(title: "Extension Tester") {
-            ListeningRoomExtensionFeatureLink(sceneID: "play-queue",
-                                              title: "Play Queue",
-                                              systemImage: "music.note.list")
+extension Library {
+    func getOrInsertArtwork(copying picture: AttachedPicture) throws -> Artwork? {
+        guard picture.type == .other || picture.type == .frontCover else {
+            // TODO: Support other kinds of artwork
+            return nil
         }
-    }
-    
-    var body: some AppExtensionScene {
-        ListeningRoomExtensionScene(id: "play-queue") {
-            PlayQueueTesterView()
+        let payloadHash = Artwork.hash(for: picture.imageData)
+        return try getOrInsert(matching: #Predicate { $0.payloadHash == payloadHash }) {
+            Artwork(payloadHash: payloadHash,
+                    payloadType: .data,
+                    payload: picture.imageData)
         }
     }
 }

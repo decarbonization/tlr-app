@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Scheme
+   LastUpgradeVersion = "1620"
+   version = "1.7">
+   <BuildAction
+      parallelizeBuildables = "YES"
+      buildImplicitDependencies = "YES"
+      buildArchitectures = "Automatic">
+      <PreActions>
+         <ExecutionAction
+            ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
+            <ActionContent
+               title = "Run Script"
+               scriptText = "cd &quot;$SRCROOT/$PRODUCT_NAME&quot;&#10;&#10;new_build_number=$(date &quot;+%Y%m%d&quot;)&#10;sed -i -e &quot;/BUILD_NUMBER =/ s/= .*/= $new_build_number/&quot; Config.xcconfig&#10;&#10;new_marketing_version=&quot;$(date &quot;+%Y.%-m.%-d&quot;) (HEAD $(git rev-parse --short HEAD))&quot;&#10;sed -i -e &quot;/MARKETING_VERSION =/ s/= .*/= $new_marketing_version/&quot; Config.xcconfig&#10;&#10;rm -f Config.xcconfig-e&#10;">
+               <EnvironmentBuildable>
+                  <BuildableReference
+                     BuildableIdentifier = "primary"
+                     BlueprintIdentifier = "463A9F142D413AFF00ABF576"
+                     BuildableName = "TheListeningRoom.app"
+                     BlueprintName = "TheListeningRoom"
+                     ReferencedContainer = "container:TheListeningRoom.xcodeproj">
+                  </BuildableReference>
+               </EnvironmentBuildable>
+            </ActionContent>
+         </ExecutionAction>
+      </PreActions>
+      <PostActions>
+         <ExecutionAction
+            ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
+            <ActionContent
+               title = "Run Script"
+               scriptText = "cd &quot;$SRCROOT/$PRODUCT_NAME&quot;&#10;git checkout -- Config.xcconfig&#10;">
+               <EnvironmentBuildable>
+                  <BuildableReference
+                     BuildableIdentifier = "primary"
+                     BlueprintIdentifier = "463A9F142D413AFF00ABF576"
+                     BuildableName = "TheListeningRoom.app"
+                     BlueprintName = "TheListeningRoom"
+                     ReferencedContainer = "container:TheListeningRoom.xcodeproj">
+                  </BuildableReference>
+               </EnvironmentBuildable>
+            </ActionContent>
+         </ExecutionAction>
+      </PostActions>
+      <BuildActionEntries>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "463A9F142D413AFF00ABF576"
+               BuildableName = "TheListeningRoom.app"
+               BlueprintName = "TheListeningRoom"
+               ReferencedContainer = "container:TheListeningRoom.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+      </BuildActionEntries>
+   </BuildAction>
+   <TestAction
+      buildConfiguration = "Debug"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      shouldAutocreateTestPlan = "YES">
+      <Testables>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "463A9F252D413AFF00ABF576"
+               BuildableName = "TheListeningRoomTests.xctest"
+               BlueprintName = "TheListeningRoomTests"
+               ReferencedContainer = "container:TheListeningRoom.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "463A9F2F2D413AFF00ABF576"
+               BuildableName = "M9rUITests.xctest"
+               BlueprintName = "M9rUITests"
+               ReferencedContainer = "container:TheListeningRoom.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+      </Testables>
+   </TestAction>
+   <LaunchAction
+      buildConfiguration = "Debug"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      launchStyle = "0"
+      useCustomWorkingDirectory = "NO"
+      ignoresPersistentStateOnLaunch = "NO"
+      debugDocumentVersioning = "YES"
+      debugServiceExtension = "internal"
+      allowLocationSimulation = "YES">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "463A9F142D413AFF00ABF576"
+            BuildableName = "TheListeningRoom.app"
+            BlueprintName = "TheListeningRoom"
+            ReferencedContainer = "container:TheListeningRoom.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
+   </LaunchAction>
+   <ProfileAction
+      buildConfiguration = "Release"
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      savedToolIdentifier = ""
+      useCustomWorkingDirectory = "NO"
+      debugDocumentVersioning = "YES">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "463A9F142D413AFF00ABF576"
+            BuildableName = "TheListeningRoom.app"
+            BlueprintName = "TheListeningRoom"
+            ReferencedContainer = "container:TheListeningRoom.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
+   </ProfileAction>
+   <AnalyzeAction
+      buildConfiguration = "Debug">
+   </AnalyzeAction>
+   <ArchiveAction
+      buildConfiguration = "Release"
+      revealArchiveInOrganizer = "YES">
+   </ArchiveAction>
+</Scheme>
