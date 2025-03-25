@@ -18,6 +18,7 @@
 
 import ExtensionFoundation
 import ExtensionKit
+import ListeningRoomExtensionSDK
 import os
 
 @MainActor @Observable public final class ExtensionManager {
@@ -27,6 +28,7 @@ import os
     
     private init() {
         processes = []
+        settings = []
         sidebarSections = []
         Task.detached(priority: .background) { [weak self] in
             do {
@@ -44,7 +46,8 @@ import os
     }
     
     private var processes: [ExtensionProcess]
-    private(set) var sidebarSections: [ExtensionSidebarSection]
+    private(set) var settings: [ExtensionFeature<ListeningRoomFeatureSettings>]
+    private(set) var sidebarSections: [ExtensionFeature<ListeningRoomSidebarSection>]
     
     private func refresh(_ newIdentities: Set<AppExtensionIdentity>) async {
         let oldIdentities = Set(processes.lazy.map { $0.identity })
@@ -63,21 +66,24 @@ import os
         processes.removeSubranges(toRemove)
         processes.append(contentsOf: toAdd)
         
-        var newSidebarSections = [ExtensionSidebarSection]()
+        var newSettings = [ExtensionFeature<ListeningRoomFeatureSettings>]()
+        var newSidebarSections = [ExtensionFeature<ListeningRoomSidebarSection>]()
         for process in processes {
             do {
                 let features = try await process.features
                 for feature in features {
                     switch feature {
+                    case .settings(let settings):
+                        newSettings.append(ExtensionFeature(process: process, feature: settings))
                     case .sidebarSection(let sidebarSection):
-                        newSidebarSections.append(ExtensionSidebarSection(process: process, localizedTitle: sidebarSection._title, items: sidebarSection._items))
+                        newSidebarSections.append(ExtensionFeature(process: process, feature: sidebarSection))
                     }
                 }
             } catch {
                 Self.logger.error("*** Could not get features for \(process.identity.bundleIdentifier), reason: \(error)")
             }
         }
-        newSidebarSections.sort(by: { $0.localizedTitle < $1.localizedTitle })
+        newSidebarSections.sort(by: { $0._title < $1._title })
         self.sidebarSections = newSidebarSections
     }
 }

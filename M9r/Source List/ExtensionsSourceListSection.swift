@@ -24,8 +24,8 @@ struct ExtensionsSourceListSection: View {
     var body: some View {
         @Bindable var extensionManager = ExtensionManager.shared
         ForEach(extensionManager.sidebarSections) { sidebarSection in
-            Section(sidebarSection.localizedTitle) {
-                ForEach(sidebarSection.items, id: \._sceneID) { item in
+            Section(sidebarSection._title) {
+                ForEach(sidebarSection._items, id: \._sceneID) { item in
                     NavigationLink {
                         ExtensionHostView(process: sidebarSection.process,
                                           sceneID: item._sceneID)
