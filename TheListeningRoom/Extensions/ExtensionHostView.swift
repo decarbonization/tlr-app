@@ -17,7 +17,7 @@
  */
 
 import ExtensionKit
-import ListeningRoomExtensionSDK
+import TheListeningRoomExtensionSDK
 import SwiftUI
 
 struct ExtensionHostView<Placeholder: View>: View {

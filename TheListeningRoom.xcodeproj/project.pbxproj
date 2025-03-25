@@ -8,11 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		463A9F582D413F2E00ABF576 /* SFBAudioEngine in Frameworks */ = {isa = PBXBuildFile; productRef = 463A9F572D413F2E00ABF576 /* SFBAudioEngine */; };
-		464C04332D85D20C00C699E7 /* ListeningRoomExtensionSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 464C04322D85D20C00C699E7 /* ListeningRoomExtensionSDK */; };
 		464DC2EF2D75F8A80000D944 /* OrderedCollections in Frameworks */ = {isa = PBXBuildFile; productRef = 464DC2EE2D75F8A80000D944 /* OrderedCollections */; };
 		464DC3AF2D7602C90000D944 /* AsyncAlgorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 464DC3AE2D7602C90000D944 /* AsyncAlgorithms */; };
 		4681EC122D92FD630067679B /* ExtensionTester.appex in Copy Extensions */ = {isa = PBXBuildFile; fileRef = 4681EC0A2D92FD630067679B /* ExtensionTester.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		4681EC182D92FD840067679B /* ListeningRoomExtensionSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 4681EC172D92FD840067679B /* ListeningRoomExtensionSDK */; };
+		46B6A9452D93511200BCE8CA /* TheListeningRoomExtensionSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 46B6A9442D93511200BCE8CA /* TheListeningRoomExtensionSDK */; };
+		46B6A9472D93511600BCE8CA /* TheListeningRoomExtensionSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 46B6A9462D93511600BCE8CA /* TheListeningRoomExtensionSDK */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -52,8 +52,8 @@
 		463A9F262D413AFF00ABF576 /* TheListeningRoomTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TheListeningRoomTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		463A9F532D413B1C00ABF576 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		463A9F542D413B1C00ABF576 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		464C04312D85D1E900C699E7 /* ListeningRoomExtensionSDK */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = ListeningRoomExtensionSDK; sourceTree = "<group>"; };
 		4681EC0A2D92FD630067679B /* ExtensionTester.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.extensionkit-extension"; includeInIndex = 0; path = ExtensionTester.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		46B6A9432D93510400BCE8CA /* TheListeningRoomExtensionSDK */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = TheListeningRoomExtensionSDK; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -117,7 +117,7 @@
 			files = (
 				464DC2EF2D75F8A80000D944 /* OrderedCollections in Frameworks */,
 				463A9F582D413F2E00ABF576 /* SFBAudioEngine in Frameworks */,
-				464C04332D85D20C00C699E7 /* ListeningRoomExtensionSDK in Frameworks */,
+				46B6A9452D93511200BCE8CA /* TheListeningRoomExtensionSDK in Frameworks */,
 				464DC3AF2D7602C90000D944 /* AsyncAlgorithms in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -133,7 +133,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4681EC182D92FD840067679B /* ListeningRoomExtensionSDK in Frameworks */,
+				46B6A9472D93511600BCE8CA /* TheListeningRoomExtensionSDK in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -148,7 +148,7 @@
 				463377EB2D62AF1400859BC3 /* MAINTAINERS */,
 				463A9F172D413AFF00ABF576 /* TheListeningRoom */,
 				463A9F292D413AFF00ABF576 /* TheListeningRoomTests */,
-				464C04312D85D1E900C699E7 /* ListeningRoomExtensionSDK */,
+				46B6A9432D93510400BCE8CA /* TheListeningRoomExtensionSDK */,
 				4681EC0B2D92FD630067679B /* ExtensionTester */,
 				463A9F562D413F2E00ABF576 /* Frameworks */,
 				463A9F162D413AFF00ABF576 /* Products */,
@@ -199,6 +199,7 @@
 				464DC2EE2D75F8A80000D944 /* OrderedCollections */,
 				464DC3AE2D7602C90000D944 /* AsyncAlgorithms */,
 				464C04322D85D20C00C699E7 /* ListeningRoomExtensionSDK */,
+				46B6A9442D93511200BCE8CA /* TheListeningRoomExtensionSDK */,
 			);
 			productName = M9r;
 			productReference = 463A9F152D413AFF00ABF576 /* TheListeningRoom.app */;
@@ -245,6 +246,7 @@
 			name = ExtensionTester;
 			packageProductDependencies = (
 				4681EC172D92FD840067679B /* ListeningRoomExtensionSDK */,
+				46B6A9462D93511600BCE8CA /* TheListeningRoomExtensionSDK */,
 			);
 			productName = ExtensionTester;
 			productReference = 4681EC0A2D92FD630067679B /* ExtensionTester.appex */;
@@ -737,6 +739,14 @@
 		4681EC172D92FD840067679B /* ListeningRoomExtensionSDK */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = ListeningRoomExtensionSDK;
+		};
+		46B6A9442D93511200BCE8CA /* TheListeningRoomExtensionSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = TheListeningRoomExtensionSDK;
+		};
+		46B6A9462D93511600BCE8CA /* TheListeningRoomExtensionSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = TheListeningRoomExtensionSDK;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

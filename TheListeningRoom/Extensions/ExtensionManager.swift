@@ -18,7 +18,7 @@
 
 import ExtensionFoundation
 import ExtensionKit
-import ListeningRoomExtensionSDK
+import TheListeningRoomExtensionSDK
 import os
 
 @MainActor @Observable public final class ExtensionManager {

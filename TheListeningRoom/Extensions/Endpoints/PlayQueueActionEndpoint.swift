@@ -17,7 +17,7 @@
  */
 
 import Foundation
-import ListeningRoomExtensionSDK
+import TheListeningRoomExtensionSDK
 
 struct PlayQueueActionEndpoint: ListeningRoomXPCEndpoint {
     init(_ playQueue: PlayQueue) {

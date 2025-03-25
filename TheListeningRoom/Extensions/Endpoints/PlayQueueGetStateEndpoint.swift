@@ -17,7 +17,7 @@
  */
 
 import Foundation
-import ListeningRoomExtensionSDK
+import TheListeningRoomExtensionSDK
 import SFBAudioEngine
 
 struct PlayQueueGetStateEndpoint: ListeningRoomXPCEndpoint {

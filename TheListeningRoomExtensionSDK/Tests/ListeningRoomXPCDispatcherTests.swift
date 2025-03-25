@@ -17,7 +17,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-@testable import ListeningRoomExtensionSDK
+@testable import TheListeningRoomExtensionSDK
 import Foundation
 import Testing
 

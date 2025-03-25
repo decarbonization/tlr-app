@@ -19,7 +19,7 @@
 import AsyncAlgorithms
 import ExtensionFoundation
 import ExtensionKit
-import ListeningRoomExtensionSDK
+import TheListeningRoomExtensionSDK
 import os
 
 @MainActor @Observable final class ExtensionProcess: Identifiable {
