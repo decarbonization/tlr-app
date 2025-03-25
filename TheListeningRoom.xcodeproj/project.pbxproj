@@ -54,7 +54,6 @@
 		463A9F542D413B1C00ABF576 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		464C04312D85D1E900C699E7 /* ListeningRoomExtensionSDK */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = ListeningRoomExtensionSDK; sourceTree = "<group>"; };
 		4681EC0A2D92FD630067679B /* ExtensionTester.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.extensionkit-extension"; includeInIndex = 0; path = ExtensionTester.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		46B6A6E72D9348BF00BCE8CA /* ListeningRoomExtensionSDK.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = ListeningRoomExtensionSDK.xctestplan; path = ListeningRoomExtensionSDK/ListeningRoomExtensionSDK.xctestplan; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -144,7 +143,6 @@
 		463A9F0C2D413AFF00ABF576 = {
 			isa = PBXGroup;
 			children = (
-				46B6A6E72D9348BF00BCE8CA /* ListeningRoomExtensionSDK.xctestplan */,
 				463A9F542D413B1C00ABF576 /* README.md */,
 				463A9F532D413B1C00ABF576 /* LICENSE */,
 				463377EB2D62AF1400859BC3 /* MAINTAINERS */,
