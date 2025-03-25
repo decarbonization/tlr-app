@@ -55,10 +55,10 @@ import os
     private let isPlaceholder: Bool
     private let stateLock: OSAllocatedUnfairLock<Void>
     private var withStateLock_connectionWaiters: [UnsafeContinuation<Void, any Error>]
-    private var withStateLock_currentConnection: NSXPCConnection?
+    private var withStateLock_currentConnection: (any NSXPCConnectionLike)?
     
     /// Access the currently active XPC connection, if any.
-    private var currentXPCConnection: NSXPCConnection? {
+    private var currentXPCConnection: (any NSXPCConnectionLike)? {
         access(keyPath: \.currentXPCConnection)
         stateLock.lock()
         defer {
@@ -72,7 +72,7 @@ import os
     /// - parameter wait: Whether to wait for the connection to become available.
     /// - returns: An active XPC connection.
     /// - throws: A `CocoaError` if the XPC connection could not be retrieved.
-    private func xpcConnection(wait: Bool) async throws -> NSXPCConnection {
+    private func xpcConnection(wait: Bool) async throws -> any NSXPCConnectionLike {
         guard !isPlaceholder else {
             throw CocoaError(.xpcConnectionInvalid, userInfo: [
                 NSLocalizedDescriptionKey: "Cannot use placeholder connection",
@@ -98,7 +98,7 @@ import os
     ///
     /// - parameter connection: An XPC connection to take ownership of.
     /// - returns: `true` if ownership was taken of the connection; `false` otherwise.
-    @discardableResult public func takeOwnership(of connection: NSXPCConnection) -> Bool {
+    @discardableResult public func takeOwnership(of connection: NSXPCConnectionLike) -> Bool {
         guard currentXPCConnection == nil && !isPlaceholder else {
             return false
         }
@@ -195,4 +195,21 @@ import os
         }
         return "ListeningRoomXPCConnection(\(currentConnectionDescription))"
     }
+}
+
+/// Protocol over the interface of `NSXPCConnection` to make ``ListeningRoomXPCConnection`` testable.
+public protocol NSXPCConnectionLike: AnyObject {
+    var exportedInterface: NSXPCInterface? { get set }
+    var exportedObject: Any? { get set }
+    var remoteObjectInterface: NSXPCInterface? { get set }
+    var interruptionHandler: (() -> Void)? { get set }
+    var invalidationHandler: (() -> Void)? { get set }
+    
+    func remoteObjectProxyWithErrorHandler(_ handler: @escaping (any Error) -> Void) -> Any
+    
+    func resume() -> Void
+    func invalidate() -> Void
+}
+
+extension NSXPCConnection: NSXPCConnectionLike {
 }

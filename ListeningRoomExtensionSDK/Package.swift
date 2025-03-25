@@ -13,5 +13,7 @@ let package = Package(
     targets: [
         .target(name: "ListeningRoomExtensionSDK",
                 dependencies: []),
+        .testTarget(name: "ListeningRoomExtensionSDKTests",
+                    dependencies: ["ListeningRoomExtensionSDK"]),
     ]
 )

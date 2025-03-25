@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "2E46DE05-5D16-4267-B29A-4D8FE1417B7E",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "ListeningRoomExtensionSDKTests",
+        "name" : "ListeningRoomExtensionSDKTests"
+      }
+    }
+  ],
+  "version" : 1
+}
