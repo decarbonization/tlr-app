@@ -19,8 +19,8 @@
 
 import Foundation
 
-public protocol XPCEndpoint<Request>: Sendable {
-    associatedtype Request: XPCRequest
+public protocol ListeningRoomXPCEndpoint<Request>: Sendable {
+    associatedtype Request: ListeningRoomXPCRequest
     typealias Response = Request.Response
     
     @MainActor func callAsFunction(_ request: Request) async throws -> Response

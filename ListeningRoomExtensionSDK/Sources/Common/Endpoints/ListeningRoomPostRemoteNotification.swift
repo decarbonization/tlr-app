@@ -19,11 +19,11 @@
 
 import Foundation
 
-public struct ListeningRoomHostNotify: XPCRequest {
+public struct ListeningRoomPostRemoteNotification: ListeningRoomXPCRequest {
     public typealias Response = Nothing
     
-    public init(notification: Notification.Name) {
-        notificationName = notification.rawValue
+    public init(notificationName: Notification.Name) {
+        self.notificationName = notificationName.rawValue
     }
     
     private var notificationName: String
@@ -35,5 +35,25 @@ public struct ListeningRoomHostNotify: XPCRequest {
         set {
             notificationName = newValue.rawValue
         }
+    }
+}
+
+extension ListeningRoomXPCRequest where Self == ListeningRoomPostRemoteNotification {
+    public static func postRemoteNotification(name: Notification.Name) -> Self {
+        Self(notificationName: name)
+    }
+}
+
+public struct ListeningRoomPostRemoteNotificationEndpoint: ListeningRoomXPCEndpoint {
+    public init(object: (Any & Sendable)? = nil) {
+        self.object = object
+    }
+    
+    private let object: (Any & Sendable)?
+    
+    public func callAsFunction(_ request: ListeningRoomPostRemoteNotification) async throws -> Nothing {
+        NotificationCenter.default.post(name: request.notification,
+                                        object: object)
+        return .nothing
     }
 }

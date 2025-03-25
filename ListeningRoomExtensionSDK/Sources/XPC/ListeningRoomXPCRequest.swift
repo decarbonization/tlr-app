@@ -19,14 +19,14 @@
 
 import Foundation
 
-public protocol XPCRequest<Response>: Codable, Sendable {
+public protocol ListeningRoomXPCRequest<Response>: Codable, Sendable {
     associatedtype Response: Codable & Sendable
     
     /// The name of the endpoint which will receive this request. Defaults to the unqualified type name of the request.
     static var endpoint: String { get }
 }
 
-extension XPCRequest {
+extension ListeningRoomXPCRequest {
     public static var endpoint: String {
         String("\(self)".split(separator: ".").last!)
     }
@@ -35,4 +35,21 @@ extension XPCRequest {
 /// The absence of a response from an XPC request which only triggers a side effect.
 @frozen public struct Nothing: Codable, Sendable {
     public static let nothing = Self()
+}
+
+internal func _endpointDecode<T: Codable>(_ type: T.Type = T.self, from request: Data) throws -> T {
+    let jsonDecoder = JSONDecoder()
+    jsonDecoder.dataDecodingStrategy = .base64
+    jsonDecoder.dateDecodingStrategy = .iso8601
+    jsonDecoder.keyDecodingStrategy = .useDefaultKeys
+    jsonDecoder.allowsJSON5 = false
+    return try jsonDecoder.decode(type, from: request)
+}
+
+internal func _endpointEncode(_ value: some Codable) throws -> Data {
+    let jsonEncoder = JSONEncoder()
+    jsonEncoder.dataEncodingStrategy = .base64
+    jsonEncoder.dateEncodingStrategy = .iso8601
+    jsonEncoder.keyEncodingStrategy = .useDefaultKeys
+    return try jsonEncoder.encode(value)
 }

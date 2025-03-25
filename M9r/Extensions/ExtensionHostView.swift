@@ -51,10 +51,22 @@ private struct _ListeningRoomExtensionHostContent<Placeholder: View>: NSViewCont
     let placeholder: () -> Placeholder
     
     final class Coordinator: NSObject, EXHostViewControllerDelegate {
+        let extensionScene = ListeningRoomXPCConnection(dispatcher: ListeningRoomXPCDispatcher(role: .hostView,
+                                                                                               endpoints: []))
+        
         func hostViewControllerDidActivate(_ viewController: EXHostViewController) {
+            do {
+                extensionScene.takeOwnership(of: try viewController.makeXPCConnection())
+            } catch {
+                ExtensionProcess.logger.error("Could not establish extension scene connection to \(viewController), reason: \(error)")
+            }
         }
         
         func hostViewControllerWillDeactivate(_ viewController: EXHostViewController, error: (any Error)?) {
+            extensionScene.invalidate()
+            if let error {
+                ExtensionProcess.logger.error("Lost extension scene connection to \(viewController), reason: \(error)")
+            }
         }
     }
     

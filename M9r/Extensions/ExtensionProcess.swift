@@ -16,31 +16,33 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import AsyncAlgorithms
 import ExtensionFoundation
 import ExtensionKit
 import ListeningRoomExtensionSDK
 import os
 
 @MainActor @Observable final class ExtensionProcess: Identifiable {
+    static let logger = Logger(subsystem: "io.github.decarbonization.TheListeningRoom", category: "ExtensionProcess")
+    
     init(launching identity: AppExtensionIdentity) async throws {
         self.identity = identity
-        let processConfiguration = AppExtensionProcess.Configuration(appExtensionIdentity: identity,
-                                                                     onInterruption: { [weak self] in self?.interrupted() })
+        self.interruptions = AsyncChannel()
+        let processConfiguration = AppExtensionProcess.Configuration(appExtensionIdentity: identity, onInterruption: { [interruptions] in
+            Task {
+                await interruptions.send(())
+            }
+        })
         self.process = try await AppExtensionProcess(configuration: processConfiguration)
-        self.connection = try process.makeXPCConnection()
-        connection.exportedInterface = NSXPCInterface(with: XPCDispatcherProtocol.self)
-        connection.exportedObject = XPCDispatcher()
-        connection.remoteObjectInterface = NSXPCInterface(with: XPCDispatcherProtocol.self)
-        connection.resume()
+        self.extensionMain = ListeningRoomXPCConnection(dispatcher: ListeningRoomXPCDispatcher(role: .hostMain,
+                                                                                               endpoints: [ListeningRoomPostRemoteNotificationEndpoint()]))
+        extensionMain.takeOwnership(of: try process.makeXPCConnection())
     }
     
     let identity: AppExtensionIdentity
-    var process: AppExtensionProcess!
-    var connection: NSXPCConnection!
-    
-    private func interrupted() {
-        ExtensionManager.logger.error("*** App extension process \(self.identity.bundleIdentifier) was interrupted")
-    }
+    let interruptions: AsyncChannel<Void>
+    let process: AppExtensionProcess
+    let extensionMain: ListeningRoomXPCConnection
     
     nonisolated var id: String {
         identity.bundleIdentifier
@@ -48,7 +50,7 @@ import os
     
     var features: [ListeningRoomExtensionFeature] {
         get async throws {
-            try await dispatch(ListeningRoomExtensionGetFeatures(), over: connection)
+            try await extensionMain.dispatch(.features)
         }
     }
 }

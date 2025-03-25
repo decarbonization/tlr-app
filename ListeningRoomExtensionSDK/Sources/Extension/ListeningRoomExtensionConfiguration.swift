@@ -22,22 +22,17 @@ import ExtensionKit
 final class ListeningRoomExtensionConfiguration<E: ListeningRoomExtension>: AppExtensionConfiguration {
     init(_ appExtension: E) {
         self.appExtension = appExtension
-        self.xpcDispatcher = XPCDispatcher(
-            ListeningRoomExtensionGetFeaturesEndpoint(appExtension),
-            ListeningRoomExtensionNotifyEndpoint()
-        )
+        self.hostMain = ListeningRoomXPCConnection(dispatcher: ListeningRoomXPCDispatcher(role: .extensionMain,
+                                                                                          endpoints: [
+                                                                                            ListeningRoomExtensionGetFeaturesEndpoint(appExtension),
+                                                                                            ListeningRoomPostRemoteNotificationEndpoint(),
+                                                                                          ]))
     }
     
     private let appExtension: E
-    private let xpcDispatcher: XPCDispatcher
+    private let hostMain: ListeningRoomXPCConnection
     
     func accept(connection: NSXPCConnection) -> Bool {
-        connection.exportedInterface = NSXPCInterface(with: XPCDispatcherProtocol.self)
-        connection.exportedObject = xpcDispatcher
-        connection.remoteObjectInterface = NSXPCInterface(with: XPCDispatcherProtocol.self)
-        
-        connection.resume()
-        
-        return true
+        hostMain.takeOwnership(of: connection)
     }
 }
