@@ -70,7 +70,7 @@ jobs:
           npm install --global create-dmg
           pushd dist
           create-dmg TheListeningRoom.app --overwrite
-          DMGS=$(echo TheListeningRoom*.dmg)
+          DMGS=$(echo The\ Listening\ Room*.dmg)
           mv "${DMGS[0]}" "TheListeningRoom.dmg"
           popd
       - name: Notarize
