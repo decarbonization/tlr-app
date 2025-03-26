@@ -47,6 +47,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		462D49312D9433E000119C2C /* nightly.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = nightly.yml; sourceTree = "<group>"; };
+		462D49322D9433E000119C2C /* NightlyExportOptions.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = NightlyExportOptions.plist; sourceTree = "<group>"; };
+		462D49332D9433E000119C2C /* test.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = test.yml; sourceTree = "<group>"; };
 		463377EB2D62AF1400859BC3 /* MAINTAINERS */ = {isa = PBXFileReference; lastKnownFileType = text; path = MAINTAINERS; sourceTree = "<group>"; };
 		463A9F152D413AFF00ABF576 /* TheListeningRoom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TheListeningRoom.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		463A9F262D413AFF00ABF576 /* TheListeningRoomTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TheListeningRoomTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -140,12 +143,31 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		462D49342D9433E000119C2C /* workflows */ = {
+			isa = PBXGroup;
+			children = (
+				462D49312D9433E000119C2C /* nightly.yml */,
+				462D49322D9433E000119C2C /* NightlyExportOptions.plist */,
+				462D49332D9433E000119C2C /* test.yml */,
+			);
+			path = workflows;
+			sourceTree = "<group>";
+		};
+		462D49352D9433E000119C2C /* .github */ = {
+			isa = PBXGroup;
+			children = (
+				462D49342D9433E000119C2C /* workflows */,
+			);
+			path = .github;
+			sourceTree = "<group>";
+		};
 		463A9F0C2D413AFF00ABF576 = {
 			isa = PBXGroup;
 			children = (
 				463A9F542D413B1C00ABF576 /* README.md */,
 				463A9F532D413B1C00ABF576 /* LICENSE */,
 				463377EB2D62AF1400859BC3 /* MAINTAINERS */,
+				462D49352D9433E000119C2C /* .github */,
 				463A9F172D413AFF00ABF576 /* TheListeningRoom */,
 				463A9F292D413AFF00ABF576 /* TheListeningRoomTests */,
 				46B6A9432D93510400BCE8CA /* TheListeningRoomExtensionSDK */,
