@@ -198,7 +198,6 @@
 				463A9F572D413F2E00ABF576 /* SFBAudioEngine */,
 				464DC2EE2D75F8A80000D944 /* OrderedCollections */,
 				464DC3AE2D7602C90000D944 /* AsyncAlgorithms */,
-				464C04322D85D20C00C699E7 /* ListeningRoomExtensionSDK */,
 				46B6A9442D93511200BCE8CA /* TheListeningRoomExtensionSDK */,
 			);
 			productName = M9r;
@@ -245,7 +244,6 @@
 			);
 			name = ExtensionTester;
 			packageProductDependencies = (
-				4681EC172D92FD840067679B /* ListeningRoomExtensionSDK */,
 				46B6A9462D93511600BCE8CA /* TheListeningRoomExtensionSDK */,
 			);
 			productName = ExtensionTester;
@@ -722,10 +720,6 @@
 			package = 463A9F552D413F2000ABF576 /* XCRemoteSwiftPackageReference "SFBAudioEngine" */;
 			productName = SFBAudioEngine;
 		};
-		464C04322D85D20C00C699E7 /* ListeningRoomExtensionSDK */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = ListeningRoomExtensionSDK;
-		};
 		464DC2EE2D75F8A80000D944 /* OrderedCollections */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 464DC2ED2D75F8930000D944 /* XCRemoteSwiftPackageReference "swift-collections" */;
@@ -735,10 +729,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 464DC3AD2D7602C90000D944 /* XCRemoteSwiftPackageReference "swift-async-algorithms" */;
 			productName = AsyncAlgorithms;
-		};
-		4681EC172D92FD840067679B /* ListeningRoomExtensionSDK */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = ListeningRoomExtensionSDK;
 		};
 		46B6A9442D93511200BCE8CA /* TheListeningRoomExtensionSDK */ = {
 			isa = XCSwiftPackageProductDependency;
