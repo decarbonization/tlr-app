@@ -19,27 +19,15 @@
 import SwiftUI
 
 struct SourceList: View {
-    @Environment(\.modelContext) private var modelContext
-    
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             List {
                 LibrarySourceListSection()
                 ExtensionsSourceListSection()
                 PlaylistsSourceListSection()
-                OtherSourceListSection()
             }
             .listStyle(.sidebar)
-            HStack {
-                Button {
-                    modelContext.insert(Playlist(name: "Untitled Playlist"))
-                } label: {
-                    Label("New Playlist", systemImage: "plus")
-                        .labelStyle(.iconOnly)
-                }
-                .buttonStyle(.borderless)
-            }
-            .padding()
+            SourceBottomBar()
         }
     }
 }

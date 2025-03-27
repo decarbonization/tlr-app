@@ -22,33 +22,45 @@ struct ErrorList: View {
     @State private var selectedErrors = Set<PresentableError.ID>()
     
     var body: some View {
-        Table(TaskErrors.all.presented, selection: $selectedErrors) {
-            TableColumn("Type") { error in
-                Text(verbatim: "\(type(of: error.unwrap))")
+        VStack(spacing: 0.0) {
+            List(TaskErrors.all.presented, selection: $selectedErrors) { error in
+                VStack(alignment: .leading) {
+                    Text(verbatim: "\(error.domainAndCode)")
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+                    Text(error.capturedAt, format: .dateTime)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    Text(verbatim: error.localizedDescription)
+                        .multilineTextAlignment(.leading)
+                        .font(.body)
+                        .foregroundStyle(.tertiary)
+                }
             }
-            TableColumn("Captured") { error in
-                Text(error.capturedAt, format: .dateTime)
+            .onDeleteCommand {
+                TaskErrors.all.clearPresented(matching: selectedErrors)
             }
-            TableColumn("Description") { error in
-                Text(verbatim: error.localizedDescription)
+            .onCopyCommand {
+                TaskErrors.all.presented
+                    .lazy
+                    .filter { selectedErrors.contains($0.id) }
+                    .map { NSItemProvider(object: "\($0.domainAndCode)\t\($0.capturedAt)\t\($0.localizedDescription)" as NSString) }
             }
-        }
-        .onDeleteCommand {
-            TaskErrors.all.clearPresented(matching: selectedErrors)
-        }
-        .onCopyCommand {
-            TaskErrors.all.presented
-                .lazy
-                .filter { selectedErrors.contains($0.id) }
-                .map { NSItemProvider(object: "\(type(of: $0.unwrap))\t\($0.capturedAt)\t\($0.localizedDescription)" as NSString) }
-        }
-        .toolbar {
-            Button {
-                TaskErrors.all.clearPresented()
-            } label: {
-                Label("Clear Errors", systemImage: "trash")
+            .listStyle(.plain)
+            .frame(minWidth: 250, minHeight: 250)
+            
+            Divider()
+            
+            HStack(alignment: .center) {
+                Button {
+                    TaskErrors.all.clearPresented()
+                } label: {
+                    Label("Clear All", systemImage: "trash")
+                }
+                .disabled(TaskErrors.all.presented.isEmpty)
             }
-            .disabled(TaskErrors.all.presented.isEmpty)
+            .controlSize(.small)
+            .padding()
         }
     }
 }

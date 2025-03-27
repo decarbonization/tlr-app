@@ -34,9 +34,11 @@ import SwiftUI
     }
     
     func present(_ errors: some Sequence<any Error>) {
-        withMutation(keyPath: \.presented) {
-            _presented.withLock { presented in
-                presented.append(contentsOf: errors.lazy.map { PresentableError(wrapping: $0) })
+        Task { @MainActor in
+            withMutation(keyPath: \.presented) {
+                _presented.withLock { presented in
+                    presented.append(contentsOf: errors.lazy.map { PresentableError(wrapping: $0) })
+                }
             }
         }
     }
@@ -85,6 +87,11 @@ struct PresentableError: Identifiable, Error, CustomDebugStringConvertible {
     let id: ObjectIdentifier
     let capturedAt: Date
     let unwrap: any Error
+    
+    var domainAndCode: String {
+        let nsError = unwrap as NSError
+        return "\(nsError.domain) (\(nsError.code))"
+    }
     
     var localizedDescription: String {
         unwrap.localizedDescription
