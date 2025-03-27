@@ -34,11 +34,12 @@ import SwiftUI
     }
     
     func present(_ errors: some Sequence<any Error>) {
+        _presented.withLock { presented in
+            presented.append(contentsOf: errors.lazy.map { PresentableError(wrapping: $0) })
+        }
         Task { @MainActor in
             withMutation(keyPath: \.presented) {
-                _presented.withLock { presented in
-                    presented.append(contentsOf: errors.lazy.map { PresentableError(wrapping: $0) })
-                }
+                // Do nothing.
             }
         }
     }
