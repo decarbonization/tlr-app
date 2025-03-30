@@ -55,7 +55,7 @@ public struct ListeningRoomPostRemoteNotificationEndpoint: ListeningRoomXPCEndpo
     
     private let object: (Any & Sendable)?
     
-    public func callAsFunction(_ request: ListeningRoomPostRemoteNotification) async throws -> Nothing {
+    public func callAsFunction(_ request: ListeningRoomPostRemoteNotification, with context: ListeningRoomXPCContext) async throws -> Nothing {
         NotificationCenter.default.post(name: request.notification,
                                         object: object)
         return .nothing

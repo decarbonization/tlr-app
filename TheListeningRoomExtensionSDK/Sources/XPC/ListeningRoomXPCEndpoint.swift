@@ -23,5 +23,5 @@ public protocol ListeningRoomXPCEndpoint<Request>: Sendable {
     associatedtype Request: ListeningRoomXPCRequest
     typealias Response = Request.Response
     
-    @MainActor func callAsFunction(_ request: Request) async throws -> Response
+    @MainActor func callAsFunction(_ request: Request, with context: ListeningRoomXPCContext) async throws -> Response
 }

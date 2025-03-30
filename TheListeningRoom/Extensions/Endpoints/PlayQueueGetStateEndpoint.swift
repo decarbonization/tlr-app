@@ -21,14 +21,8 @@ import TheListeningRoomExtensionSDK
 import SFBAudioEngine
 
 struct PlayQueueGetStateEndpoint: ListeningRoomXPCEndpoint {
-    init(_ playQueue: PlayQueue) {
-        self.playQueue = playQueue
-    }
-    
-    private let playQueue: PlayQueue
-    
-    func callAsFunction(_ request: ListeningRoomHostPlayQueueGetState) async throws -> ListeningRoomHostPlayQueueState {
-        ListeningRoomHostPlayQueueState(from: playQueue)
+    func callAsFunction(_ request: ListeningRoomHostPlayQueueGetState, with context: ListeningRoomXPCContext) async throws -> ListeningRoomHostPlayQueueState {
+        ListeningRoomHostPlayQueueState(from: context.playQueue)
     }
 }
 

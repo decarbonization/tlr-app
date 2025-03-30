@@ -17,29 +17,8 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import Foundation
+import os
 
-public struct ListeningRoomExtensionGetFeatures: ListeningRoomXPCRequest {
-    public typealias Response = [ListeningRoomExtensionTopLevelFeature]
-    
-    public init() {
-    }
-}
-
-extension ListeningRoomXPCRequest where Self == ListeningRoomExtensionGetFeatures {
-    public static var features: Self {
-        Self()
-    }
-}
-
-internal struct ListeningRoomExtensionGetFeaturesEndpoint<E: ListeningRoomExtension>: ListeningRoomXPCEndpoint, @unchecked Sendable {
-    init(_ appExtension: E) {
-        self.appExtension = appExtension
-    }
-    
-    private let appExtension: E
-    
-    func callAsFunction(_ request: ListeningRoomExtensionGetFeatures, with context: ListeningRoomXPCContext) async throws -> [ListeningRoomExtensionTopLevelFeature] {
-        appExtension.features._collectAll(ListeningRoomExtensionTopLevelFeature.self)
-    }
+extension Logger {
+    static let uiExtension = Logger(subsystem: "io.github.decarbonization.TheListeningRoom", category: "uiextension")
 }

@@ -23,6 +23,7 @@ final class ListeningRoomExtensionConfiguration<E: ListeningRoomExtension>: AppE
     init(_ appExtension: E) {
         self.appExtension = appExtension
         self.hostMain = ListeningRoomXPCConnection(dispatcher: ListeningRoomXPCDispatcher(role: .extensionMain,
+                                                                                          context: ListeningRoomXPCContext(),
                                                                                           endpoints: [
                                                                                             ListeningRoomExtensionGetFeaturesEndpoint(appExtension),
                                                                                             ListeningRoomPostRemoteNotificationEndpoint(),

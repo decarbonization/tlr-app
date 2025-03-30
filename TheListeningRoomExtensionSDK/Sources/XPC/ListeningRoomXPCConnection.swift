@@ -32,6 +32,7 @@ import os
     
     internal init(_placeholder: Void) {
         self.dispatcher = ListeningRoomXPCDispatcher(role: .placeholder,
+                                                     context: ListeningRoomXPCContext(),
                                                      endpoints: [])
         self.isPlaceholder = true
         self.stateLock = .init()

@@ -27,15 +27,10 @@ public struct ListeningRoomExtensionScene<Content: View>: AppExtensionScene {
         self.content = content
     }
     
-    public init(id: some RawRepresentable<String>,
-                @ViewBuilder content: @escaping @MainActor () -> Content) {
-        self.id = id.rawValue
-        self.content = content
-    }
-    
     private let id: String
     private let content: @MainActor () -> Content
     private let hostView = ListeningRoomXPCConnection(dispatcher: ListeningRoomXPCDispatcher(role: .extensionScene,
+                                                                                             context: ListeningRoomXPCContext(),
                                                                                              endpoints: [ListeningRoomRemotePingEndpoint()]))
     
     public var body: some AppExtensionScene {

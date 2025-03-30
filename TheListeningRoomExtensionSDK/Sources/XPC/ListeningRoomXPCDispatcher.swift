@@ -28,7 +28,7 @@ public final class ListeningRoomXPCDispatcher: NSObject, Sendable {
         case hostView
     }
     
-    public init(role: Role, endpoints: [any ListeningRoomXPCEndpoint]) {
+    public init(role: Role, context: ListeningRoomXPCContext, endpoints: [any ListeningRoomXPCEndpoint]) {
         var endpointsByName = [String: any ListeningRoomXPCEndpoint]()
         func name<Endpoint: ListeningRoomXPCEndpoint>(of endpoint: Endpoint) -> String {
             Endpoint.Request.endpoint
@@ -37,14 +37,16 @@ public final class ListeningRoomXPCDispatcher: NSObject, Sendable {
             endpointsByName[name(of: endpoint)] = endpoint
         }
         self.role = role
+        self.context = context
         self.endpointsByName = endpointsByName
     }
     
     private let role: Role
+    private let context: ListeningRoomXPCContext
     private let endpointsByName: [String: any ListeningRoomXPCEndpoint]
     
     override public var description: String {
-        "ListeningRoomXPCDispatcher(role: \(role), endpoints: [\(endpointsByName.keys.joined(separator: ", "))])"
+        "ListeningRoomXPCDispatcher(role: \(role), context: \(context), endpoints: [\(endpointsByName.keys.joined(separator: ", "))])"
     }
 }
 
@@ -65,12 +67,12 @@ extension ListeningRoomXPCDispatcher: ListeningRoomXPCDispatcherProtocol {
                         NSLocalizedDescriptionKey: "No <\(endpoint)> endpoint found",
                     ])
                 }
-                func call<Endpoint: ListeningRoomXPCEndpoint>(_ endpoint: Endpoint, _ request: Data) async throws -> Data {
+                func forward<Endpoint: ListeningRoomXPCEndpoint>(_ request: Data, to endpoint: Endpoint, with context: ListeningRoomXPCContext) async throws -> Data {
                     let request = try _endpointDecode(Endpoint.Request.self, from: request)
-                    let response = try await endpoint(request)
+                    let response = try await endpoint(request, with: context)
                     return try _endpointEncode(response)
                 }
-                let response = try await call(endpoint, request)
+                let response = try await forward(request, to: endpoint, with: context)
                 replyHandler(response, nil)
             } catch {
                 replyHandler(nil, error)
