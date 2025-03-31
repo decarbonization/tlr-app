@@ -29,9 +29,10 @@ public struct ListeningRoomExtensionScene<Content: View>: AppExtensionScene {
     
     private let id: String
     private let content: @MainActor () -> Content
-    private let hostView = ListeningRoomXPCConnection(dispatcher: ListeningRoomXPCDispatcher(role: .extensionScene,
-                                                                                             context: ListeningRoomXPCContext(),
-                                                                                             endpoints: [ListeningRoomRemotePingEndpoint()]))
+    private let hostView = ListeningRoomXPCConnection(
+        ListeningRoomXPCDispatcher(role: .extensionScene)
+            .installEndpoint(ListeningRoomRemotePingEndpoint())
+    )
     
     public var body: some AppExtensionScene {
         PrimitiveAppExtensionScene(id: id) {

@@ -36,7 +36,7 @@ public struct ListeningRoomRemotePingEndpoint: ListeningRoomXPCEndpoint {
     public init() {
     }
     
-    public func callAsFunction(_ request: ListeningRoomRemotePing, with context: ListeningRoomXPCContext) async throws -> Nothing {
+    public func callAsFunction(_ request: ListeningRoomRemotePing) async throws -> Nothing {
         .nothing
     }
 }

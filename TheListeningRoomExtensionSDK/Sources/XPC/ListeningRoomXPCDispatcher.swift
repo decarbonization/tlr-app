@@ -18,6 +18,7 @@
  */
 
 import Foundation
+import os
 
 public final class ListeningRoomXPCDispatcher: NSObject, Sendable {
     public enum Role: String, Sendable {
@@ -28,25 +29,31 @@ public final class ListeningRoomXPCDispatcher: NSObject, Sendable {
         case hostView
     }
     
-    public init(role: Role, context: ListeningRoomXPCContext, endpoints: [any ListeningRoomXPCEndpoint]) {
-        var endpointsByName = [String: any ListeningRoomXPCEndpoint]()
-        func name<Endpoint: ListeningRoomXPCEndpoint>(of endpoint: Endpoint) -> String {
-            Endpoint.Request.endpoint
-        }
-        for endpoint in endpoints {
-            endpointsByName[name(of: endpoint)] = endpoint
-        }
+    public init(role: Role) {
         self.role = role
-        self.context = context
-        self.endpointsByName = endpointsByName
+        self._endpointsByName = .init(initialState: [:])
     }
     
     private let role: Role
-    private let context: ListeningRoomXPCContext
-    private let endpointsByName: [String: any ListeningRoomXPCEndpoint]
+    private let _endpointsByName: OSAllocatedUnfairLock<[String: any ListeningRoomXPCEndpoint]>
+    
+    @discardableResult public func installEndpoint<E: ListeningRoomXPCEndpoint>(_ endpoint: E) -> Self {
+        _endpointsByName.withLock { endpointsByName in
+            endpointsByName[E.Request.endpoint] = endpoint
+        }
+        return self
+    }
+    
+    @discardableResult public func uninstallEndpoint<E: ListeningRoomXPCEndpoint>(_ endpointType: E.Type) -> Self {
+        _endpointsByName.withLock { endpointsByName in
+            _ = endpointsByName.removeValue(forKey: E.Request.endpoint)
+        }
+        return self
+    }
     
     override public var description: String {
-        "ListeningRoomXPCDispatcher(role: \(role), context: \(context), endpoints: [\(endpointsByName.keys.joined(separator: ", "))])"
+        let endpointNames = _endpointsByName.withLockIfAvailable { $0.keys.joined(separator: ", ") } ?? "?"
+        return "ListeningRoomXPCDispatcher(role: \(role), endpoints: [\(endpointNames)])"
     }
 }
 
@@ -62,17 +69,17 @@ extension ListeningRoomXPCDispatcher: ListeningRoomXPCDispatcherProtocol {
                             replyHandler: @escaping @Sendable (Data?, (any Error)?) -> Void) {
         Task {
             do {
-                guard let endpoint = endpointsByName[endpoint] else {
+                guard let endpoint = _endpointsByName.withLock({ $0[endpoint] }) else {
                     throw CocoaError(.featureUnsupported, userInfo: [
                         NSLocalizedDescriptionKey: "No <\(endpoint)> endpoint found",
                     ])
                 }
-                func forward<Endpoint: ListeningRoomXPCEndpoint>(_ request: Data, to endpoint: Endpoint, with context: ListeningRoomXPCContext) async throws -> Data {
+                func forward<Endpoint: ListeningRoomXPCEndpoint>(_ request: Data, to endpoint: Endpoint) async throws -> Data {
                     let request = try _endpointDecode(Endpoint.Request.self, from: request)
-                    let response = try await endpoint(request, with: context)
+                    let response = try await endpoint(request)
                     return try _endpointEncode(response)
                 }
-                let response = try await forward(request, to: endpoint, with: context)
+                let response = try await forward(request, to: endpoint)
                 replyHandler(response, nil)
             } catch {
                 replyHandler(nil, error)

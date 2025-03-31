@@ -39,7 +39,7 @@ internal struct ListeningRoomExtensionGetFeaturesEndpoint<E: ListeningRoomExtens
     
     private let appExtension: E
     
-    func callAsFunction(_ request: ListeningRoomExtensionGetFeatures, with context: ListeningRoomXPCContext) async throws -> [ListeningRoomExtensionTopLevelFeature] {
+    func callAsFunction(_ request: ListeningRoomExtensionGetFeatures) async throws -> [ListeningRoomExtensionTopLevelFeature] {
         appExtension.features._collectAll(ListeningRoomExtensionTopLevelFeature.self)
     }
 }

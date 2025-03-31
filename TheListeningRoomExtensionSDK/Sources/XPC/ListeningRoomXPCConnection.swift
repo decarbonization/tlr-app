@@ -23,7 +23,7 @@ import os
 @Observable public final class ListeningRoomXPCConnection: CustomStringConvertible, @unchecked Sendable {
     static let logger = Logger(subsystem: "io.github.decarbonization.TheListeningRoom", category: "XPCConnection")
     
-    public init(dispatcher: ListeningRoomXPCDispatcher) {
+    public init(_ dispatcher: ListeningRoomXPCDispatcher) {
         self.dispatcher = dispatcher
         self.isPlaceholder = false
         self.stateLock = .init()
@@ -31,9 +31,7 @@ import os
     }
     
     internal init(_placeholder: Void) {
-        self.dispatcher = ListeningRoomXPCDispatcher(role: .placeholder,
-                                                     context: ListeningRoomXPCContext(),
-                                                     endpoints: [])
+        self.dispatcher = ListeningRoomXPCDispatcher(role: .placeholder)
         self.isPlaceholder = true
         self.stateLock = .init()
         self.withStateLock_connectionWaiters = []
@@ -52,7 +50,7 @@ import os
         }
     }
     
-    private let dispatcher: ListeningRoomXPCDispatcher
+    public let dispatcher: ListeningRoomXPCDispatcher
     private let isPlaceholder: Bool
     private let stateLock: OSAllocatedUnfairLock<Void>
     private var withStateLock_connectionWaiters: [UnsafeContinuation<Void, any Error>]

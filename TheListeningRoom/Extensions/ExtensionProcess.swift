@@ -34,10 +34,11 @@ import os
             }
         })
         self.process = try await AppExtensionProcess(configuration: processConfiguration)
-        self.extensionMain = ListeningRoomXPCConnection(dispatcher: ListeningRoomXPCDispatcher(role: .hostMain,
-                                                                                               context: ListeningRoomXPCContext(),
-                                                                                               endpoints: [ListeningRoomPostRemoteNotificationEndpoint(),
-                                                                                                           ListeningRoomRemotePingEndpoint()]))
+        self.extensionMain = ListeningRoomXPCConnection(
+            ListeningRoomXPCDispatcher(role: .hostMain)
+                .installEndpoint(ListeningRoomPostRemoteNotificationEndpoint())
+                .installEndpoint(ListeningRoomRemotePingEndpoint())
+        )
         extensionMain.takeOwnership(of: try process.makeXPCConnection())
         
         Task { [weak self] in

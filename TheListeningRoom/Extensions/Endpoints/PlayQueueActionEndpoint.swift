@@ -20,31 +20,33 @@ import Foundation
 import TheListeningRoomExtensionSDK
 
 struct PlayQueueActionEndpoint: ListeningRoomXPCEndpoint {
-    func callAsFunction(_ action: ListeningRoomHostPlayQueueAction, with context: ListeningRoomXPCContext) async throws -> Bool {
+    let playQueue: PlayQueue
+    
+    func callAsFunction(_ action: ListeningRoomHostPlayQueueAction) async throws -> Bool {
         switch action {
         case .pause:
-            guard context.playQueue.playbackState == .playing else {
+            guard playQueue.playbackState == .playing else {
                 return false
             }
-            context.playQueue.pause()
+            playQueue.pause()
             return true
         case .resume:
-            guard context.playQueue.playbackState == .paused else {
+            guard playQueue.playbackState == .paused else {
                 return false
             }
-            context.playQueue.resume()
+            playQueue.resume()
             return true
         case .previousTrack:
-            guard context.playQueue.canSkipPreviousTrack else {
+            guard playQueue.canSkipPreviousTrack else {
                 return false
             }
-            try context.playQueue.previousTrack()
+            try playQueue.previousTrack()
             return true
         case .nextTrack:
-            guard context.playQueue.canSkipNextTrack else {
+            guard playQueue.canSkipNextTrack else {
                 return false
             }
-            try context.playQueue.nextTrack()
+            try playQueue.nextTrack()
             return true
         }
     }

@@ -22,13 +22,12 @@ import ExtensionKit
 final class ListeningRoomExtensionConfiguration<E: ListeningRoomExtension>: AppExtensionConfiguration {
     init(_ appExtension: E) {
         self.appExtension = appExtension
-        self.hostMain = ListeningRoomXPCConnection(dispatcher: ListeningRoomXPCDispatcher(role: .extensionMain,
-                                                                                          context: ListeningRoomXPCContext(),
-                                                                                          endpoints: [
-                                                                                            ListeningRoomExtensionGetFeaturesEndpoint(appExtension),
-                                                                                            ListeningRoomPostRemoteNotificationEndpoint(),
-                                                                                            ListeningRoomRemotePingEndpoint(),
-                                                                                          ]))
+        self.hostMain = ListeningRoomXPCConnection(
+            ListeningRoomXPCDispatcher(role: .extensionMain)
+                .installEndpoint(ListeningRoomExtensionGetFeaturesEndpoint(appExtension))
+                .installEndpoint(ListeningRoomPostRemoteNotificationEndpoint())
+                .installEndpoint(ListeningRoomRemotePingEndpoint())
+        )
     }
     
     private let appExtension: E
