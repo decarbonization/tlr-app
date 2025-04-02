@@ -18,29 +18,29 @@
 
 import Foundation
 
-enum PlayerPlaybackState: String, Codable {
+enum PlaybackState: String, Codable {
     case playing
     case paused
     case stopped
 }
 
-enum PlayerEvent {
+enum PlaybackEvent {
     case playbackStateDidChange
     case playingItemDidChange
     case encounteredError(any Error)
     case endOfAudio
 }
 
-enum PlayerError: Error {
+enum PlaybackError: Error {
     case couldNotSeek(to: TimeInterval)
 }
 
-protocol Player: Sendable {
-    associatedtype Events: AsyncSequence<PlayerEvent, Never>
+protocol PlaybackEngine: Sendable {
+    associatedtype Events: AsyncSequence<PlaybackEvent, Never>
     
     var events: Events { get }
     
-    var playbackState: PlayerPlaybackState { get }
+    var playbackState: PlaybackState { get }
     var totalTime: TimeInterval? { get }
     var currentTime: TimeInterval? { get }
     var volume: Float { get }

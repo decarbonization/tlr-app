@@ -19,7 +19,7 @@
 import Foundation
 @preconcurrency import SFBAudioEngine
 
-extension PlayerPlaybackState {
+extension PlaybackState {
     static func from(_ sfbPlaybackState: AudioPlayer.PlaybackState) -> Self {
         switch sfbPlaybackState {
         case .paused:
@@ -34,9 +34,9 @@ extension PlayerPlaybackState {
     }
 }
 
-final class SFBAudioEnginePlayer: NSObject, Player, AudioPlayer.Delegate {
+final class SFBPlaybackEngine: NSObject, PlaybackEngine, AudioPlayer.Delegate {
     override init() {
-        let (stream, continuation) = AsyncStream.makeStream(of: PlayerEvent.self)
+        let (stream, continuation) = AsyncStream.makeStream(of: PlaybackEvent.self)
         audioPlayer = AudioPlayer()
         eventSink = continuation
         events = stream
@@ -51,13 +51,13 @@ final class SFBAudioEnginePlayer: NSObject, Player, AudioPlayer.Delegate {
     }
     
     private let audioPlayer: AudioPlayer
-    private let eventSink: AsyncStream<PlayerEvent>.Continuation
+    private let eventSink: AsyncStream<PlaybackEvent>.Continuation
     
-    // MARK: - Player
+    // MARK: - PlaybackEngine
     
-    let events: AsyncStream<PlayerEvent>
+    let events: AsyncStream<PlaybackEvent>
     
-    var playbackState: PlayerPlaybackState {
+    var playbackState: PlaybackState {
         .from(audioPlayer.playbackState)
     }
     
@@ -89,7 +89,7 @@ final class SFBAudioEnginePlayer: NSObject, Player, AudioPlayer.Delegate {
     
     func seek(toTime newTime: TimeInterval) async throws {
         if !audioPlayer.seek(time: newTime) {
-            throw PlayerError.couldNotSeek(to: newTime)
+            throw PlaybackError.couldNotSeek(to: newTime)
         }
     }
     
