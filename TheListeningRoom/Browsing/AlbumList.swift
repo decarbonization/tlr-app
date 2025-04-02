@@ -43,7 +43,8 @@ struct AlbumList<HeaderView: View>: View {
                 ForEach(albums) { album in
                     NavigationLink {
                         DeferView {
-                            SongList(filter: #Predicate { [albumID = album.id] in $0.album?.persistentModelID == albumID },
+                            let albumID = album.id
+                            SongList(filter: #Predicate<Song> { $0.album?.persistentModelID == albumID },
                                      sortOrder: [
                                         SortDescriptor(\Song.discNumber),
                                         SortDescriptor(\Song.trackNumber),

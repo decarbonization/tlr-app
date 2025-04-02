@@ -31,10 +31,12 @@ struct ArtistList: View {
     var body: some View {
         List(artists) { artist in
             NavigationLink(artist.name) {
-                AlbumList(filter: #Predicate { [artistID = artist.id] in $0.artist?.persistentModelID == artistID }) {
+                let artistID = artist.id
+                AlbumList(filter: #Predicate<Album> { $0.artist?.persistentModelID == artistID }) {
                     NavigationLink("All Songs") {
                         DeferView {
-                            SongList(filter: #Predicate { [artistID = artist.id] in $0.artist?.persistentModelID == artistID })
+                            let artistID = artist.id
+                            SongList(filter: #Predicate<Song> { $0.artist?.persistentModelID == artistID })
                                 .navigationTitle(artist.name)
                         }
                     }
