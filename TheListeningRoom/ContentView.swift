@@ -33,8 +33,16 @@ struct ContentView: View {
                         .onDropOfImportableItems()
                 }
             }
-            QueueList()
-                .frame(minWidth: 100, idealWidth: 200, maxWidth: 250)
+            TabView {
+                Tab("Old", systemImage: "list.number") {
+                    QueueList()
+                }
+                Tab("New", systemImage: "list.number") {
+                    QueueList2()
+                }
+            }
+            .tabViewStyle(.tabBarOnly)
+            .frame(minWidth: 100, idealWidth: 200, maxWidth: 250)
         }
         .preferredColorScheme(.dark)
         .task {

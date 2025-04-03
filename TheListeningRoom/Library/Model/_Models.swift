@@ -56,7 +56,7 @@ struct LibraryItem: Identifiable, Equatable, Transferable {
     }
 }
 
-func makeAppModelConatiner() -> ModelContainer {
+func makeAppModelContainer() -> ModelContainer {
     let appSchema = Schema(versionedSchema: LatestAppSchema.self)
     let appLibraryURL = UserDefaults.standard.url(forKey: "TheListeningRoom_libraryURL")
     ?? URL.musicDirectory.appending(path: "Music Library.tlrlib", directoryHint: .notDirectory)

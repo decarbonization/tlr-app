@@ -94,7 +94,18 @@ import Testing
         #expect(subject.itemIDs == ["foblazle", "shoboing", "goglga", "lkposk"])
     }
     
-    @Test func removeDropsSpecifiedItemIDs() async throws {
+    @Test func removeWithIDsDropsMatchingItemIDs() async throws {
+        let subject = PlaybackQueue<String>()
+        
+        let newItemIDs = ["foblazle", "shoboing", "goglga", "lkposk"]
+        subject.append(contentsOf: newItemIDs)
+        
+        subject.remove(withIDs: ["foblazle", "goglga"])
+        
+        #expect(subject.itemIDs == ["shoboing", "lkposk"])
+    }
+    
+    @Test func removeAtOffsetsDropsSpecifiedItemIDs() async throws {
         let subject = PlaybackQueue<String>()
         
         let newItemIDs = ["foblazle", "shoboing", "goglga", "lkposk"]

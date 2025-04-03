@@ -61,6 +61,12 @@ import os
     
     // MARK: - Moves & Deletes
     
+    func remove(withIDs itemIDsToRemove: Set<ItemID>) {
+        itemIDs.removeAll { itemID in
+            itemIDsToRemove.contains(itemID)
+        }
+    }
+    
     func remove(atOffsets offsets: IndexSet) {
         for offset in offsets.reversed() {
             itemIDs.remove(at: offset)

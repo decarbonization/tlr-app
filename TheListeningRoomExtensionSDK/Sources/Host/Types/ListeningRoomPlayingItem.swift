@@ -77,6 +77,9 @@ public struct ListeningRoomPlayingItem: Identifiable, Codable, Sendable {
     public var kind: Kind
     public var startTime: TimeInterval
     public var endTime: TimeInterval
+    public var duration: TimeInterval {
+        endTime - startTime
+    }
     public var assetURL: URL
     public var title: String?
     public var artist: String?
@@ -96,7 +99,7 @@ public struct ListeningRoomPlayingItem: Identifiable, Codable, Sendable {
     public var mpItemProperties: [String: Any] {
         var properties = [String: Any]()
         properties[MPMediaItemPropertyMediaType] = kind.mpMediaType
-        properties[MPMediaItemPropertyPlaybackDuration] = endTime - startTime
+        properties[MPMediaItemPropertyPlaybackDuration] = duration
         properties[MPMediaItemPropertyAssetURL] = assetURL
         properties[MPMediaItemPropertyTitle] = title
         properties[MPMediaItemPropertyArtist] = artist

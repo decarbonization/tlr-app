@@ -36,7 +36,13 @@ struct TheListeningRoomApp: App {
         }
     }
     
-    @State private var modelContainer = makeAppModelConatiner()
+    init() {
+        _modelContext = .init(wrappedValue: ModelContext(makeAppModelContainer()))
+        _player = .init(wrappedValue: Player(context: _modelContext.wrappedValue))
+    }
+    
+    @State private var modelContext: ModelContext
+    @State private var player: Player
     @State private var playQueue = PlayQueue()
     @NSApplicationDelegateAdaptor private var appDelegate: Delegate
     
@@ -44,15 +50,18 @@ struct TheListeningRoomApp: App {
         Window("Library", id: "library") {
             ContentView()
         }
+        .environment(player)
         .environment(playQueue)
-        .modelContainer(modelContainer)
+        .modelContext(modelContext)
         .commands {
             MainMenu(playQueue: playQueue,
-                     modelContainer: modelContainer)
+                     modelContext: modelContext)
         }
         Settings {
             SettingsView()
+                .environment(player)
                 .environment(playQueue)
+                .modelContext(modelContext)
         }
     }
 }

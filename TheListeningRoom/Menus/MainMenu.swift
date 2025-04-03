@@ -21,13 +21,13 @@ import SwiftUI
 
 struct MainMenu: Commands {
     init(playQueue: PlayQueue,
-         modelContainer: ModelContainer) {
+         modelContext: ModelContext) {
         self.playQueue = playQueue
-        self.modelContainer = modelContainer
+        self.modelContext = modelContext
     }
     
     private let playQueue: PlayQueue
-    private let modelContainer: ModelContainer
+    private let modelContext: ModelContext
     @State private var isImporting = false
     
     var body: some Commands {
@@ -37,7 +37,7 @@ struct MainMenu: Commands {
             }
             .keyboardShortcut("o", modifiers: .command)
             .fileImporter(isPresented: $isImporting, allowedContentTypes: [.audio, .folder], allowsMultipleSelection: true) { result in
-                Library.performChanges(in: modelContainer) { library in
+                Library.performChanges(inContainerOf: modelContext) { library in
                     let urls = try result.get()
                     let addResults = await library.findAndAddSongs(fromContentsOf: urls.map { .success($0) })
                     TaskErrors.all.present(addResults)
