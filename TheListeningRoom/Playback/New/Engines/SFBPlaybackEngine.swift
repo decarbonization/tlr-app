@@ -18,6 +18,7 @@
 
 import TheListeningRoomExtensionSDK
 import Foundation
+import os
 @preconcurrency import SFBAudioEngine
 
 extension ListeningRoomPlaybackState {
@@ -41,6 +42,7 @@ final class SFBPlaybackEngine: NSObject, ListeningRoomPlaybackEngine, AudioPlaye
         audioPlayer = AudioPlayer()
         eventSink = continuation
         events = stream
+        _playingItem = .init(initialState: nil)
         
         super.init()
         
@@ -53,10 +55,15 @@ final class SFBPlaybackEngine: NSObject, ListeningRoomPlaybackEngine, AudioPlaye
     
     private let audioPlayer: AudioPlayer
     private let eventSink: AsyncStream<PlaybackEvent>.Continuation
+    private let _playingItem: OSAllocatedUnfairLock<ListeningRoomPlayingItem?>
     
     // MARK: - PlaybackEngine
     
     let events: AsyncStream<PlaybackEvent>
+    
+    var playingItem: ListeningRoomPlayingItem? {
+        _playingItem.withLock { $0 }
+    }
     
     var playbackState: ListeningRoomPlaybackState {
         .from(audioPlayer.playbackState)
@@ -78,13 +85,30 @@ final class SFBPlaybackEngine: NSObject, ListeningRoomPlaybackEngine, AudioPlaye
         try audioPlayer.setVolume(newVolume)
     }
     
-    func enqueue(_ itemURL: URL, startingAt startTime: TimeInterval, playNow: Bool) async throws {
-        try audioPlayer.enqueue(itemURL, immediate: true)
-        if startTime > 0 {
-            try await seek(toTime: startTime)
-        }
-        if playNow {
-            try audioPlayer.play()
+    func enqueue(_ itemToPlay: ListeningRoomPlayingItem,
+                 playNow: Bool) async throws {
+        do {
+            let itemURL = itemToPlay.assetURL
+            guard itemURL.startAccessingSecurityScopedResource() else {
+                throw CocoaError(.fileReadNoPermission, userInfo: [
+                    NSLocalizedDescriptionKey: "Could not extend sandbox for file <\(itemURL)>",
+                    NSURLErrorKey: itemURL
+                ])
+            }
+            try audioPlayer.enqueue(itemURL, immediate: true)
+            if itemToPlay.startTime > 0 {
+                try await seek(toTime: itemToPlay.startTime)
+            }
+            if playNow {
+                try audioPlayer.play()
+            }
+            _playingItem.withLock { playingItem in
+                playingItem = itemToPlay
+            }
+            eventSink.yield(.playingItemChanged)
+        } catch {
+            try await stop() // Never throws
+            throw error
         }
     }
     
@@ -114,6 +138,10 @@ final class SFBPlaybackEngine: NSObject, ListeningRoomPlaybackEngine, AudioPlaye
     func stop() async throws {
         audioPlayer.stop()
         audioPlayer.clearQueue()
+        _playingItem.withLock { playingItem in
+            playingItem = nil
+        }
+        eventSink.yield(.playingItemChanged)
     }
     
     // MARK: - AudioPlayer.Delegate
@@ -122,15 +150,11 @@ final class SFBPlaybackEngine: NSObject, ListeningRoomPlaybackEngine, AudioPlaye
         eventSink.yield(.playbackStateDidChange)
     }
     
-    func audioPlayer(_ audioPlayer: AudioPlayer, nowPlayingChanged nowPlaying: (any PCMDecoding)?) {
-        eventSink.yield(.playingItemDidChange)
-    }
-    
     func audioPlayer(_ audioPlayer: AudioPlayer, encounteredError error: any Error) {
         eventSink.yield(.encounteredError(error))
     }
     
     func audioPlayerEndOfAudio(_ audioPlayer: AudioPlayer) {
-        eventSink.yield(.endOfAudio)
+        eventSink.yield(.endOfAudio(wantsQueueToAdvance: true))
     }
 }

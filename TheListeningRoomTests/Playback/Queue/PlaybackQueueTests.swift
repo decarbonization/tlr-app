@@ -45,10 +45,10 @@ import Testing
             }
         }
         #expect(confirmedShuffle, "PlaybackQueue did not shuffle item IDs after 5 tries")
-        #expect(subject.containsItem(withID: "pwba"))
-        #expect(subject.containsItem(withID: "ojwer"))
-        #expect(subject.containsItem(withID: "gdsin"))
-        #expect(subject.containsItem(withID: "shoboing"))
+        #expect(subject.itemIDs.contains("pwba"))
+        #expect(subject.itemIDs.contains("ojwer"))
+        #expect(subject.itemIDs.contains("gdsin"))
+        #expect(subject.itemIDs.contains("shoboing"))
     }
     
     @Test func insertPutsItemIDsSequentially() async throws {

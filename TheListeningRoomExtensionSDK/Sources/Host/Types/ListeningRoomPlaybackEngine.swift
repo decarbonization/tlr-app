@@ -21,9 +21,9 @@ import Foundation
 
 public enum ListeningRoomPlaybackEvent: Codable, Sendable {
     case playbackStateDidChange
-    case playingItemDidChange
+    case playingItemChanged
     case encounteredError(domain: String, code: Int, userInfo: [String: AnyCodable] = [:])
-    case endOfAudio
+    case endOfAudio(wantsQueueToAdvance: Bool)
     
     public static func encounteredError(_ error: any Error) -> Self {
         let nsError = error as NSError
@@ -34,18 +34,20 @@ public enum ListeningRoomPlaybackEvent: Codable, Sendable {
 }
 
 public protocol ListeningRoomPlaybackEngine: Sendable {
+    typealias Item = ListeningRoomPlayingItem
     typealias PlaybackEvent = ListeningRoomPlaybackEvent
     associatedtype Events: AsyncSequence<PlaybackEvent, Never>
     
     var events: Events { get }
     
+    var playingItem: ListeningRoomPlayingItem? { get }
     var playbackState: ListeningRoomPlaybackState { get }
     var totalTime: TimeInterval? { get }
     var currentTime: TimeInterval? { get }
     var volume: Float { get }
     
     func setVolume(_ newVolume: Float) async throws -> Void
-    func enqueue(_ itemURL: URL, startingAt startTime: TimeInterval, playNow: Bool) async throws -> Void
+    func enqueue(_ itemToPlay: ListeningRoomPlayingItem, playNow: Bool) async throws -> Void
     func seek(toTime newTime: TimeInterval) async throws -> Void
     func pause() async throws -> Void
     func resume() async throws -> Void
