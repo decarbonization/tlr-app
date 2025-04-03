@@ -21,12 +21,12 @@ import Foundation
 
 /// A container which can be used to send a type-erased value between an extension and host and vice versa.
 public struct AnyCodable: Codable, Sendable {
-    private enum _Value: Sendable {
-        case decoded(any (Codable & Sendable))
+    private enum _Value: @unchecked Sendable {
+        case decoded(any Codable)
         case encoded(Data)
     }
     
-    public init(wrapping value: any (Codable & Sendable)) {
+    public init(wrapping value: any Codable) {
         if let value = value as? AnyCodable {
             _value = value._value
         } else {

@@ -16,10 +16,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import TheListeningRoomExtensionSDK
 import Foundation
 @preconcurrency import SFBAudioEngine
 
-extension PlaybackState {
+extension ListeningRoomPlaybackState {
     static func from(_ sfbPlaybackState: AudioPlayer.PlaybackState) -> Self {
         switch sfbPlaybackState {
         case .paused:
@@ -34,7 +35,7 @@ extension PlaybackState {
     }
 }
 
-final class SFBPlaybackEngine: NSObject, PlaybackEngine, AudioPlayer.Delegate {
+final class SFBPlaybackEngine: NSObject, ListeningRoomPlaybackEngine, AudioPlayer.Delegate {
     override init() {
         let (stream, continuation) = AsyncStream.makeStream(of: PlaybackEvent.self)
         audioPlayer = AudioPlayer()
@@ -57,7 +58,7 @@ final class SFBPlaybackEngine: NSObject, PlaybackEngine, AudioPlayer.Delegate {
     
     let events: AsyncStream<PlaybackEvent>
     
-    var playbackState: PlaybackState {
+    var playbackState: ListeningRoomPlaybackState {
         .from(audioPlayer.playbackState)
     }
     
@@ -89,7 +90,9 @@ final class SFBPlaybackEngine: NSObject, PlaybackEngine, AudioPlayer.Delegate {
     
     func seek(toTime newTime: TimeInterval) async throws {
         if !audioPlayer.seek(time: newTime) {
-            throw PlaybackError.couldNotSeek(to: newTime)
+            throw CocoaError(.featureUnsupported, userInfo: [
+                NSLocalizedDescriptionKey: "Could not seek to time \(newTime)",
+            ])
         }
     }
     

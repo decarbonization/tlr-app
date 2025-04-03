@@ -16,23 +16,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import TheListeningRoomExtensionSDK
 import Foundation
 import OrderedCollections
 import os
 
 @Observable final class PlaybackQueue<ItemID: Hashable & Sendable> {
-    enum RepeatMode: CaseIterable, Equatable, Codable {
-        case none
-        case all
-        case one
-    }
-    
     init() {
         _modes = .init(initialState: (repeat: .none, shuffle: false))
         _itemIDs = .init(initialState: OrderedSet<ItemID>())
     }
     
-    private let _modes: OSAllocatedUnfairLock<(repeat: RepeatMode, shuffle: Bool)>
+    private let _modes: OSAllocatedUnfairLock<(repeat: ListeningRoomRepeatMode, shuffle: Bool)>
     private let _itemIDs: OSAllocatedUnfairLock<OrderedSet<ItemID>>
     
     private func _mutateItemIDs<R>(changes: @Sendable (inout OrderedSet<ItemID>) throws -> R) rethrows -> R {
@@ -54,7 +49,7 @@ import os
     
     // MARK: - Modes
     
-    var repeatMode: RepeatMode {
+    var repeatMode: ListeningRoomRepeatMode {
         get {
             access(keyPath: \.repeatMode)
             

@@ -37,18 +37,3 @@ extension ListeningRoomHostPlayQueueState {
                   items: playQueue.items.map { $0.persistentModelID })
     }
 }
-
-extension ListeningRoomPlaybackState {
-    fileprivate static func from(_ playbackState: AudioPlayer.PlaybackState) -> Self {
-        switch playbackState {
-        case .playing:
-            return .playing
-        case .paused:
-            return .paused
-        case .stopped:
-            return .stopped
-        @unknown default:
-            fatalError()
-        }
-    }
-}
