@@ -22,7 +22,7 @@ import Testing
 
 @Suite struct QueueTests {
     @Test func replaceChangesItemIDsCompletely() async throws {
-        let subject = Queue<String>()
+        let subject = Queue<String, Void>()
         subject.append(contentsOf: ["goglga", "foblazle"])
         
         let newItemIDs = ["pwba", "ojwer", "gdsin", "shoboing"]
@@ -32,7 +32,7 @@ import Testing
     }
     
     @Test func replaceShufflesItemIDsWhenAppropriate() async throws {
-        let subject = Queue<String>()
+        let subject = Queue<String, Void>()
         subject.isShuffleEnabled = true
         
         let newItemIDs = ["pwba", "ojwer", "gdsin", "shoboing"]
@@ -52,7 +52,7 @@ import Testing
     }
     
     @Test func insertPutsItemIDsSequentially() async throws {
-        let subject = Queue<String>()
+        let subject = Queue<String, Void>()
         subject.append(contentsOf: ["goglga", "foblazle"])
         
         let newItemIDs = ["pwba", "ojwer", "gdsin", "shoboing"]
@@ -62,7 +62,7 @@ import Testing
     }
     
     @Test func insertHandlesDuplicateItemIDs() async throws {
-        let subject = Queue<String>()
+        let subject = Queue<String, Void>()
         subject.append(contentsOf: ["goglga", "gdsin", "foblazle", "shoboing"])
         
         let newItemIDs = ["pwba", "ojwer", "gdsin", "shoboing"]
@@ -72,7 +72,7 @@ import Testing
     }
     
     @Test func appendPutsItemIDsAtEnd() async throws {
-        let subject = Queue<String>()
+        let subject = Queue<String, Void>()
         
         let newItemIDs = ["foblazle", "shoboing", "goglga"]
         subject.append(contentsOf: newItemIDs)
@@ -81,7 +81,7 @@ import Testing
     }
 
     @Test func appendHandlesDuplicateItemIDs() async throws {
-        let subject = Queue<String>()
+        let subject = Queue<String, Void>()
         
         let newItemIDs = ["foblazle", "shoboing", "goglga"]
         subject.append(contentsOf: newItemIDs)
@@ -95,7 +95,7 @@ import Testing
     }
     
     @Test func removeWithIDsDropsMatchingItemIDs() async throws {
-        let subject = Queue<String>()
+        let subject = Queue<String, Void>()
         
         let newItemIDs = ["foblazle", "shoboing", "goglga", "lkposk"]
         subject.append(contentsOf: newItemIDs)
@@ -106,7 +106,7 @@ import Testing
     }
     
     @Test func removeAtOffsetsDropsSpecifiedItemIDs() async throws {
-        let subject = Queue<String>()
+        let subject = Queue<String, Void>()
         
         let newItemIDs = ["foblazle", "shoboing", "goglga", "lkposk"]
         subject.append(contentsOf: newItemIDs)
@@ -117,7 +117,7 @@ import Testing
     }
     
     @Test func moveBeforeOffsets() async throws {
-        let subject = Queue<String>()
+        let subject = Queue<String, Void>()
         
         let newItemIDs = ["foblazle", "shoboing", "goglga", "lkposk", "pwba", "ojwer", "gdsin"]
         subject.append(contentsOf: newItemIDs)
@@ -128,7 +128,7 @@ import Testing
     }
     
     @Test func moveAfterOffsets() async throws {
-        let subject = Queue<String>()
+        let subject = Queue<String, Void>()
         
         let newItemIDs = ["foblazle", "shoboing", "goglga", "lkposk", "pwba", "ojwer", "gdsin"]
         subject.append(contentsOf: newItemIDs)
@@ -139,7 +139,7 @@ import Testing
     }
     
     @Test func moveToEnd() async throws {
-        let subject = Queue<String>()
+        let subject = Queue<String, Void>()
         
         let newItemIDs = ["foblazle", "shoboing", "goglga", "lkposk", "pwba", "ojwer", "gdsin"]
         subject.append(contentsOf: newItemIDs)
@@ -150,7 +150,7 @@ import Testing
     }
     
     @Test func previousItemID() async throws {
-        let subject = Queue<String>()
+        let subject = Queue<String, Void>()
         
         let newItemIDs = ["foblazle", "shoboing", "gdsin"]
         subject.append(contentsOf: newItemIDs)
@@ -168,7 +168,7 @@ import Testing
     }
     
     @Test func nextItemID() async throws {
-        let subject = Queue<String>()
+        let subject = Queue<String, Void>()
         
         let newItemIDs = ["foblazle", "shoboing", "gdsin"]
         subject.append(contentsOf: newItemIDs)
