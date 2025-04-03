@@ -38,7 +38,7 @@ struct TheListeningRoomApp: App {
     
     init() {
         _modelContext = .init(wrappedValue: ModelContext(makeAppModelContainer()))
-        _player = .init(wrappedValue: Player(context: _modelContext.wrappedValue))
+        _player = .init(wrappedValue: Player(modelContext: _modelContext.wrappedValue))
     }
     
     @State private var modelContext: ModelContext

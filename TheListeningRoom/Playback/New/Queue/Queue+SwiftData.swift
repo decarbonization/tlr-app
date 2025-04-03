@@ -20,15 +20,15 @@ import Foundation
 import OrderedCollections
 import SwiftData
 
-extension PlaybackQueue where ItemID == PersistentIdentifier {
+extension Queue where ItemID == PersistentIdentifier, Context == ModelContext {
     struct Items<Item: PersistentModel>: RandomAccessCollection {
-        init(modelContext: ModelContext,
+        init(context: ModelContext,
              ids: OrderedSet<PersistentIdentifier>) {
-            self.modelContext = modelContext
+            self.context = context
             self.ids = ids
         }
         
-        private let modelContext: ModelContext
+        private let context: ModelContext
         private let ids: OrderedSet<PersistentIdentifier>
         
         var startIndex: Int {
@@ -48,12 +48,16 @@ extension PlaybackQueue where ItemID == PersistentIdentifier {
         }
         
         subscript(position: Int) -> Item {
-            modelContext.registeredModel(for: ids[position])!
+            context.registeredModel(for: ids[position])!
         }
     }
     
-    func items<Item: PersistentModel>(of modelType: Item.Type = Item.self,
-                                      in modelContext: ModelContext) -> Items<Item> {
-        Items(modelContext: modelContext, ids: itemIDs)
+    func item<Item: PersistentModel>(of modelType: Item.Type = Item.self,
+                                     withID itemID: ItemID) -> Item? {
+        context.registeredModel(for: itemID)
+    }
+    
+    func items<Item: PersistentModel>(of modelType: Item.Type = Item.self) -> Items<Item> {
+        Items(context: context, ids: itemIDs)
     }
 }

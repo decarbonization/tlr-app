@@ -61,6 +61,10 @@ final class SFBPlaybackEngine: NSObject, ListeningRoomPlaybackEngine, AudioPlaye
     
     let events: AsyncStream<PlaybackEvent>
     
+    var isPlayingFromQueue: Bool {
+        true
+    }
+    
     var playingItem: ListeningRoomPlayingItem? {
         _playingItem.withLock { $0 }
     }

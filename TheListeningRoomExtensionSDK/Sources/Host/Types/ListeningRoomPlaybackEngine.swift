@@ -40,6 +40,7 @@ public protocol ListeningRoomPlaybackEngine: Sendable {
     
     var events: Events { get }
     
+    var isPlayingFromQueue: Bool { get }
     var playingItem: ListeningRoomPlayingItem? { get }
     var playbackState: ListeningRoomPlaybackState { get }
     var totalTime: TimeInterval? { get }

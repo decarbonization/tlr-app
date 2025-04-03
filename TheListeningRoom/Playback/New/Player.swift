@@ -18,27 +18,37 @@
 
 import TheListeningRoomExtensionSDK
 import Foundation
+import MediaPlayer
 import os
 import SwiftData
 
 @Observable @MainActor final class Player {
     static let logger = Logger(subsystem: "io.github.decarbonization.TheListeningRoom", category: "Player")
     
-    init(context: ModelContext) {
-        self.eventSubscriber = AsyncSubscriber()
+    init(modelContext: ModelContext) {
+        self.engineEventSubscriber = AsyncSubscriber()
+        self.queueChangeSubscruber = AsyncSubscriber()
         self.engine = SFBPlaybackEngine()
-        self.queue = PlaybackQueue()
-        self.context = context
+        self.queue = Queue(context: modelContext)
         
-        eventSubscriber.subscribe(to: engine.events) { [weak self] event in
+        engineEventSubscriber.activate(consuming: engine.events) { [weak self] event, stop in
             await self?.onEngineEvent(event)
+        }
+        queueChangeSubscruber.activate(consuming: queue.observeChanges(to: \.itemIDs)) { [weak self] _, stop in
+            await self?.onQueueChange()
         }
     }
     
-    private let eventSubscriber: AsyncSubscriber
+    private let engineEventSubscriber: AsyncSubscriber
+    private let queueChangeSubscruber: AsyncSubscriber
     private var engine: any ListeningRoomPlaybackEngine
-    let queue: PlaybackQueue<PersistentIdentifier>
-    let context: ModelContext
+    private var heartBeat: Timer? {
+        didSet {
+            oldValue?.invalidate()
+        }
+    }
+    
+    let queue: Queue<PersistentIdentifier, ModelContext>
     
     var playingItem: ListeningRoomPlayingItem? {
         access(keyPath: \.playingItem)
@@ -50,14 +60,45 @@ import SwiftData
         return engine.playbackState
     }
     
+    var totalTime: TimeInterval {
+        access(keyPath: \.totalTime)
+        return engine.totalTime ?? 0
+    }
+    
+    var currentTime: TimeInterval {
+        get {
+            access(keyPath: \.currentTime)
+            return engine.currentTime ?? 0
+        }
+        set {
+            Task {
+                try await engine.seek(toTime: newValue)
+                withMutation(keyPath: \.currentTime) {
+                    // Do nothing.
+                }
+            }
+        }
+    }
+    
     func playItem(withID itemID: PersistentIdentifier) async throws {
         do {
-            guard queue.itemIDs.contains(itemID),
-                  let song: Song = context.registeredModel(for: itemID) else {
+            guard engine.isPlayingFromQueue,
+                  queue.itemIDs.contains(itemID),
+                  let song = queue.item(of: Song.self, withID: itemID) else {
                 throw CocoaError(.fileNoSuchFile)
             }
             
             try await engine.enqueue(ListeningRoomPlayingItem(song), playNow: true)
+            
+            withMutation(keyPath: \.currentTime) {
+                heartBeat = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+                    MainActor.assumeIsolated {
+                        self?.withMutation(keyPath: \.currentTime) {
+                            // Do nothing.
+                        }
+                    }
+                }
+            }
         } catch {
             do {
                 try await stop()
@@ -70,6 +111,10 @@ import SwiftData
     
     func stop() async throws {
         try await engine.stop()
+        withMutation(keyPath: \.currentTime) {
+            heartBeat = nil
+            MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
+        }
     }
     
     func pause() async throws {
@@ -81,7 +126,8 @@ import SwiftData
     }
     
     func skipPrevious() async throws {
-        if let playingItem = engine.playingItem,
+        if engine.isPlayingFromQueue,
+           let playingItem = engine.playingItem,
            let newItemID = queue.previousItemID(preceding: playingItem.id) {
             try await playItem(withID: newItemID)
         } else {
@@ -90,7 +136,8 @@ import SwiftData
     }
     
     func skipNext() async throws {
-        if let playingItem = engine.playingItem,
+        if engine.isPlayingFromQueue,
+           let playingItem = engine.playingItem,
            let newItemID = queue.nextItemID(following: playingItem.id) {
             try await playItem(withID: newItemID)
         } else {
@@ -106,7 +153,7 @@ import SwiftData
             }
         case .playingItemChanged:
             withMutation(keyPath: \.playingItem) {
-                // Do nothing for now.
+                MPNowPlayingInfoCenter.default().nowPlayingInfo = engine.playingItem?.mpItemProperties
             }
         case .encounteredError(let domain, let code, let userInfo):
             Self.logger.error("Playback engine encountered error: \(domain) (\(code)) \(userInfo)")
@@ -123,6 +170,20 @@ import SwiftData
                 try await skipNext()
             } catch {
                 Self.logger.error("Could not advance to next track, reason: \(error)")
+            }
+        }
+    }
+    
+    private func onQueueChange() async {
+        guard engine.isPlayingFromQueue,
+              let playingItem = engine.playingItem else {
+            return
+        }
+        if !queue.itemIDs.contains(playingItem.id) {
+            do {
+                try await stop()
+            } catch {
+                Self.logger.error("Could not stop playback when playing item was removed from queue, reason: \(error)")
             }
         }
     }

@@ -26,19 +26,23 @@ public final class AsyncSubscriber: Sendable {
     }
     
     deinit {
-        unsubscribe()
+        deactivate()
     }
     
     private let _task: OSAllocatedUnfairLock<Task<Void, Never>?>
     
-    public func subscribe<E: Sendable>(to source: some (AsyncSequence<E, Never> & Sendable),
-                                       observe: @escaping @Sendable (E) async -> Void) {
+    public func activate<E: Sendable>(consuming source: some (AsyncSequence<E, Never> & Sendable),
+                                      with observer: @escaping @Sendable (E, inout Bool) async -> Void) {
         let newTask = Task.detached {
             for await next in source {
                 guard !Task.isCancelled else {
                     break
                 }
-                await observe(next)
+                var stop = false
+                await observer(next, &stop)
+                if stop {
+                    break
+                }
             }
         }
         _task.withLock { task in
@@ -47,7 +51,7 @@ public final class AsyncSubscriber: Sendable {
         }
     }
     
-    public func unsubscribe() {
+    public func deactivate() {
         _task.withLock { task in
             task?.cancel()
             task = nil

@@ -26,8 +26,8 @@ struct NowPlaying2: View {
         @Bindable var player = player
         
         _NowPlayingContent(playingItem: player.playingItem,
-                           totalTime: player.playingItem?.duration ?? 0,
-                           currentTime: .constant(0))
+                           totalTime: player.totalTime,
+                           currentTime: $player.currentTime)
     }
 }
 

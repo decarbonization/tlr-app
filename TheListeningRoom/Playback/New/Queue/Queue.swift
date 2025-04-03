@@ -21,13 +21,19 @@ import Foundation
 import OrderedCollections
 import os
 
-@Observable final class PlaybackQueue<ItemID: Hashable> {
-    init() {
-        itemIDs = []
-        repeatMode = .none
-        isShuffleEnabled = false
+@Observable final class Queue<ItemID: Hashable, Context> {
+    init(context: Context) {
+        self.context = context
+        self.itemIDs = []
+        self.repeatMode = .none
+        self.isShuffleEnabled = false
     }
     
+    convenience init() where Context == Void {
+        self.init(context: ())
+    }
+    
+    let context: Context
     private(set) var itemIDs: OrderedSet<ItemID>
     
     // MARK: - Modes

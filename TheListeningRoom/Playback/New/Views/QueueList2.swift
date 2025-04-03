@@ -54,7 +54,7 @@ struct QueueList2: View {
             } else {
                 ScrollViewReader { proxy in
                     List(selection: $selectedItems) {
-                        ForEach(player.queue.items(of: Song.self, in: modelContext).indexed, id: \.element.id) { (item, index) in
+                        ForEach(player.queue.items(of: Song.self).indexed, id: \.element.id) { (item, index) in
                             QueueItem(isPlaying: player.playingItem?.id == item.id,
                                       isHistory: false,
                                       item: item)
