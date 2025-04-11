@@ -56,7 +56,7 @@ struct QueueList2: View {
                     List(selection: $selectedItems) {
                         ForEach(player.queue.items(of: Song.self).indexed, id: \.element.id) { (item, index) in
                             QueueItem(isPlaying: player.playingItem?.id == item.id,
-                                      isHistory: false,
+                                      isHistory: index < player.playingIndex ?? 0,
                                       item: item)
                         }
                         .onDelete { toRemove in

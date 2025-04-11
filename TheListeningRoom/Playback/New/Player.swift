@@ -50,6 +50,8 @@ import SwiftData
     
     let queue: Queue<PersistentIdentifier, ModelContext>
     
+    private(set) var playingIndex: Int?
+    
     var playingItem: ListeningRoomPlayingItem? {
         access(keyPath: \.playingItem)
         return engine.playingItem
@@ -157,6 +159,11 @@ import SwiftData
         case .playingItemChanged:
             withMutation(keyPath: \.playingItem) {
                 MPNowPlayingInfoCenter.default().nowPlayingInfo = engine.playingItem?.mpItemProperties(resolveArtwork: nil)
+            }
+            if let playingItem = engine.playingItem {
+                playingIndex = queue.itemIDs.firstIndex(of: playingItem.id)
+            } else {
+                playingIndex = nil
             }
         case .encounteredError(let domain, let code, let userInfo):
             Self.logger.error("Playback engine encountered error: \(domain) (\(code)) \(userInfo)")
