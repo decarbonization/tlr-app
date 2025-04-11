@@ -20,10 +20,28 @@
 import Foundation
 
 public enum ListeningRoomPlaybackEvent: Codable, Sendable {
+    ///
     case playbackStateDidChange
+    
+    /// Signals that the item playing in an engine has changed and the player
+    /// should synchronize its state to match.
+    ///
+    /// An engine should sink this event in **all** instances where
+    /// its `playingItem` property changes. Failure to do so will
+    /// cause the Listening Room's user interface to fall out of sync.
     case playingItemChanged
     case encounteredError(domain: String, code: Int, userInfo: [String: AnyCodable] = [:])
-    case endOfAudio(wantsQueueToAdvance: Bool)
+    
+    /// Signals that a playback engine has reached the end of its available audio,
+    /// and the host player should look for another item to play.
+    ///
+    /// If a playback engine maintains its own internal queue, for example to play an unbound
+    /// source of audio like a radio station, it should only sink this event in the event that source
+    /// has been exhausted. Otherwise, the engine will have its playback interrupted by the player
+    /// looking for another source.
+    ///
+    /// - parameter lastItem: The last item that was played by the engine, if applicable.
+    case endOfAudio(lastItem: ListeningRoomPlayingItem?)
     
     public static func encounteredError(_ error: any Error) -> Self {
         let nsError = error as NSError
@@ -40,7 +58,6 @@ public protocol ListeningRoomPlaybackEngine: Sendable {
     
     var events: Events { get }
     
-    var isPlayingFromQueue: Bool { get }
     var playingItem: ListeningRoomPlayingItem? { get }
     var playbackState: ListeningRoomPlaybackState { get }
     var totalTime: TimeInterval? { get }
@@ -48,7 +65,39 @@ public protocol ListeningRoomPlaybackEngine: Sendable {
     var volume: Float { get }
     
     func setVolume(_ newVolume: Float) async throws -> Void
+    
+    /// Enqueue an item to in order to play it with this engine.
+    ///
+    /// The following behavior is prescribed for the `playNow` parameter:
+    ///
+    /// - if `playNow == true`: The engine is expected to begin the process of playing
+    ///   the item before returning, interrupting any other engine which may be playing. The engine
+    ///   can generally expect it will have priority and be able to successfully interrupt. The playback
+    ///   state of the engine should ideally be `playing` once this method returns.
+    /// - if `playNow == false`: The engine is expected to set up all of the infrastructure
+    ///   needed to play the item, possibly preloading a stream. It must be possible to start playback
+    ///   of the item with a subsequent call to `resume()`. The playback state of the engine should
+    ///   ideally be `paused` once this method returns.
+    ///
+    /// - parameter itemToPlay: The item to play, typically from the library,
+    /// but may be from other source like a streaming music service being wrapped
+    /// by an extension.
+    /// - parameter playNow: Whether to immediately start playback of the item.
     func enqueue(_ itemToPlay: ListeningRoomPlayingItem, playNow: Bool) async throws -> Void
+    
+    /// Skip the currently playing item in the engine's queue to play the previous one.
+    ///
+    /// An engine which plays a single item at a time may simply return `false`
+    /// in its implementation of this method. It is only intended to be implemented
+    /// by engines which play audio from a source other than the library.
+    func skipPreviousInQueue() async throws -> Bool
+    
+    /// Skip the currently playing item in the engine's queue to play the next one.
+    ///
+    /// An engine which plays a single item at a time may simply return `false`
+    /// in its implementation of this method. It is only intended to be implemented
+    /// by engines which play audio from a source other than the library.
+    func skipNextInQueue() async throws -> Bool
     func seek(toTime newTime: TimeInterval) async throws -> Void
     func pause() async throws -> Void
     func resume() async throws -> Void

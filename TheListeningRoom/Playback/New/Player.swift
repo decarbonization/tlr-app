@@ -82,8 +82,7 @@ import SwiftData
     
     func playItem(withID itemID: PersistentIdentifier) async throws {
         do {
-            guard engine.isPlayingFromQueue,
-                  queue.itemIDs.contains(itemID),
+            guard queue.itemIDs.contains(itemID),
                   let song = queue.item(of: Song.self, withID: itemID) else {
                 throw CocoaError(.fileNoSuchFile)
             }
@@ -125,9 +124,11 @@ import SwiftData
         try await engine.resume()
     }
     
-    func skipPrevious() async throws {
-        if engine.isPlayingFromQueue,
-           let playingItem = engine.playingItem,
+    func skipPrevious(relativeTo referenceItem: ListeningRoomPlayingItem? = nil) async throws {
+        guard !(try await engine.skipPreviousInQueue()) else {
+            return
+        }
+        if let playingItem = referenceItem ?? engine.playingItem,
            let newItemID = queue.previousItemID(preceding: playingItem.id) {
             try await playItem(withID: newItemID)
         } else {
@@ -135,9 +136,11 @@ import SwiftData
         }
     }
     
-    func skipNext() async throws {
-        if engine.isPlayingFromQueue,
-           let playingItem = engine.playingItem,
+    func skipNext(relativeTo referenceItem: ListeningRoomPlayingItem? = nil) async throws {
+        guard !(try await engine.skipNextInQueue()) else {
+            return
+        }
+        if let playingItem = referenceItem ?? engine.playingItem,
            let newItemID = queue.nextItemID(following: playingItem.id) {
             try await playItem(withID: newItemID)
         } else {
@@ -162,12 +165,9 @@ import SwiftData
             } catch {
                 Self.logger.error("Could not stop upon encountering an error, reason: \(error)")
             }
-        case .endOfAudio(let wantsQueueToAdvance):
-            guard wantsQueueToAdvance else {
-                return
-            }
+        case .endOfAudio(let lastItem):
             do {
-                try await skipNext()
+                try await skipNext(relativeTo: lastItem)
             } catch {
                 Self.logger.error("Could not advance to next track, reason: \(error)")
             }
@@ -175,8 +175,7 @@ import SwiftData
     }
     
     private func onQueueChange() async {
-        guard engine.isPlayingFromQueue,
-              let playingItem = engine.playingItem else {
+        guard let playingItem = engine.playingItem else {
             return
         }
         if !queue.itemIDs.contains(playingItem.id) {

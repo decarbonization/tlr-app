@@ -116,6 +116,14 @@ final class SFBPlaybackEngine: NSObject, ListeningRoomPlaybackEngine, AudioPlaye
         }
     }
     
+    func skipPreviousInQueue() async throws -> Bool {
+        false
+    }
+    
+    func skipNextInQueue() async throws -> Bool {
+        false
+    }
+    
     func seek(toTime newTime: TimeInterval) async throws {
         if !audioPlayer.seek(time: newTime) {
             throw CocoaError(.featureUnsupported, userInfo: [
@@ -159,6 +167,6 @@ final class SFBPlaybackEngine: NSObject, ListeningRoomPlaybackEngine, AudioPlaye
     }
     
     func audioPlayerEndOfAudio(_ audioPlayer: AudioPlayer) {
-        eventSink.yield(.endOfAudio(wantsQueueToAdvance: true))
+        eventSink.yield(.endOfAudio(lastItem: playingItem))
     }
 }
