@@ -20,7 +20,12 @@
 import Foundation
 
 public enum ListeningRoomPlaybackEvent: Codable, Sendable {
+    /// Signals that the playback state of an engine has changed and the player
+    /// should synchronize its state to match.
     ///
+    /// An engine should sink this event in **all** instances where
+    /// its `playbackState` property changes. Failure to do so will
+    /// cause the player's user interface to fall out of sync.
     case playbackStateDidChange
     
     /// Signals that the item playing in an engine has changed and the player
@@ -28,8 +33,9 @@ public enum ListeningRoomPlaybackEvent: Codable, Sendable {
     ///
     /// An engine should sink this event in **all** instances where
     /// its `playingItem` property changes. Failure to do so will
-    /// cause the Listening Room's user interface to fall out of sync.
+    /// cause the player's user interface to fall out of sync.
     case playingItemChanged
+    
     case encounteredError(domain: String, code: Int, userInfo: [String: AnyCodable] = [:])
     
     /// Signals that a playback engine has reached the end of its available audio,

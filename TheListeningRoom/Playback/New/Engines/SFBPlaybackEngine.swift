@@ -151,6 +151,9 @@ final class SFBPlaybackEngine: NSObject, ListeningRoomPlaybackEngine, AudioPlaye
         audioPlayer.stop()
         audioPlayer.clearQueue()
         _playingItem.withLock { playingItem in
+            if let playingItem {
+                playingItem.assetURL.stopAccessingSecurityScopedResource()
+            }
             playingItem = nil
         }
         eventSink.yield(.playingItemChanged)
