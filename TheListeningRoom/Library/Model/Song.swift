@@ -101,6 +101,10 @@ extension AppSchemaV0 {
             [self]
         }
         
+        var frontCoverArtwork: Artwork? {
+            artwork.first(where: { $0.kind == .frontCover })
+        }
+        
         func currentURL(relativeTo libraryURL: URL? = nil) throws -> URL {
             // TODO: Try to repair stale/broken bookmarks
             guard let fileBookmark else {

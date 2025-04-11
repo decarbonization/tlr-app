@@ -149,11 +149,11 @@ import SwiftData
         switch event {
         case .playbackStateDidChange:
             withMutation(keyPath: \.playbackState) {
-                // Do nothing for now.
+                MPNowPlayingInfoCenter.default().playbackState = engine.playbackState.mpNowPlayingPlaybackState
             }
         case .playingItemChanged:
             withMutation(keyPath: \.playingItem) {
-                MPNowPlayingInfoCenter.default().nowPlayingInfo = engine.playingItem?.mpItemProperties
+                MPNowPlayingInfoCenter.default().nowPlayingInfo = engine.playingItem?.mpItemProperties(resolveArtwork: nil)
             }
         case .encounteredError(let domain, let code, let userInfo):
             Self.logger.error("Playback engine encountered error: \(domain) (\(code)) \(userInfo)")

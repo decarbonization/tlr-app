@@ -20,7 +20,7 @@ import Foundation
 import OrderedCollections
 import SwiftData
 
-extension Queue where ItemID == PersistentIdentifier, Context == ModelContext {
+extension Queue<PersistentIdentifier, ModelContext> {
     struct Items<Item: PersistentModel>: RandomAccessCollection {
         init(context: ModelContext,
              ids: OrderedSet<PersistentIdentifier>) {

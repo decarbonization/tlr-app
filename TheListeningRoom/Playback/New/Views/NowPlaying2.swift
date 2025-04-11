@@ -43,17 +43,18 @@ private struct _NowPlayingContent: View {
     private let playingItem: ListeningRoomPlayingItem?
     private let totalTime: TimeInterval
     @Binding private var currentTime: TimeInterval
+    @Environment(\.modelContext) private var modelContext
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Divider()
             HStack(alignment: .center) {
                 Group {
-                    //if let image = playingItem?.artwork.first?.image {
-                    //    image.resizable()
-                    //} else {
+                    if let image = playingItem?.artwork?.image(in: modelContext) {
+                        image.resizable()
+                    } else {
                         Color.gray
-                    //}
+                    }
                 }
                 .frame(width: 32, height: 32)
                 .clipShape(RoundedRectangle(cornerRadius: 3.0))

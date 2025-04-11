@@ -38,6 +38,7 @@ public struct ListeningRoomPlayingItem: Identifiable, Codable, Sendable {
                 startTime: TimeInterval,
                 endTime: TimeInterval,
                 assetURL: URL,
+                artwork: ListeningRoomImage? = nil,
                 title: String? = nil,
                 artist: String? = nil,
                 albumTitle: String? = nil,
@@ -57,6 +58,7 @@ public struct ListeningRoomPlayingItem: Identifiable, Codable, Sendable {
         self.startTime = startTime
         self.endTime = endTime
         self.assetURL = assetURL
+        self.artwork = artwork
         self.title = title
         self.artist = artist
         self.albumTitle = albumTitle
@@ -81,6 +83,7 @@ public struct ListeningRoomPlayingItem: Identifiable, Codable, Sendable {
         endTime - startTime
     }
     public var assetURL: URL
+    public var artwork: ListeningRoomImage?
     public var title: String?
     public var artist: String?
     public var albumTitle: String?
@@ -96,11 +99,14 @@ public struct ListeningRoomPlayingItem: Identifiable, Codable, Sendable {
     public var lyrics: String?
     public var bpm: UInt64?
     
-    public var mpItemProperties: [String: Any] {
+    public func mpItemProperties(resolveArtwork: ((ListeningRoomImage) -> MPMediaItemArtwork?)?) -> [String: Any] {
         var properties = [String: Any]()
-        properties[MPMediaItemPropertyMediaType] = kind.mpMediaType
+        properties[MPMediaItemPropertyMediaType] = kind.mpMediaType.rawValue
         properties[MPMediaItemPropertyPlaybackDuration] = duration
         properties[MPMediaItemPropertyAssetURL] = assetURL
+        if let artwork {
+            properties[MPMediaItemPropertyArtwork] = resolveArtwork?(artwork)
+        }
         properties[MPMediaItemPropertyTitle] = title
         properties[MPMediaItemPropertyArtist] = artist
         properties[MPMediaItemPropertyAlbumTitle] = albumTitle

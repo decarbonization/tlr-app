@@ -43,11 +43,15 @@ import os
     
     // MARK: - Adding
     
-    func replace(withContentsOf newItems: some Sequence<ItemID>) {
+    func replace(withContentsOf newItemsIDs: some Sequence<ItemID>) {
         itemIDs.removeAll(keepingCapacity: true)
-        itemIDs.append(contentsOf: newItems)
         if isShuffleEnabled {
-            itemIDs.shuffle()
+            for newItemID in newItemsIDs {
+                let shuffledIndex = Int.random(in: itemIDs.startIndex ... itemIDs.endIndex)
+                itemIDs.insert(newItemID, at: shuffledIndex)
+            }
+        } else {
+            itemIDs.append(contentsOf: newItemsIDs)
         }
     }
     

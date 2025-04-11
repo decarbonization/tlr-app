@@ -18,23 +18,9 @@
  */
 
 import Foundation
-import MediaPlayer
+import SwiftData
 
-public enum ListeningRoomPlaybackState: String, Codable, Sendable {
-    case playing
-    case paused
-    case stopped
-    
-    public var mpNowPlayingPlaybackState: MPNowPlayingPlaybackState {
-        switch self {
-        case .playing:
-            return .playing
-        case .paused:
-            return .paused
-        case .stopped:
-            return .stopped
-        @unknown default:
-            return .unknown
-        }
-    }
+public enum ListeningRoomImage: Codable, Sendable {
+    case systemImage(name: String)
+    case artwork(id: PersistentIdentifier)
 }
