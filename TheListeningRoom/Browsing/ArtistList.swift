@@ -30,7 +30,7 @@ struct ArtistList: View {
     
     var body: some View {
         List(artists) { artist in
-            NavigationLink(artist.name) {
+            NavigationLink {
                 let artistID = artist.id
                 AlbumList(filter: #Predicate<Album> { $0.artist?.persistentModelID == artistID }) {
                     NavigationLink("All Songs") {
@@ -45,6 +45,11 @@ struct ArtistList: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 .navigationTitle(artist.name)
+            } label: {
+                Text(verbatim: artist.name)
+                    .font(.body)
+                    .foregroundStyle(.primary)
+                    .allowsHitTesting(false)
             }
             .onDrag {
                 let itemProvider = NSItemProvider()

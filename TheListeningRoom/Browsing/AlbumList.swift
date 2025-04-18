@@ -37,50 +37,47 @@ struct AlbumList<HeaderView: View>: View {
     @Environment(\.modelContext) private var modelContext
     
     var body: some View {
-        ScrollView {
+        List {
             header()
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 128, maximum: 150))]) {
-                ForEach(albums) { album in
-                    NavigationLink {
-                        DeferView {
-                            let albumID = album.id
-                            SongList(filter: #Predicate<Song> { $0.album?.persistentModelID == albumID },
-                                     sortOrder: [
-                                        SortDescriptor(\Song.discNumber),
-                                        SortDescriptor(\Song.trackNumber),
-                                     ])
-                            .navigationTitle(album.title)
-                        }
-                    } label: {
-                        VStack {
-                            Group {
-                                if let image = album.songs.first?.artwork.first?.image {
-                                    image.resizable()
-                                } else {
-                                    Color.gray
-                                }
+            ForEach(albums) { album in
+                NavigationLink {
+                    DeferView {
+                        let albumID = album.id
+                        SongList(filter: #Predicate<Song> { $0.album?.persistentModelID == albumID },
+                                 sortOrder: [
+                                    SortDescriptor(\Song.discNumber),
+                                    SortDescriptor(\Song.trackNumber),
+                                 ])
+                        .navigationTitle(album.title)
+                    }
+                } label: {
+                    HStack {
+                        Group {
+                            if let image = album.songs.first?.artwork.first?.image {
+                                image.resizable()
+                            } else {
+                                Color.gray
                             }
-                            .frame(width: 128, height: 128)
-                            .clipShape(RoundedRectangle(cornerRadius: 3.0))
-                            Text(verbatim: album.title)
-                                .font(.body)
-                                .foregroundStyle(.primary)
                         }
+                        .frame(width: 64, height: 64)
+                        .clipShape(RoundedRectangle(cornerRadius: 3.0))
+                        Text(verbatim: album.title)
+                            .font(.body)
+                            .foregroundStyle(.primary)
                     }
-                    .buttonStyle(.borderless)
-                    .onDrag {
-                        let itemProvider = NSItemProvider()
-                        itemProvider.register(LibraryItem(from: album))
-                        return itemProvider
-                    }
-                    .contextMenu {
-                        ItemContextMenuContent(selection: [album.id])
-                    }
+                    .allowsHitTesting(false)
+                }
+                .buttonStyle(.borderless)
+                .onDrag {
+                    let itemProvider = NSItemProvider()
+                    itemProvider.register(LibraryItem(from: album))
+                    return itemProvider
+                }
+                .contextMenu {
+                    ItemContextMenuContent(selection: [album.id])
                 }
             }
-            .padding()
         }
-        .background(.background)
         .onDropOfImportableItems()
     }
 }
