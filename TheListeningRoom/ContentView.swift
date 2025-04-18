@@ -25,23 +25,33 @@ struct ContentView: View {
     
     var body: some View {
         HSplitView {
-            TabView {
-                Tab("Artists", systemImage: "music.microphone") {
+            LibraryTabView(content: [
+                LibraryTab(id: .artists) {
                     ArtistBrowser()
-                }
-                Tab("Albums", systemImage: "square.stack") {
+                } label: {
+                    Label("Artists", systemImage: "music.microphone")
+                },
+                LibraryTab(id: .albums) {
                     AlbumBrowser()
-                }
-                Tab("Songs", systemImage: "music.note") {
+                } label: {
+                    Label("Albums", systemImage: "square.stack")
+                },
+                LibraryTab(id: .songs) {
                     SongBrowser()
-                }
-                Tab("Playlists", systemImage: "music.note.list") {
+                } label: {
+                    Label("Songs", systemImage: "music.note")
+                },
+                LibraryTab(id: .playlists) {
                     PlaylistBrowser()
-                }
-                Tab("Extensions", systemImage: "puzzlepiece.extension") {
+                } label: {
+                    Label("Playlists", systemImage: "music.note.list")
+                },
+                LibraryTab(id: .extensions) {
                     ExtensionBrowser()  // NOTE: This will go away
-                }
-            }
+                } label: {
+                    Label("Extensions", systemImage: "puzzlepiece.extension")
+                },
+            ])
             TabView {
                 Tab("Old", systemImage: "list.number") {
                     QueueList()
