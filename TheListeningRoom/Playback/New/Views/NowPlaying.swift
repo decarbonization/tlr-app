@@ -19,7 +19,7 @@
 import TheListeningRoomExtensionSDK
 import SwiftUI
 
-struct NowPlaying2: View {
+struct NowPlaying: View {
     @Environment(Player.self) private var player
     
     var body: some View {

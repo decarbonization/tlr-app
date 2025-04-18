@@ -20,7 +20,7 @@ import SwiftData
 import SwiftUI
 import UniformTypeIdentifiers
 
-struct QueueList2: View {
+struct QueueList: View {
     @Environment(Player.self) private var player
     @Environment(\.modelContext) private var modelContext
     @State private var selectedItems = Set<PersistentIdentifier>()
@@ -87,7 +87,16 @@ struct QueueList2: View {
                     }
                 }
             }
-            NowPlaying2()
+            NowPlaying()
+        }
+        .toolbar {
+            RepeatModeControl(repeatMode: Binding(get: { player.queue.repeatMode },
+                                                  set: { player.queue.repeatMode = $0 }))
+            ShuffleModeControl(isEnabled: Binding(get: { player.queue.isShuffleEnabled },
+                                                  set: { player.queue.isShuffleEnabled = $0 }))
+            Spacer()
+            Volume()
+            PlaybackControls()
         }
     }
 }

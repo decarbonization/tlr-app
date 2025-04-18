@@ -23,27 +23,19 @@ import SwiftData
 public struct ListeningRoomHostPlayQueueState: Codable, Sendable {
     public static var empty: Self {
         Self(playbackState: .stopped,
-             canSkipPreviousTrack: false,
-             canSkipNextTrack: false,
              playingItemIndex: nil,
              items: [])
     }
     
     public init(playbackState: ListeningRoomPlaybackState,
-                canSkipPreviousTrack: Bool,
-                canSkipNextTrack: Bool,
                 playingItemIndex: Int?,
                 items: [PersistentIdentifier]) {
         self.playbackState = playbackState
-        self.canSkipPreviousTrack = canSkipPreviousTrack
-        self.canSkipNextTrack = canSkipNextTrack
         self.playingItemIndex = playingItemIndex
         self.items = items
     }
     
     public var playbackState: ListeningRoomPlaybackState
-    public var canSkipPreviousTrack: Bool
-    public var canSkipNextTrack: Bool
     public var playingItemIndex: Int?
     public var items: [PersistentIdentifier]
 }

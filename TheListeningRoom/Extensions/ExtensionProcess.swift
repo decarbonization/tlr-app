@@ -41,32 +41,35 @@ import os
         )
         extensionMain.takeOwnership(of: try process.makeXPCConnection())
         
-        Task { [weak self] in
-            for await _ in NotificationCenter.default.notifications(named: PlayQueue.nowPlayingDidChange) {
-                guard let self else {
-                    break
-                }
-                do {
-                    _ = try await self.extensionMain.dispatch(.postRemoteNotification(name: .ListeningRoomPlayQueueDidChange), waitForConnection: false)
-                } catch {
-                    
-                }
-            }
-        }
-        Task { [weak self] in
-            for await _ in NotificationCenter.default.notifications(named: PlayQueue.playbackStateDidChange) {
-                guard let self else {
-                    break
-                }
-                do {
-                    _ = try await self.extensionMain.dispatch(.postRemoteNotification(name: .ListeningRoomPlayQueueDidChange), waitForConnection: false)
-                } catch {
-                    
-                }
-            }
-        }
+        // TODO: Figure out how to port this to new player
+//        Task { [weak self] in
+//            for await _ in NotificationCenter.default.notifications(named: PlayQueue.nowPlayingDidChange) {
+//                guard let self else {
+//                    break
+//                }
+//                do {
+//                    _ = try await self.extensionMain.dispatch(.postRemoteNotification(name: .ListeningRoomPlayQueueDidChange), waitForConnection: false)
+//                } catch {
+//                    
+//                }
+//            }
+//        }
+//        Task { [weak self] in
+//            for await _ in NotificationCenter.default.notifications(named: PlayQueue.playbackStateDidChange) {
+//                guard let self else {
+//                    break
+//                }
+//                do {
+//                    _ = try await self.extensionMain.dispatch(.postRemoteNotification(name: .ListeningRoomPlayQueueDidChange), waitForConnection: false)
+//                } catch {
+//                    
+//                }
+//            }
+//        }
     }
     
+    private let playingItemSubscriber = AsyncSubscriber()
+    private let playbackStateSubscriber = AsyncSubscriber()
     let identity: AppExtensionIdentity
     let interruptions: AsyncChannel<Void>
     let process: AppExtensionProcess

@@ -49,7 +49,7 @@ struct SongBrowser: View {
     @SceneStorage("SongTableConfig") private var columnCustomization: TableColumnCustomization<Song> = Self.defaultColumnCustomizations
     @SceneStorage("SongShuffleEnabled") private var isShuffleEnabled: Bool = false
     @AppStorage("RatingStyle") private var ratingStyle = RatingStyle.default
-    @Environment(PlayQueue.self) private var playQueue
+    @Environment(Player.self) private var player
     @Environment(\.modelContext) private var modelContext
     
     private func deleteSelection(_ selection: Set<PersistentIdentifier>) {
@@ -183,28 +183,19 @@ struct SongBrowser: View {
             .contextMenu(forSelectionType: PersistentIdentifier.self) { selection in
                 ItemContextMenuContent(selection: selection)
             } primaryAction: { selection in
-                guard let songID = selection.first,
-                      let songPosition = songs.firstIndex(where: { $0.id == songID }) else {
+                guard let songID = selection.first else {
                     return
                 }
-                do {
-                    if isShuffleEnabled {
-                        var shuffledSongs = songs.shuffled()
-                        if let toMove = shuffledSongs.firstIndex(where: { $0.id == songID }) {
-                            shuffledSongs.move(fromOffsets: [toMove], toOffset: 0)
-                        }
-                        try playQueue.play(shuffledSongs)
-                    } else {
-                        try playQueue.play(songs, startingAt: songPosition)
+                Task {
+                    do {
+                        player.queue.replace(withContentsOf: songs.lazy.map { $0.id }, pinning: songID)
+                        try await player.playItem(withID: songID)
+                    } catch {
+                        TaskErrors.all.present(error)
                     }
-                } catch {
-                    TaskErrors.all.present(error)
                 }
             }
             .onDropOfImportableItems()
-            .toolbar {
-                ShuffleModeControl(isEnabled: $isShuffleEnabled)
-            }
         }
     }
 }

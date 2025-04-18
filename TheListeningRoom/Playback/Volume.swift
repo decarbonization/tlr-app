@@ -19,11 +19,11 @@
 import SwiftUI
 
 struct Volume: View {
-    @Environment(PlayQueue.self) private var playQueue
+    @Environment(Player.self) private var player
     
     var body: some View {
-        @Bindable var playQueue = playQueue
-        _VolumeContent(volume: $playQueue.volume)
+        @Bindable var player = player
+        _VolumeContent(volume: $player.volume)
     }
 }
 

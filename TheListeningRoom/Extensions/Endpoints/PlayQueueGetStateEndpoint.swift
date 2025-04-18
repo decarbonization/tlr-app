@@ -19,21 +19,20 @@
 import Foundation
 import TheListeningRoomExtensionSDK
 import SFBAudioEngine
+import SwiftData
 
 struct PlayQueueGetStateEndpoint: ListeningRoomXPCEndpoint {
-    let playQueue: PlayQueue
+    let player: Player
     
     func callAsFunction(_ request: ListeningRoomHostPlayQueueGetState) async throws -> ListeningRoomHostPlayQueueState {
-        ListeningRoomHostPlayQueueState(from: playQueue)
+        ListeningRoomHostPlayQueueState(from: player)
     }
 }
 
 extension ListeningRoomHostPlayQueueState {
-    fileprivate init(from playQueue: PlayQueue) {
-        self.init(playbackState: .from(playQueue.playbackState),
-                  canSkipPreviousTrack: playQueue.canSkipPreviousTrack,
-                  canSkipNextTrack: playQueue.canSkipNextTrack,
-                  playingItemIndex: playQueue.playingIndex,
-                  items: playQueue.items.map { $0.persistentModelID })
+    @MainActor fileprivate init(from player: Player) {
+        self.init(playbackState: player.playbackState,
+                  playingItemIndex: player.playingIndex,
+                  items: [PersistentIdentifier](player.queue.itemIDs))
     }
 }

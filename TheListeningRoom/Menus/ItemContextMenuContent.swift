@@ -26,18 +26,18 @@ struct ItemContextMenuContent: View {
     
     private let selection: Set<PersistentIdentifier>
     @Environment(\.modelContext) private var modelContext
-    @Environment(PlayQueue.self) private var playQueue
+    @Environment(Player.self) private var player
     
     var body: some View {
         ItemAddToPlaylistMenu(selection: selection)
         Divider()
         Button("Play Next") {
-            guard let playingIndex = playQueue.playingIndex else {
+            guard let playingIndex = player.playingIndex else {
                 return
             }
             insertInQueue(at: playingIndex)
         }
-        .disabled(playQueue.playingIndex == nil)
+        .disabled(player.playingIndex == nil)
         Button("Play Last") {
             insertInQueue(at: 0)
         }
@@ -60,9 +60,8 @@ struct ItemContextMenuContent: View {
         let toAdd = selection.lazy
             .compactMap { modelContext.model(for: $0) as? SongCollection }
             .flatMap { $0.sortedSongs }
-        playQueue.withItems { items in
-            items.append(contentsOf: toAdd)
-        }
+            .map { $0.id }
+        player.queue.append(contentsOf: toAdd)
     }
     
     private func revealSelectionInFinder() {

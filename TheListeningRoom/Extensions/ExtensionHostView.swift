@@ -40,15 +40,15 @@ struct ExtensionHostView<Placeholder: View>: View {
     private let process: ExtensionProcess
     private let sceneID: String
     private let placeholder: () -> Placeholder
-    @Environment(PlayQueue.self) private var playQueue
+    @Environment(Player.self) private var player
     
     var body: some View {
         ListeningRoomExtensionHostView(identity: process.identity,
                                        sceneID: sceneID,
                                        placeholder: placeholder) { event in
             if case .willActivate(let extensionScene) = event {
-                extensionScene.dispatcher.installEndpoint(PlayQueueActionEndpoint(playQueue: playQueue))
-                extensionScene.dispatcher.installEndpoint(PlayQueueGetStateEndpoint(playQueue: playQueue))
+                 extensionScene.dispatcher.installEndpoint(PlayQueueActionEndpoint(player: player))
+                 extensionScene.dispatcher.installEndpoint(PlayQueueGetStateEndpoint(player: player))
             }
         }
     }

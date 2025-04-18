@@ -28,7 +28,7 @@ struct PlaylistList: View {
     let playlist: Playlist
     @State private var selection = Set<PersistentIdentifier>()
     @State private var accentColor: CGColor
-    @Environment(PlayQueue.self) private var playQueue
+    @Environment(Player.self) private var player
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -45,10 +45,16 @@ struct PlaylistList: View {
                 }
                 HStack {
                     Button {
-                        do {
-                            try playQueue.play(playlist.songs.shuffled())
-                        } catch {
-                            TaskErrors.all.present(error)
+                        Task {
+                            do {
+                                let songs = playlist.songs.shuffled()
+                                player.queue.replace(withContentsOf: songs.lazy.map { $0.id })
+                                if let firstSong = songs.first {
+                                    try await player.playItem(withID: firstSong.id)
+                                }
+                            } catch {
+                                TaskErrors.all.present(error)
+                            }
                         }
                     } label: {
                         Label("Shuffle", systemImage: "shuffle")
@@ -77,14 +83,16 @@ struct PlaylistList: View {
                 Divider()
                 ItemContextMenuContent(selection: selection)
             } primaryAction: { selection in
-                guard let songID = selection.first,
-                      let songPosition = playlist.songs.firstIndex(where: { $0.id == songID }) else {
+                guard let songID = selection.first else {
                     return
                 }
-                do {
-                    try playQueue.play(playlist.songs, startingAt: songPosition)
-                } catch {
-                    TaskErrors.all.present(error)
+                Task {
+                    do {
+                        player.queue.replace(withContentsOf: playlist.songs.lazy.map { $0.id })
+                        try await player.playItem(withID: songID)
+                    } catch {
+                        TaskErrors.all.present(error)
+                    }
                 }
             }
             .listStyle(.plain)

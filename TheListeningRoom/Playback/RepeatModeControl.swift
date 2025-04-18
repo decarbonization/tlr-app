@@ -16,28 +16,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import TheListeningRoomExtensionSDK
 import SwiftUI
 
 struct RepeatModeControl: View {
-    @Environment(PlayQueue.self) private var playQueue
-    
-    var body: some View {
-        @Bindable var playQueue = playQueue
-        
-        _RepeatModeControlContent(repeatMode: $playQueue.repeatMode)
-    }
-}
-
-struct _RepeatModeControlContent: View {
-    init(repeatMode: Binding<PlayQueue.RepeatMode>) {
+    init(repeatMode: Binding<ListeningRoomRepeatMode>) {
         _repeatMode = repeatMode
     }
     
-    @Binding private var repeatMode: PlayQueue.RepeatMode
+    @Binding private var repeatMode: ListeningRoomRepeatMode
     
     var body: some View {
         Button {
-            let allModes = PlayQueue.RepeatMode.allCases
+            let allModes = ListeningRoomRepeatMode.allCases
             let nextIndex = allModes.index(after: allModes.firstIndex(of: repeatMode)!)
             if nextIndex < allModes.endIndex {
                 repeatMode = allModes[nextIndex]
@@ -65,7 +56,7 @@ struct _RepeatModeControlContent: View {
 }
 
 #Preview {
-    @Previewable @State var repeatMode = PlayQueue.RepeatMode.none
+    @Previewable @State var repeatMode = ListeningRoomRepeatMode.none
     
-    _RepeatModeControlContent(repeatMode: $repeatMode)
+    RepeatModeControl(repeatMode: $repeatMode)
 }

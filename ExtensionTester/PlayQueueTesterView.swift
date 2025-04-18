@@ -54,7 +54,7 @@ struct PlayQueueTesterView: View {
                 } label: {
                     Label("Previous", systemImage: "backward.end.alt.fill")
                 }
-                .disabled(!playQueue.canSkipPreviousTrack)
+                .disabled(playQueue.playingItemIndex == nil)
                 
                 Button {
                     Task {
@@ -63,7 +63,7 @@ struct PlayQueueTesterView: View {
                 } label: {
                     Label("Next", systemImage: "forward.end.alt.fill")
                 }
-                .disabled(!playQueue.canSkipNextTrack)
+                .disabled(playQueue.playingItemIndex == nil)
             }
         }
     }

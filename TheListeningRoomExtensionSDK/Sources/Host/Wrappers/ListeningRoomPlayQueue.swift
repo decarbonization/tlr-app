@@ -65,16 +65,8 @@ import SwiftUI
         try await connection.dispatch(ListeningRoomHostPlayQueueAction.resume)
     }
     
-    public var canSkipPreviousTrack: Bool {
-        state.canSkipPreviousTrack
-    }
-    
     public func previousTrack() async throws -> Bool {
         try await connection.dispatch(ListeningRoomHostPlayQueueAction.previousTrack)
-    }
-    
-    public var canSkipNextTrack: Bool {
-        state.canSkipNextTrack
     }
     
     public func nextTrack() async throws -> Bool {

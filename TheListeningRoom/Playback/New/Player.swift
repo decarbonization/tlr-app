@@ -27,20 +27,60 @@ import SwiftData
     
     init(modelContext: ModelContext) {
         self.engineEventSubscriber = AsyncSubscriber()
-        self.queueChangeSubscruber = AsyncSubscriber()
+        self.queueChangeSubscriber = AsyncSubscriber()
         self.engine = SFBPlaybackEngine()
         self.queue = Queue(context: modelContext)
         
         engineEventSubscriber.activate(consuming: engine.events) { [weak self] event, stop in
             await self?.onEngineEvent(event)
         }
-        queueChangeSubscruber.activate(consuming: queue.observeChanges(to: \.itemIDs)) { [weak self] _, stop in
+        queueChangeSubscriber.activate(consuming: queue.observeChanges(to: \.itemIDs)) { [weak self] _, stop in
             await self?.onQueueChange()
+        }
+        
+        let remoteCommandCenter = MPRemoteCommandCenter.shared()
+        remoteCommandCenter.togglePlayPauseCommand.addTarget { [weak self] _ in
+            guard let self else {
+                return .commandFailed
+            }
+            if self.playbackState == .paused {
+                Task {
+                    try await self.resume()
+                }
+                return .success
+            } else if self.playbackState == .playing {
+                Task {
+                    try await self.pause()
+                }
+                return .success
+            } else if self.playbackState == .stopped {
+                Task {
+                    guard let firstItemID = self.queue.itemIDs.first else {
+                        return
+                    }
+                    try await self.playItem(withID: firstItemID)
+                }
+                return .success
+            } else {
+                return .noSuchContent
+            }
+        }
+        remoteCommandCenter.previousTrackCommand.addTarget { [weak self] _ in
+            Task {
+                try await self?.skipPrevious()
+            }
+            return .success
+        }
+        remoteCommandCenter.nextTrackCommand.addTarget { [weak self] _ in
+            Task {
+                try await self?.skipNext()
+            }
+            return .success
         }
     }
     
     private let engineEventSubscriber: AsyncSubscriber
-    private let queueChangeSubscruber: AsyncSubscriber
+    private let queueChangeSubscriber: AsyncSubscriber
     private var engine: any ListeningRoomPlaybackEngine
     private var heartBeat: Timer? {
         didSet {
@@ -57,7 +97,7 @@ import SwiftData
         return engine.playingItem
     }
     
-    var playbackState: ListeningRoomPlaybackState? {
+    var playbackState: ListeningRoomPlaybackState {
         access(keyPath: \.playbackState)
         return engine.playbackState
     }
@@ -76,6 +116,21 @@ import SwiftData
             Task {
                 try await engine.seek(toTime: newValue)
                 withMutation(keyPath: \.currentTime) {
+                    // Do nothing.
+                }
+            }
+        }
+    }
+    
+    var volume: Float {
+        get {
+            access(keyPath: \.volume)
+            return engine.volume
+        }
+        set {
+            Task {
+                try await engine.setVolume(newValue)
+                withMutation(keyPath: \.volume) {
                     // Do nothing.
                 }
             }

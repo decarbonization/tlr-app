@@ -20,13 +20,13 @@ import SwiftData
 import SwiftUI
 
 struct MainMenu: Commands {
-    init(playQueue: PlayQueue,
+    init(player: Player,
          modelContext: ModelContext) {
-        self.playQueue = playQueue
+        self.player = player
         self.modelContext = modelContext
     }
     
-    private let playQueue: PlayQueue
+    private let player: Player
     private let modelContext: ModelContext
     @State private var isImporting = false
     
@@ -54,34 +54,41 @@ struct MainMenu: Commands {
         }
         CommandMenu("Controls") {
             Button {
-                do {
-                    try playQueue.previousTrack()
-                } catch {
-                    TaskErrors.all.present(error)
+                Task {
+                    do {
+                        try await player.skipPrevious()
+                    } catch {
+                        TaskErrors.all.present(error)
+                    }
                 }
             } label: {
                 Label("Previous Track", systemImage: "backward.end.alt.fill")
             }
-            .disabled(!playQueue.canSkipPreviousTrack)
+            .disabled(player.playingItem == nil)
             .keyboardShortcut(.leftArrow, modifiers: .command)
             
             Button {
-                switch playQueue.playbackState {
-                case .stopped:
-                    do {
-                        try playQueue.play(playQueue.items, startingAt: 0)
-                    } catch {
-                        TaskErrors.all.present(error)
+                Task {
+                    switch player.playbackState {
+                    case .stopped:
+                        do {
+                            guard let firstItem = player.queue.itemIDs.first else {
+                                return
+                            }
+                            try await player.playItem(withID: firstItem)
+                        } catch {
+                            TaskErrors.all.present(error)
+                        }
+                    case .paused:
+                        try await player.resume()
+                    case .playing:
+                        try await player.pause()
+                    @unknown default:
+                        fatalError()
                     }
-                case .paused:
-                    playQueue.resume()
-                case .playing:
-                    playQueue.pause()
-                @unknown default:
-                    fatalError()
                 }
             } label: {
-                switch playQueue.playbackState {
+                switch player.playbackState {
                 case .stopped:
                     Label("Play", systemImage: "play.fill")
                 case .paused:
@@ -92,38 +99,44 @@ struct MainMenu: Commands {
                     EmptyView()
                 }
             }
-            .disabled(playQueue.items.isEmpty)
+            .disabled(player.queue.itemIDs.isEmpty)
             .keyboardShortcut(.space)
             
             Button {
                 do {
-                    try playQueue.nextTrack()
+                    Task {
+                        do {
+                            try await player.skipNext()
+                        } catch {
+                            TaskErrors.all.present(error)
+                        }
+                    }
                 } catch {
                     TaskErrors.all.present(error)
                 }
             } label: {
-                Label("Previous Track", systemImage: "forward.end.alt.fill")
+                Label("Next Track", systemImage: "forward.end.alt.fill")
             }
-            .disabled(!playQueue.canSkipNextTrack)
+            .disabled(player.playingItem == nil)
             .keyboardShortcut(.rightArrow, modifiers: .command)
             
             Divider()
             
             Button {
-                guard playQueue.volume < 1.0 else {
+                guard player.volume < 1.0 else {
                     return
                 }
-                playQueue.volume += 0.1
+                player.volume += 0.1
             } label: {
                 Label("Incrase Volume", systemImage: "speaker.wave.3")
             }
             .keyboardShortcut(.upArrow, modifiers: .command)
             
             Button {
-                guard playQueue.volume > 0.0 else {
+                guard player.volume > 0.0 else {
                     return
                 }
-                playQueue.volume -= 0.1
+                player.volume -= 0.1
             } label: {
                 Label("Decrease Volume", systemImage: "speaker.wave.1")
             }

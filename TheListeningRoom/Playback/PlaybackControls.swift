@@ -20,38 +20,45 @@ import SwiftUI
 import SFBAudioEngine
 
 struct PlaybackControls: View {
-    @Environment(PlayQueue.self) private var playQueue
+    @Environment(Player.self) private var player
     
     var body: some View {
         HStack {
             Button {
-                do {
-                    try playQueue.previousTrack()
-                } catch {
-                    TaskErrors.all.present(error)
+                Task {
+                    do {
+                        try await player.skipPrevious()
+                    } catch {
+                        TaskErrors.all.present(error)
+                    }
                 }
             } label: {
                 Label("Previous Track", systemImage: "backward.end.alt.fill")
             }
-            .disabled(!playQueue.canSkipPreviousTrack)
+            .disabled(player.playingItem == nil)
             .keyboardShortcut(.leftArrow, modifiers: .command)
             Button {
-                switch playQueue.playbackState {
-                case .stopped:
-                    do {
-                        try playQueue.play(playQueue.items, startingAt: 0)
-                    } catch {
-                        TaskErrors.all.present(error)
+                Task {
+                    switch player.playbackState {
+                    case .stopped:
+                        do {
+                            guard let firstItem = player.queue.itemIDs.first else {
+                                return
+                            }
+                            try await player.playItem(withID: firstItem)
+                        } catch {
+                            TaskErrors.all.present(error)
+                        }
+                    case .paused:
+                        try await player.resume()
+                    case .playing:
+                        try await player.pause()
+                    @unknown default:
+                        fatalError()
                     }
-                case .paused:
-                    playQueue.resume()
-                case .playing:
-                    playQueue.pause()
-                @unknown default:
-                    fatalError()
                 }
             } label: {
-                switch playQueue.playbackState {
+                switch player.playbackState {
                 case .stopped:
                     Label("Play", systemImage: "play.fill")
                 case .paused:
@@ -62,18 +69,20 @@ struct PlaybackControls: View {
                     EmptyView()
                 }
             }
-            .disabled(playQueue.items.isEmpty)
+            .disabled(player.queue.itemIDs.isEmpty)
             .keyboardShortcut(.space)
             Button {
-                do {
-                    try playQueue.nextTrack()
-                } catch {
-                    TaskErrors.all.present(error)
+                Task {
+                    do {
+                        try await player.skipNext()
+                    } catch {
+                        TaskErrors.all.present(error)
+                    }
                 }
             } label: {
                 Label("Previous Track", systemImage: "forward.end.alt.fill")
             }
-            .disabled(!playQueue.canSkipNextTrack)
+            .disabled(player.playingItem == nil)
             .keyboardShortcut(.rightArrow, modifiers: .command)
         }
         .labelStyle(.iconOnly)

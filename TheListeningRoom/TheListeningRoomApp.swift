@@ -43,7 +43,6 @@ struct TheListeningRoomApp: App {
     
     @State private var modelContext: ModelContext
     @State private var player: Player
-    @State private var playQueue = PlayQueue()
     @NSApplicationDelegateAdaptor private var appDelegate: Delegate
     
     var body: some Scene {
@@ -51,16 +50,14 @@ struct TheListeningRoomApp: App {
             ContentView()
         }
         .environment(player)
-        .environment(playQueue)
         .modelContext(modelContext)
         .commands {
-            MainMenu(playQueue: playQueue,
+            MainMenu(player: player,
                      modelContext: modelContext)
         }
         Settings {
             SettingsView()
                 .environment(player)
-                .environment(playQueue)
                 .modelContext(modelContext)
         }
     }
