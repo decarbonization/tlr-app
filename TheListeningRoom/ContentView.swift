@@ -25,12 +25,21 @@ struct ContentView: View {
     
     var body: some View {
         HSplitView {
-            NavigationSplitView {
-                SourceList()
-            } detail: {
-                NavigationStack {
-                    NoContentView("No Selection")
-                        .onDropOfImportableItems()
+            TabView {
+                Tab("Artists", systemImage: "music.microphone") {
+                    ArtistBrowser()
+                }
+                Tab("Albums", systemImage: "square.stack") {
+                    AlbumBrowser()
+                }
+                Tab("Songs", systemImage: "music.note") {
+                    SongBrowser()
+                }
+                Tab("Playlists", systemImage: "music.note.list") {
+                    PlaylistBrowser()
+                }
+                Tab("Extensions", systemImage: "puzzlepiece.extension") {
+                    ExtensionBrowser()  // NOTE: This will go away
                 }
             }
             TabView {

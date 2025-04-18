@@ -19,7 +19,7 @@
 import SwiftData
 import SwiftUI
 
-struct SongList: View {
+struct SongBrowser: View {
     private static var defaultColumnCustomizations: TableColumnCustomization<Song> {
         var customizations = TableColumnCustomization<Song>()
         customizations[visibility: "albumArtist"] = .hidden
