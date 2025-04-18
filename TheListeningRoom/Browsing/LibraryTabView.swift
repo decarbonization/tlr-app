@@ -31,6 +31,7 @@ struct LibraryTabView: View {
         _LibraryTabViewContent(content: content,
                                selection: $selection)
         .toolbar {
+            Spacer()
             Picker(selection: $selection) {
                 ForEach(content) { tab in
                     tab.label()
@@ -40,6 +41,7 @@ struct LibraryTabView: View {
             }
             .labelStyle(.titleAndIcon)
             .pickerStyle(.segmented)
+            Spacer()
         }
     }
 }

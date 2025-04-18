@@ -49,6 +49,8 @@ struct TheListeningRoomApp: App {
         Window("Library", id: "library") {
             ContentView()
         }
+        .defaultSize(width: 1000, height: 800)
+        .windowToolbarStyle(.unified(showsTitle: false))
         .environment(player)
         .modelContext(modelContext)
         .commands {
