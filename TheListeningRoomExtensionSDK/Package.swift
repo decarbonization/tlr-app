@@ -9,11 +9,17 @@ let package = Package(
                  targets: ["TheListeningRoomExtensionSDK"]),
     ],
     dependencies: [
+        .package(url: "https://github.com/apple/swift-async-algorithms", from: "1.0.0"),
     ],
     targets: [
         .target(name: "TheListeningRoomExtensionSDK",
-                dependencies: []),
+                dependencies: [
+                    .product(name: "AsyncAlgorithms", package: "swift-async-algorithms"),
+                ]),
         .testTarget(name: "TheListeningRoomExtensionSDKTests",
-                    dependencies: ["TheListeningRoomExtensionSDK"]),
+                    dependencies: [
+                        "TheListeningRoomExtensionSDK",
+                        .product(name: "AsyncAlgorithms", package: "swift-async-algorithms"),
+                    ]),
     ]
 )

@@ -21,7 +21,7 @@ import TheListeningRoomExtensionSDK
 import SwiftUI
 
 struct ExtensionHostView<Placeholder: View>: View {
-    init(process: ExtensionProcess,
+    init(process: ListeningRoomExtensionProcess,
          sceneID: String,
          @ViewBuilder placeholder: @escaping () -> Placeholder) {
         self.process = process
@@ -29,7 +29,7 @@ struct ExtensionHostView<Placeholder: View>: View {
         self.placeholder = placeholder
     }
     
-    init(process: ExtensionProcess,
+    init(process: ListeningRoomExtensionProcess,
          sceneID: String)
     where Placeholder == ProgressView<EmptyView, EmptyView> {
         self.init(process: process,
@@ -37,18 +37,22 @@ struct ExtensionHostView<Placeholder: View>: View {
                   placeholder: { ProgressView<EmptyView, EmptyView>() })
     }
     
-    private let process: ExtensionProcess
+    private let process: ListeningRoomExtensionProcess
     private let sceneID: String
     private let placeholder: () -> Placeholder
     @Environment(Player.self) private var player
     
     var body: some View {
-        ListeningRoomExtensionHostView(identity: process.identity,
+        ListeningRoomExtensionHostView(process: process,
                                        sceneID: sceneID,
                                        placeholder: placeholder) { event in
-            if case .willActivate(let extensionScene) = event {
-                 extensionScene.dispatcher.installEndpoint(PlayQueueActionEndpoint(player: player))
-                 extensionScene.dispatcher.installEndpoint(PlayQueueGetStateEndpoint(player: player))
+            switch event {
+            case .willConnect(let listeningRoomXPCConnection):
+                break
+            case .didConnect(let listeningRoomXPCConnection):
+                break
+            case .lostConnection(let error):
+                break
             }
         }
     }

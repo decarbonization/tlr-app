@@ -23,15 +23,18 @@ import os
 @Observable public final class ListeningRoomXPCConnection: CustomStringConvertible, @unchecked Sendable {
     static let logger = Logger(subsystem: "io.github.decarbonization.TheListeningRoom", category: "XPCConnection")
     
-    public init(_ dispatcher: ListeningRoomXPCDispatcher) {
-        self.dispatcher = dispatcher
+    public init(role: ListeningRoomXPCRole,
+                endpoints: [any ListeningRoomXPCEndpoint] = []) {
+        self.dispatcher = ListeningRoomXPCDispatcher(role: role,
+                                                     endpoints: endpoints)
         self.isPlaceholder = false
         self.stateLock = .init()
         self.withStateLock_connectionWaiters = []
     }
     
     internal init(_placeholder: Void) {
-        self.dispatcher = ListeningRoomXPCDispatcher(role: .placeholder)
+        self.dispatcher = ListeningRoomXPCDispatcher(role: .placeholder,
+                                                     endpoints: [])
         self.isPlaceholder = true
         self.stateLock = .init()
         self.withStateLock_connectionWaiters = []
@@ -50,7 +53,7 @@ import os
         }
     }
     
-    public let dispatcher: ListeningRoomXPCDispatcher
+    private let dispatcher: ListeningRoomXPCDispatcher
     private let isPlaceholder: Bool
     private let stateLock: OSAllocatedUnfairLock<Void>
     private var withStateLock_connectionWaiters: [UnsafeContinuation<Void, any Error>]
@@ -64,6 +67,15 @@ import os
             stateLock.unlock()
         }
         return withStateLock_currentConnection
+    }
+    
+    public var endpoints: [any ListeningRoomXPCEndpoint] {
+        get {
+            dispatcher.endpoints
+        }
+        set {
+            dispatcher.endpoints = newValue
+        }
     }
     
     /// Get the currently active XPC connection, optionally waiting for it to become available.
@@ -156,9 +168,52 @@ import os
         currentXPCConnection?.invalidate()
     }
     
+    public func ping(waitForConnection: Bool = true) async throws {
+        let connection = try await xpcConnection(wait: waitForConnection)
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, any Error>) in
+            let remoteDispatcher = connection.remoteObjectProxyWithErrorHandler { error in
+                continuation.resume(throwing: error)
+            } as! ListeningRoomXPCDispatcherProtocol
+            remoteDispatcher._ping { error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
+        }
+    }
+    
+    public func post<E: ListeningRoomXPCEvent>(_ event: E, waitForConnection: Bool = true) async throws {
+        let connection = try await xpcConnection(wait: waitForConnection)
+        let event = try _encode(event)
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, any Error>) in
+            let remoteDispatcher = connection.remoteObjectProxyWithErrorHandler { error in
+                continuation.resume(throwing: error)
+            } as! ListeningRoomXPCDispatcherProtocol
+            remoteDispatcher._post(event, with: E.name) { error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
+        }
+    }
+    
+    public func receive<E: ListeningRoomXPCEvent>(_ eventType: E.Type) -> some AsyncSequence<E, any Error> {
+        dispatcher.events
+            .filter {
+                $0.name == E.name
+            }
+            .map {
+                try _decode(E.self, from: $0.event)
+            }
+    }
+    
     public func dispatch<Req: ListeningRoomXPCRequest>(_ request: Req, waitForConnection: Bool = true) async throws -> Req.Response {
         let connection = try await xpcConnection(wait: waitForConnection)
-        let request = try _endpointEncode(request)
+        let request = try _encode(request)
         let response: Data = try await withCheckedThrowingContinuation { continuation in
             let remoteDispatcher = connection.remoteObjectProxyWithErrorHandler { error in
                 continuation.resume(throwing: error)
@@ -176,7 +231,7 @@ import os
                 }
             }
         }
-        return try _endpointDecode(from: response)
+        return try _decode(from: response)
     }
     
     public var description: String {

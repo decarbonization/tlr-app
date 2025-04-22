@@ -103,16 +103,12 @@ struct MainMenu: Commands {
             .keyboardShortcut(.space)
             
             Button {
-                do {
-                    Task {
-                        do {
-                            try await player.skipNext()
-                        } catch {
-                            TaskErrors.all.present(error)
-                        }
+                Task {
+                    do {
+                        try await player.skipNext()
+                    } catch {
+                        TaskErrors.all.present(error)
                     }
-                } catch {
-                    TaskErrors.all.present(error)
                 }
             } label: {
                 Label("Next Track", systemImage: "forward.end.alt.fill")

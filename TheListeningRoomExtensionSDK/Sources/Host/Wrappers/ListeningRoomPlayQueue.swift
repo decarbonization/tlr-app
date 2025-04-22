@@ -26,15 +26,6 @@ import SwiftUI
     public init(connection: ListeningRoomXPCConnection) {
         self.connection = connection
         self._state = .init(initialState: .empty)
-        Task { [weak self] in
-            try? await self?.refresh()
-            for await _ in NotificationCenter.default.notifications(named: .ListeningRoomPlayQueueDidChange) {
-                guard let self else {
-                    break
-                }
-                try? await self.refresh()
-            }
-        }
     }
     
     private let connection: ListeningRoomXPCConnection

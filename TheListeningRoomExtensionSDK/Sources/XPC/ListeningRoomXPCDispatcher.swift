@@ -17,53 +17,84 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+internal import AsyncAlgorithms
 import Foundation
 import os
 
-public final class ListeningRoomXPCDispatcher: NSObject, Sendable {
-    public enum Role: String, Sendable {
-        case placeholder
-        case extensionMain
-        case extensionScene
-        case hostMain
-        case hostView
-    }
-    
-    public init(role: Role) {
+internal final class ListeningRoomXPCDispatcher: NSObject, Sendable {
+    init(role: ListeningRoomXPCRole,
+         endpoints: [any ListeningRoomXPCEndpoint]) {
         self.role = role
-        self._endpointsByName = .init(initialState: [:])
+        var endpointsByName = [String: any ListeningRoomXPCEndpoint]()
+        func name<E: ListeningRoomXPCEndpoint>(of endpoint: E) -> String {
+            E.Request.endpoint
+        }
+        for endpoint in endpoints {
+            endpointsByName[name(of: endpoint)] = endpoint
+        }
+        self._endpointsByName = .init(initialState: endpointsByName)
+        self.events = AsyncChannel()
     }
     
-    private let role: Role
+    private let role: ListeningRoomXPCRole
     private let _endpointsByName: OSAllocatedUnfairLock<[String: any ListeningRoomXPCEndpoint]>
     
-    @discardableResult public func installEndpoint<E: ListeningRoomXPCEndpoint>(_ endpoint: E) -> Self {
-        _endpointsByName.withLock { endpointsByName in
-            endpointsByName[E.Request.endpoint] = endpoint
+    internal let events: AsyncChannel<(event: Data, name: String)>
+    
+    var endpoints: [any ListeningRoomXPCEndpoint] {
+        get {
+            _endpointsByName.withLock { endpointsByName in
+                [any ListeningRoomXPCEndpoint](endpointsByName.values)
+            }
         }
-        return self
+        set {
+            var newEndpointsByName = [String: any ListeningRoomXPCEndpoint]()
+            func name<E: ListeningRoomXPCEndpoint>(of endpoint: E) -> String {
+                E.Request.endpoint
+            }
+            for endpoint in newValue {
+                newEndpointsByName[name(of: endpoint)] = endpoint
+            }
+            _endpointsByName.withLock { [newEndpointsByName] endpointsByName in
+                endpointsByName = newEndpointsByName
+            }
+        }
     }
     
-    @discardableResult public func uninstallEndpoint<E: ListeningRoomXPCEndpoint>(_ endpointType: E.Type) -> Self {
-        _endpointsByName.withLock { endpointsByName in
-            _ = endpointsByName.removeValue(forKey: E.Request.endpoint)
-        }
-        return self
-    }
-    
-    override public var description: String {
+    override var description: String {
         let endpointNames = _endpointsByName.withLockIfAvailable { $0.keys.joined(separator: ", ") } ?? "?"
         return "ListeningRoomXPCDispatcher(role: \(role), endpoints: [\(endpointNames)])"
     }
 }
 
 @objc(_ListeningRoomXPCDispatcher) internal protocol ListeningRoomXPCDispatcherProtocol: NSObjectProtocol {
+    func _ping(replyHandler: @escaping @Sendable ((any Error)?) -> Void) -> Void
+    
+    func _post(_ event: Data,
+               with name: String,
+               replyHandler: @escaping @Sendable ((any Error)?) -> Void) -> Void
+    
     func _dispatch(_ request: Data,
                    to endpoint: String,
                    replyHandler: @escaping @Sendable (Data?, (any Error)?) -> Void) -> Void
 }
 
 extension ListeningRoomXPCDispatcher: ListeningRoomXPCDispatcherProtocol {
+    internal func _ping(replyHandler: @escaping @Sendable ((any Error)?) -> Void) {
+        Task {
+            replyHandler(nil)
+        }
+    }
+    
+    internal func _post(_ event: Data,
+                        with name: String,
+                        replyHandler: @escaping @Sendable ((any Error)?) -> Void) {
+        Task {
+            await events.send((event, name))
+            replyHandler(nil)
+        }
+    }
+    
     internal func _dispatch(_ request: Data,
                             to endpoint: String,
                             replyHandler: @escaping @Sendable (Data?, (any Error)?) -> Void) {
@@ -75,9 +106,9 @@ extension ListeningRoomXPCDispatcher: ListeningRoomXPCDispatcherProtocol {
                     ])
                 }
                 func forward<Endpoint: ListeningRoomXPCEndpoint>(_ request: Data, to endpoint: Endpoint) async throws -> Data {
-                    let request = try _endpointDecode(Endpoint.Request.self, from: request)
+                    let request = try _decode(Endpoint.Request.self, from: request)
                     let response = try await endpoint(request)
-                    return try _endpointEncode(response)
+                    return try _encode(response)
                 }
                 let response = try await forward(request, to: endpoint)
                 replyHandler(response, nil)

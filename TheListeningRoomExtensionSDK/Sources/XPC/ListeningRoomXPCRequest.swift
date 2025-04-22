@@ -37,7 +37,7 @@ extension ListeningRoomXPCRequest {
     public static let nothing = Self()
 }
 
-internal func _endpointDecode<T: Codable>(_ type: T.Type = T.self, from request: Data) throws -> T {
+internal func _decode<T: Codable>(_ type: T.Type = T.self, from request: Data) throws -> T {
     let jsonDecoder = JSONDecoder()
     jsonDecoder.dataDecodingStrategy = .base64
     jsonDecoder.dateDecodingStrategy = .iso8601
@@ -46,7 +46,7 @@ internal func _endpointDecode<T: Codable>(_ type: T.Type = T.self, from request:
     return try jsonDecoder.decode(type, from: request)
 }
 
-internal func _endpointEncode(_ value: some Codable) throws -> Data {
+internal func _encode(_ value: some Codable) throws -> Data {
     let jsonEncoder = JSONEncoder()
     jsonEncoder.dataEncodingStrategy = .base64
     jsonEncoder.dateEncodingStrategy = .iso8601

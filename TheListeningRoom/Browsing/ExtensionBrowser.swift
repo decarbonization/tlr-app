@@ -16,12 +16,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import TheListeningRoomExtensionSDK
 import SwiftData
 import SwiftUI
 
 struct ExtensionBrowser: View {
     private struct Extension: Hashable {
-        let process: ExtensionProcess
+        let process: ListeningRoomExtensionProcess
         let sceneID: String
         
         static func == (lhs: Self, rhs: Self) -> Bool {

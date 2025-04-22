@@ -22,32 +22,30 @@ import ExtensionKit
 import os
 import SwiftUI
 
-public enum ListeningRoomExtensionHostViewEvent: Sendable {
-    case willActivate(extensionScene: ListeningRoomXPCConnection)
-    case activate(extensionScene: ListeningRoomXPCConnection)
-    case deactivate(error: (any Error)?)
+public enum ListeningRoomExtensionHostViewEvent {
+    case willConnect(ListeningRoomXPCConnection)
+    case didConnect(ListeningRoomXPCConnection)
+    case lostConnection(error: (any Error)?)
 }
 
 public struct ListeningRoomExtensionHostView<Placeholder: View>: View {
-    public typealias Event = ListeningRoomExtensionHostViewEvent
-    
-    public init(identity: AppExtensionIdentity,
+    public init(process: ListeningRoomExtensionProcess,
                 sceneID: String,
                 @ViewBuilder placeholder: @escaping () -> Placeholder,
-                onEvent: @escaping (Event) -> Void) {
-        self.identity = identity
+                onEvent: @escaping @Sendable (ListeningRoomExtensionHostViewEvent) -> Void) {
+        self.process = process
         self.sceneID = sceneID
         self.placeholder = placeholder
         self.onEvent = onEvent
     }
     
-    private let identity: AppExtensionIdentity
+    private let process: ListeningRoomExtensionProcess
     private let sceneID: String
     private let placeholder: () -> Placeholder
-    private let onEvent: (Event) -> Void
+    private let onEvent: @Sendable (ListeningRoomExtensionHostViewEvent) -> Void
     
     public var body: some View {
-        _ListeningRoomExtensionHostContent(identity: identity,
+        _ListeningRoomExtensionHostContent(process: process,
                                            sceneID: sceneID,
                                            placeholder: placeholder,
                                            onEvent: onEvent)
@@ -55,46 +53,41 @@ public struct ListeningRoomExtensionHostView<Placeholder: View>: View {
 }
 
 private struct _ListeningRoomExtensionHostContent<Placeholder: View>: NSViewControllerRepresentable {
-    typealias Event = ListeningRoomExtensionHostViewEvent
-    
-    let identity: AppExtensionIdentity
+    let process: ListeningRoomExtensionProcess
     let sceneID: String
     let placeholder: () -> Placeholder
-    let onEvent: (Event) -> Void
+    let onEvent: @Sendable (ListeningRoomExtensionHostViewEvent) -> Void
     
     final class Coordinator: NSObject, EXHostViewControllerDelegate {
-        init(onEvent: @escaping (Event) -> Void) {
-            self.extensionScene = ListeningRoomXPCConnection(
-                ListeningRoomXPCDispatcher(role: .hostView)
-                    .installEndpoint(ListeningRoomRemotePingEndpoint())
-            )
+        init(onEvent: @escaping @Sendable (ListeningRoomExtensionHostViewEvent) -> Void) {
+            self.extensionScene = ListeningRoomXPCConnection(role: .hostView)
             self.onEvent = onEvent
         }
         
         let extensionScene: ListeningRoomXPCConnection
-        var onEvent: (Event) -> Void
+        var onEvent: @Sendable (ListeningRoomExtensionHostViewEvent) -> Void
         
         func hostViewControllerDidActivate(_ viewController: EXHostViewController) {
             do {
-                onEvent(.willActivate(extensionScene: extensionScene))
+                onEvent(.willConnect(extensionScene))
                 extensionScene.takeOwnership(of: try viewController.makeXPCConnection())
                 Task {
                     do {
                         // NOTE: Scene connection is lazily initialized
-                        let _ = try await extensionScene.dispatch(.ping)
-                        onEvent(.activate(extensionScene: extensionScene))
+                        let _ = try await extensionScene.ping()
+                        onEvent(.didConnect(extensionScene))
                     } catch {
-                        onEvent(.deactivate(error: error))
+                        onEvent(.lostConnection(error: error))
                     }
                 }
             } catch {
-                onEvent(.deactivate(error: error))
+                onEvent(.lostConnection(error: error))
             }
         }
         
         func hostViewControllerWillDeactivate(_ viewController: EXHostViewController, error: (any Error)?) {
             extensionScene.invalidate()
-            onEvent(.deactivate(error: error))
+            onEvent(.lostConnection(error: error))
         }
     }
     
@@ -108,7 +101,7 @@ private struct _ListeningRoomExtensionHostContent<Placeholder: View>: NSViewCont
         let hostViewController = EXHostViewController()
         hostViewController.delegate = context.coordinator
         hostViewController.placeholderView = NSHostingView(rootView: placeholder())
-        hostViewController.configuration = EXHostViewController.Configuration(appExtension: identity,
+        hostViewController.configuration = EXHostViewController.Configuration(appExtension: process.identity,
                                                                               sceneID: sceneID)
         return hostViewController
     }
@@ -117,7 +110,7 @@ private struct _ListeningRoomExtensionHostContent<Placeholder: View>: NSViewCont
         context.coordinator.onEvent = onEvent
         
         hostViewController.placeholderView = NSHostingView(rootView: placeholder())
-        hostViewController.configuration = EXHostViewController.Configuration(appExtension: identity,
+        hostViewController.configuration = EXHostViewController.Configuration(appExtension: process.identity,
                                                                               sceneID: sceneID)
     }
 }

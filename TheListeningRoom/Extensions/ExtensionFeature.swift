@@ -21,29 +21,29 @@ import TheListeningRoomExtensionSDK
 
 @dynamicMemberLookup struct ExtensionFeature<Feature: ListeningRoomExtensionFeature>: Identifiable {
     init(id: String,
-         process: ExtensionProcess,
+         process: ListeningRoomExtensionProcess,
          feature: Feature) {
         self.id = id
         self.process = process
         self.feature = feature
     }
     
-    init(process: ExtensionProcess,
+    init(process: ListeningRoomExtensionProcess,
          feature: ListeningRoomSidebarSection) where Feature == ListeningRoomSidebarSection {
-        self.init(id: "\(process.identity.bundleIdentifier)-\(feature._title)-\(feature._items)",
+        self.init(id: "\(process.id)-\(feature._title)-\(feature._items)",
                   process: process,
                   feature: feature)
     }
     
-    init(process: ExtensionProcess,
+    init(process: ListeningRoomExtensionProcess,
          feature: ListeningRoomFeatureSettings) where Feature == ListeningRoomFeatureSettings {
-        self.init(id: "\(process.identity.bundleIdentifier)-settings",
+        self.init(id: "\(process.id)-settings",
                   process: process,
                   feature: feature)
     }
     
     let id: String
-    let process: ExtensionProcess
+    let process: ListeningRoomExtensionProcess
     let feature: Feature
     
     subscript<R>(dynamicMember property: KeyPath<Feature, R>) -> R {

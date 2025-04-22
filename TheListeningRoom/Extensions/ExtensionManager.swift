@@ -45,25 +45,28 @@ import os
         }
     }
     
-    private var processes: [ExtensionProcess]
+    private var processes: [ListeningRoomExtensionProcess]
     private(set) var settings: [ExtensionFeature<ListeningRoomFeatureSettings>]
     private(set) var sidebarSections: [ExtensionFeature<ListeningRoomSidebarSection>]
     
     private func refresh(_ newIdentities: Set<AppExtensionIdentity>) async {
-        let oldIdentities = Set(processes.lazy.map { $0.identity })
-        let removedIdentities = oldIdentities.subtracting(newIdentities)
-        let toRemove = processes.indices(where: { removedIdentities.contains($0.identity) })
-        let newIdentities = newIdentities.subtracting(oldIdentities)
-        var toAdd = [ExtensionProcess]()
+        let existingIDs = Set(processes.lazy.map { $0.id })
+        var visitedIDs = Set<String>()
+        var toAdd = [ListeningRoomExtensionProcess]()
         for newIdentity in newIdentities {
+            visitedIDs.insert(newIdentity.bundleIdentifier)
             do {
-                let newExtension = try await ExtensionProcess(launching: newIdentity)
+                let newExtension = try await ListeningRoomExtensionProcess(launching: newIdentity,
+                                                                           endpoints: [])
                 toAdd.append(newExtension)
             } catch {
                 Self.logger.error("*** Could not launch app extension \(newIdentity.bundleIdentifier), reason: \(error)")
             }
         }
-        processes.removeSubranges(toRemove)
+        let toRemove = existingIDs.subtracting(visitedIDs)
+        processes.removeAll { process in
+            toRemove.contains(process.id)
+        }
         processes.append(contentsOf: toAdd)
         
         var newSettings = [ExtensionFeature<ListeningRoomFeatureSettings>]()
@@ -80,7 +83,7 @@ import os
                     }
                 }
             } catch {
-                Self.logger.error("*** Could not get features for \(process.identity.bundleIdentifier), reason: \(error)")
+                Self.logger.error("*** Could not get features for \(process.id), reason: \(error)")
             }
         }
         newSidebarSections.sort(by: { $0._title < $1._title })

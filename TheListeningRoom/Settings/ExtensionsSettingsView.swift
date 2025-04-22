@@ -29,7 +29,7 @@ struct ExtensionsSettingsView: View {
                     NavigationLink {
                         _ExtensionSettingsView(settings: settings)
                     } label: {
-                        Label(settings.process.identity.localizedName, systemImage: "puzzlepiece.extension")
+                        Label(settings.process.localizedName, systemImage: "puzzlepiece.extension")
                     }
 
                 }

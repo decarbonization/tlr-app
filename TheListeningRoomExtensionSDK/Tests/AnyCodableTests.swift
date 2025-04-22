@@ -32,8 +32,8 @@ import Testing
     
     @Test func remoteUnwrap() throws {
         let specimen = AnyCodable(wrapping: 42 as Int64)
-        let data = try _endpointEncode(specimen)
-        let container = try _endpointDecode(AnyCodable.self, from: data)
+        let data = try _encode(specimen)
+        let container = try _decode(AnyCodable.self, from: data)
         
         #expect(try container.unwrap(Int64.self) == 42)
         #expect(throws: DecodingError.self, performing: {

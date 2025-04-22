@@ -44,7 +44,7 @@ import Testing
     @Test func dispatch() async throws {
         let subject = ListeningRoomXPCDispatcher(role: .placeholder,
                                                  endpoints: [SquareEndpoint()])
-        let request = try _endpointEncode(Square(value: 10))
+        let request = try _encode(Square(value: 10))
         let responseData = try await withUnsafeThrowingContinuation { continuation in
             subject._dispatch(request, to: Square.endpoint) { data, error in
                 switch (data, error) {
@@ -57,7 +57,7 @@ import Testing
                 }
             }
         }
-        let response = try _endpointDecode(Double.self, from: responseData)
+        let response = try _decode(Double.self, from: responseData)
         #expect(response == 100)
     }
 }

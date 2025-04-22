@@ -18,25 +18,24 @@
  */
 
 import Foundation
+import SwiftData
 
-public struct ListeningRoomRemotePing: ListeningRoomXPCRequest {
-    public typealias Response = Nothing
-    
-    public init() {
-    }
-}
-
-extension ListeningRoomXPCRequest where Self == ListeningRoomRemotePing {
-    public static var ping: Self {
-        Self()
-    }
-}
-
-public struct ListeningRoomRemotePingEndpoint: ListeningRoomXPCEndpoint {
-    public init() {
+public struct ListeningRoomPlayerStateChange: ListeningRoomXPCEvent, Codable, Sendable {
+    public static var empty: Self {
+        Self(playbackState: .stopped,
+             playingItemIndex: nil,
+             items: [])
     }
     
-    public func callAsFunction(_ request: ListeningRoomRemotePing) async throws -> Nothing {
-        .nothing
+    public init(playbackState: ListeningRoomPlaybackState,
+                playingItemIndex: Int?,
+                items: [PersistentIdentifier]) {
+        self.playbackState = playbackState
+        self.playingItemIndex = playingItemIndex
+        self.items = items
     }
+    
+    public var playbackState: ListeningRoomPlaybackState
+    public var playingItemIndex: Int?
+    public var items: [PersistentIdentifier]
 }

@@ -43,7 +43,7 @@ public struct AnyCodable: Codable, Sendable {
         var container = encoder.singleValueContainer()
         switch _value {
         case .decoded(let value):
-            try container.encode(_endpointEncode(value))
+            try container.encode(_encode(value))
         case .encoded(let data):
             try container.encode(data)
         }
@@ -60,7 +60,7 @@ public struct AnyCodable: Codable, Sendable {
             }
             return value
         case .encoded(let data):
-            let value = try _endpointDecode(type, from: data)
+            let value = try _decode(type, from: data)
             return value
         }
     }

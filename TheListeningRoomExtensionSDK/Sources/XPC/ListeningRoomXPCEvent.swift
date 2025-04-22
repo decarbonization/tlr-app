@@ -17,27 +17,15 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import ExtensionKit
-import SwiftUI
+import Foundation
 
-public struct ListeningRoomExtensionScene<Content: View>: AppExtensionScene {
-    public init(id: String,
-                @ViewBuilder content: @escaping @MainActor () -> Content) {
-        self.id = id
-        self.content = content
-    }
-    
-    private let id: String
-    private let content: @MainActor () -> Content
-    private let hostView = ListeningRoomXPCConnection(role: .extensionScene,
-                                                      endpoints: [])
-    
-    public var body: some AppExtensionScene {
-        PrimitiveAppExtensionScene(id: id) {
-            content()
-                .environment(\.listeningRoomPlayQueue, ListeningRoomPlayQueue(connection: hostView))
-        } onConnection: { @Sendable connection in
-            hostView.takeOwnership(of: connection)
-        }
+public protocol ListeningRoomXPCEvent: Codable, Sendable {
+    /// The unique name of the event, defaults to the qualified name of the type.
+    static var name: String { get }
+}
+
+extension ListeningRoomXPCEvent {
+    public static var name: String {
+        String(reflecting: type(of: self))
     }
 }
