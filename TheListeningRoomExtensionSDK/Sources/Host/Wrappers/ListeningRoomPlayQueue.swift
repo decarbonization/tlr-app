@@ -23,17 +23,32 @@ import SwiftData
 import SwiftUI
 
 @Observable public final class ListeningRoomPlayQueue: Sendable {
-    public init(connection: ListeningRoomXPCConnection) {
+    internal init(connection: ListeningRoomXPCConnection) {
         self.connection = connection
+        self.subscriber = AsyncSubscriber()
         self._state = .init(initialState: .empty)
+        subscriber.activate(consuming: connection.receive(ListeningRoomPlayerStateChange.self)) { [weak self] newState, _ in
+            self?.state = newState
+        }
     }
     
     private let connection: ListeningRoomXPCConnection
-    private let _state: OSAllocatedUnfairLock<ListeningRoomHostPlayQueueState>
+    private let subscriber: AsyncSubscriber
+    private let _state: OSAllocatedUnfairLock<ListeningRoomPlayerStateChange>
     
-    private var state: ListeningRoomHostPlayQueueState {
-        access(keyPath: \.state)
-        return _state.withLock { $0 }
+    private var state: ListeningRoomPlayerStateChange {
+        get {
+            access(keyPath: \.state)
+            return _state.withLock { $0 }
+        }
+        set {
+            _state.withLock { state in
+                state = newValue
+            }
+            withMutation(keyPath: \.state) {
+                // Do nothing.
+            }
+        }
     }
     
     public var playbackState: ListeningRoomPlaybackState {

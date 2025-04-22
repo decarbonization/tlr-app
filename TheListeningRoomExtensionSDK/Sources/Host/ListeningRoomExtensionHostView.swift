@@ -22,81 +22,97 @@ import ExtensionKit
 import os
 import SwiftUI
 
-public enum ListeningRoomExtensionHostViewEvent {
-    case willConnect(ListeningRoomXPCConnection)
-    case didConnect(ListeningRoomXPCConnection)
-    case lostConnection(error: (any Error)?)
-}
-
 public struct ListeningRoomExtensionHostView<Placeholder: View>: View {
     public init(process: ListeningRoomExtensionProcess,
                 sceneID: String,
-                @ViewBuilder placeholder: @escaping () -> Placeholder,
-                onEvent: @escaping @Sendable (ListeningRoomExtensionHostViewEvent) -> Void) {
+                @ViewBuilder placeholder: @escaping () -> Placeholder) {
         self.process = process
         self.sceneID = sceneID
         self.placeholder = placeholder
-        self.onEvent = onEvent
     }
     
     private let process: ListeningRoomExtensionProcess
     private let sceneID: String
     private let placeholder: () -> Placeholder
-    private let onEvent: @Sendable (ListeningRoomExtensionHostViewEvent) -> Void
     
     public var body: some View {
         _ListeningRoomExtensionHostContent(process: process,
                                            sceneID: sceneID,
-                                           placeholder: placeholder,
-                                           onEvent: onEvent)
+                                           placeholder: placeholder)
     }
+}
+
+extension View {
+    @ViewBuilder public func listeningRoomHostEndpoint(_ endpoint: some ListeningRoomXPCEndpoint) -> some View {
+        transformEnvironment(\._listeningRoomHostEndpoints) { endpoints in
+            endpoints.append(endpoint)
+        }
+    }
+    
+    @ViewBuilder public func listeningRoomHostEventPublisher(_ publisher: some ListeningRoomXPCEventPublisher) -> some View {
+        transformEnvironment(\._listeningRoomHostEventPublishers) { publishers in
+            publishers.append(publisher)
+        }
+    }
+}
+
+extension EnvironmentValues {
+    @Entry internal var _listeningRoomHostEndpoints = [any ListeningRoomXPCEndpoint]()
+    @Entry internal var _listeningRoomHostEventPublishers = [any ListeningRoomXPCEventPublisher]()
 }
 
 private struct _ListeningRoomExtensionHostContent<Placeholder: View>: NSViewControllerRepresentable {
     let process: ListeningRoomExtensionProcess
     let sceneID: String
     let placeholder: () -> Placeholder
-    let onEvent: @Sendable (ListeningRoomExtensionHostViewEvent) -> Void
     
     final class Coordinator: NSObject, EXHostViewControllerDelegate {
-        init(onEvent: @escaping @Sendable (ListeningRoomExtensionHostViewEvent) -> Void) {
-            self.extensionScene = ListeningRoomXPCConnection(role: .hostView)
-            self.onEvent = onEvent
+        let extensionScene = ListeningRoomXPCConnection(role: .hostView)
+        let subscriber = AsyncSubscriber()
+        var publishers = [any ListeningRoomXPCEventPublisher]() {
+            willSet {
+                subscriber.deactivateAll()
+            }
+            didSet {
+                func subscribe(to publisher: some ListeningRoomXPCEventPublisher) {
+                    subscriber.activate(consuming: publisher.subscribe()) { [weak extensionScene] event, _ in
+                        Task {
+                            try await extensionScene?.post(event, waitForConnection: false)
+                        }
+                    }
+                }
+                for publisher in publishers {
+                    subscribe(to: publisher)
+                }
+            }
         }
-        
-        let extensionScene: ListeningRoomXPCConnection
-        var onEvent: @Sendable (ListeningRoomExtensionHostViewEvent) -> Void
         
         func hostViewControllerDidActivate(_ viewController: EXHostViewController) {
             do {
-                onEvent(.willConnect(extensionScene))
                 extensionScene.takeOwnership(of: try viewController.makeXPCConnection())
                 Task {
                     do {
                         // NOTE: Scene connection is lazily initialized
-                        let _ = try await extensionScene.ping()
-                        onEvent(.didConnect(extensionScene))
+                        try await extensionScene.ping()
                     } catch {
-                        onEvent(.lostConnection(error: error))
                     }
                 }
             } catch {
-                onEvent(.lostConnection(error: error))
             }
         }
         
         func hostViewControllerWillDeactivate(_ viewController: EXHostViewController, error: (any Error)?) {
             extensionScene.invalidate()
-            onEvent(.lostConnection(error: error))
         }
     }
     
     func makeCoordinator() -> Coordinator {
-        Coordinator(onEvent: onEvent)
+        Coordinator()
     }
     
     func makeNSViewController(context: Context) -> EXHostViewController {
-        context.coordinator.onEvent = onEvent
+        context.coordinator.extensionScene.endpoints = context.environment._listeningRoomHostEndpoints
+        context.coordinator.publishers = context.environment._listeningRoomHostEventPublishers
         
         let hostViewController = EXHostViewController()
         hostViewController.delegate = context.coordinator
@@ -107,7 +123,8 @@ private struct _ListeningRoomExtensionHostContent<Placeholder: View>: NSViewCont
     }
     
     func updateNSViewController(_ hostViewController: EXHostViewController, context: Context) {
-        context.coordinator.onEvent = onEvent
+        context.coordinator.extensionScene.endpoints = context.environment._listeningRoomHostEndpoints
+        context.coordinator.publishers = context.environment._listeningRoomHostEventPublishers
         
         hostViewController.placeholderView = NSHostingView(rootView: placeholder())
         hostViewController.configuration = EXHostViewController.Configuration(appExtension: process.identity,

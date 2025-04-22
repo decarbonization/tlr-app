@@ -45,15 +45,9 @@ struct ExtensionHostView<Placeholder: View>: View {
     var body: some View {
         ListeningRoomExtensionHostView(process: process,
                                        sceneID: sceneID,
-                                       placeholder: placeholder) { event in
-            switch event {
-            case .willConnect(let listeningRoomXPCConnection):
-                break
-            case .didConnect(let listeningRoomXPCConnection):
-                break
-            case .lostConnection(let error):
-                break
-            }
-        }
+                                       placeholder: placeholder)
+        .listeningRoomHostEndpoint(PlayQueueActionEndpoint(player: player))
+        .listeningRoomHostEndpoint(PlayQueueGetStateEndpoint(player: player))
+        .listeningRoomHostEventPublisher(PlayerStateChangePublisher(player: player))
     }
 }

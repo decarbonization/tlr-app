@@ -20,7 +20,7 @@
 import Foundation
 
 public struct ListeningRoomHostPlayQueueGetState: ListeningRoomXPCRequest {
-    public typealias Response = ListeningRoomHostPlayQueueState
+    public typealias Response = ListeningRoomPlayerStateChange
     
     public init() {
     }

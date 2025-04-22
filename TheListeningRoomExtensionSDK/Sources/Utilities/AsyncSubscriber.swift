@@ -22,19 +22,26 @@ import os
 
 public final class AsyncSubscriber: Sendable {
     public init() {
-        _task = .init(initialState: nil)
+        _nextID = .init(initialState: 0)
+        _tasks = .init(initialState: [:])
     }
     
     deinit {
-        deactivate()
+        deactivateAll()
     }
     
-    private let _task: OSAllocatedUnfairLock<Task<Void, Never>?>
+    private let _nextID: OSAllocatedUnfairLock<UInt64>
+    private let _tasks: OSAllocatedUnfairLock<[UInt64: @Sendable () -> Void]>
     
-    public func activate<E: Sendable>(consuming source: some (AsyncSequence<E, Never> & Sendable),
-                                      with observer: @escaping @Sendable (E, inout Bool) async -> Void) {
+    public func activate<T: Sendable, E: Error>(consuming source: some (AsyncSequence<T, E> & Sendable),
+                                                with observer: @escaping @Sendable (T, inout Bool) async -> Void) {
+        let ourID = _nextID.withLock { nextID in
+            let ourID = nextID
+            nextID += 1
+            return ourID
+        }
         let newTask = Task.detached {
-            for await next in source {
+            for try await next in source {
                 guard !Task.isCancelled else {
                     break
                 }
@@ -45,16 +52,19 @@ public final class AsyncSubscriber: Sendable {
                 }
             }
         }
-        _task.withLock { task in
-            task?.cancel()
-            task = newTask
+        _tasks.withLock { tasks in
+            tasks[ourID] = newTask.cancel
         }
     }
     
-    public func deactivate() {
-        _task.withLock { task in
-            task?.cancel()
-            task = nil
+    public func deactivateAll() {
+        let cancels = _tasks.withLock { tasks in
+            let cancels = Array(tasks.values)
+            tasks.removeAll()
+            return cancels
+        }
+        for cancel in cancels {
+            cancel()
         }
     }
 }

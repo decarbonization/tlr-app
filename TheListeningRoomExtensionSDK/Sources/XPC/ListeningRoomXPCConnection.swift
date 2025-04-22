@@ -20,11 +20,11 @@
 import Foundation
 import os
 
-@Observable public final class ListeningRoomXPCConnection: CustomStringConvertible, @unchecked Sendable {
+@Observable internal final class ListeningRoomXPCConnection: CustomStringConvertible, @unchecked Sendable {
     static let logger = Logger(subsystem: "io.github.decarbonization.TheListeningRoom", category: "XPCConnection")
     
-    public init(role: ListeningRoomXPCRole,
-                endpoints: [any ListeningRoomXPCEndpoint] = []) {
+    init(role: ListeningRoomXPCRole,
+         endpoints: [any ListeningRoomXPCEndpoint] = []) {
         self.dispatcher = ListeningRoomXPCDispatcher(role: role,
                                                      endpoints: endpoints)
         self.isPlaceholder = false
@@ -32,7 +32,7 @@ import os
         self.withStateLock_connectionWaiters = []
     }
     
-    internal init(_placeholder: Void) {
+    init(_placeholder: Void) {
         self.dispatcher = ListeningRoomXPCDispatcher(role: .placeholder,
                                                      endpoints: [])
         self.isPlaceholder = true
@@ -69,7 +69,7 @@ import os
         return withStateLock_currentConnection
     }
     
-    public var endpoints: [any ListeningRoomXPCEndpoint] {
+    var endpoints: [any ListeningRoomXPCEndpoint] {
         get {
             dispatcher.endpoints
         }
@@ -109,7 +109,7 @@ import os
     ///
     /// - parameter connection: An XPC connection to take ownership of.
     /// - returns: `true` if ownership was taken of the connection; `false` otherwise.
-    @discardableResult public func takeOwnership(of connection: NSXPCConnectionLike) -> Bool {
+    @discardableResult func takeOwnership(of connection: NSXPCConnectionLike) -> Bool {
         guard currentXPCConnection == nil && !isPlaceholder else {
             return false
         }
@@ -164,11 +164,11 @@ import os
         stateLock.unlock()
     }
     
-    public func invalidate() {
+    func invalidate() {
         currentXPCConnection?.invalidate()
     }
     
-    public func ping(waitForConnection: Bool = true) async throws {
+    func ping(waitForConnection: Bool = true) async throws {
         let connection = try await xpcConnection(wait: waitForConnection)
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, any Error>) in
             let remoteDispatcher = connection.remoteObjectProxyWithErrorHandler { error in
@@ -184,7 +184,7 @@ import os
         }
     }
     
-    public func post<E: ListeningRoomXPCEvent>(_ event: E, waitForConnection: Bool = true) async throws {
+    func post<E: ListeningRoomXPCEvent>(_ event: E, waitForConnection: Bool = true) async throws {
         let connection = try await xpcConnection(wait: waitForConnection)
         let event = try _encode(event)
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, any Error>) in
@@ -201,7 +201,7 @@ import os
         }
     }
     
-    public func receive<E: ListeningRoomXPCEvent>(_ eventType: E.Type) -> some AsyncSequence<E, any Error> {
+    func receive<E: ListeningRoomXPCEvent>(_ eventType: E.Type) -> some (AsyncSequence<E, any Error> & Sendable) {
         dispatcher.events
             .filter {
                 $0.name == E.name
@@ -211,7 +211,7 @@ import os
             }
     }
     
-    public func dispatch<Req: ListeningRoomXPCRequest>(_ request: Req, waitForConnection: Bool = true) async throws -> Req.Response {
+    func dispatch<Req: ListeningRoomXPCRequest>(_ request: Req, waitForConnection: Bool = true) async throws -> Req.Response {
         let connection = try await xpcConnection(wait: waitForConnection)
         let request = try _encode(request)
         let response: Data = try await withCheckedThrowingContinuation { continuation in
@@ -234,7 +234,7 @@ import os
         return try _decode(from: response)
     }
     
-    public var description: String {
+    var description: String {
         guard !isPlaceholder else {
             return "ListeningRoomXPCConnection(placeholder)"
         }
@@ -252,7 +252,7 @@ import os
 }
 
 /// Protocol over the interface of `NSXPCConnection` to make ``ListeningRoomXPCConnection`` testable.
-public protocol NSXPCConnectionLike: AnyObject {
+protocol NSXPCConnectionLike: AnyObject {
     var exportedInterface: NSXPCInterface? { get set }
     var exportedObject: Any? { get set }
     var remoteObjectInterface: NSXPCInterface? { get set }

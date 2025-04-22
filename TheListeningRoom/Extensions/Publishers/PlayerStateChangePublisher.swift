@@ -16,23 +16,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import Foundation
 import TheListeningRoomExtensionSDK
-import SFBAudioEngine
-import SwiftData
+import Foundation
 
-struct PlayQueueGetStateEndpoint: ListeningRoomXPCEndpoint {
+struct PlayerStateChangePublisher: ListeningRoomXPCEventPublisher {
     let player: Player
     
-    func callAsFunction(_ request: ListeningRoomHostPlayQueueGetState) async throws -> ListeningRoomPlayerStateChange {
-        ListeningRoomPlayerStateChange(from: player)
-    }
-}
-
-extension ListeningRoomPlayerStateChange {
-    @MainActor init(from player: Player) {
-        self.init(playbackState: player.playbackState,
-                  playingItemIndex: player.playingIndex,
-                  items: [PersistentIdentifier](player.queue.itemIDs))
+    func subscribe() -> some (AsyncSequence<ListeningRoomPlayerStateChange, Never> & Sendable) {
+        player.observeChanges(to: \.playbackState)
+            .map { _ in
+                await ListeningRoomPlayerStateChange(from: player)
+            }
     }
 }
