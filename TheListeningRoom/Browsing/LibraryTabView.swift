@@ -19,51 +19,74 @@
 import SwiftUI
 
 struct LibraryTabView: View {
-    init(content: [LibraryTab]) {
-        self.content = content
-        _selection = .init(wrappedValue: content[0].id)
+    private struct TabID: RawRepresentable, Hashable, Codable {
+        var rawValue: String
+        
+        static let artists = Self(rawValue: "artists")
+        static let albums = Self(rawValue: "albums")
+        static let songs = Self(rawValue: "songs")
+        static let playlists = Self(rawValue: "playlists")
+        static let extensions = Self(rawValue: "extensions")
+        static var allBuiltIn: [Self] {
+            [
+                .artists,
+                .albums,
+                .songs,
+                .playlists,
+                .extensions,
+            ]
+        }
     }
     
-    private let content: [LibraryTab]
-    @State private var selection: LibraryTab.ID
+    init() {
+    }
+    
+    @AppStorage("SelectedLibraryTab") private var selection = TabID.songs
     
     var body: some View {
-        _LibraryTabViewContent(content: content,
-                               selection: $selection)
+        TablessView(TabID.allBuiltIn,
+                    selection: $selection) { tabID in
+            switch tabID {
+            case .artists:
+                ArtistBrowser()
+            case .albums:
+                AlbumBrowser()
+            case .songs:
+                SongBrowser()
+            case .playlists:
+                PlaylistBrowser()
+            case .extensions:
+                ExtensionBrowser()
+            default:
+                EmptyView()
+            }
+        }
         .toolbar {
             Spacer()
-            Picker(selection: $selection) {
-                ForEach(content) { tab in
-                    tab.label()
+            Picker("Browse", selection: $selection) {
+                ForEach(TabID.allBuiltIn, id: \.rawValue) { tabID in
+                    Group {
+                        switch tabID {
+                        case .artists:
+                            Label("Artists", systemImage: "music.microphone")
+                        case .albums:
+                            Label("Albums", systemImage: "square.stack")
+                        case .songs:
+                            Label("Songs", systemImage: "music.note")
+                        case .playlists:
+                            Label("Playlists", systemImage: "music.note.list")
+                        case .extensions:
+                            Label("Extensions", systemImage: "puzzlepiece.extension")
+                        default:
+                            EmptyView()
+                        }
+                    }
+                    .tag(tabID)
                 }
-            } label: {
-                Text("Browse")
             }
             .labelStyle(.titleAndIcon)
             .pickerStyle(.segmented)
             Spacer()
         }
-    }
-}
-
-private struct _LibraryTabViewContent: NSViewRepresentable {
-    let content: [LibraryTab]
-    @Binding var selection: LibraryTab.ID
-    
-    func makeNSView(context: Context) -> NSTabView {
-        let nsTabView = NSTabView()
-        nsTabView.tabViewType = .noTabsNoBorder
-        nsTabView.tabViewBorderType = .none
-        nsTabView.tabViewItems = content.map { tab in
-            let newTabViewItem = NSTabViewItem(identifier: tab.id)
-            newTabViewItem.view = NSHostingView(rootView: tab.content())
-            return newTabViewItem
-        }
-        nsTabView.selectTabViewItem(withIdentifier: selection)
-        return nsTabView
-    }
-    
-    func updateNSView(_ nsTabView: NSTabView, context: Context) {
-        nsTabView.selectTabViewItem(withIdentifier: selection)
     }
 }

@@ -25,35 +25,9 @@ struct ContentView: View {
     
     var body: some View {
         HSplitView {
-            LibraryTabView(content: [
-                LibraryTab(id: .artists) {
-                    ArtistBrowser()
-                } label: {
-                    Label("Artists", systemImage: "music.microphone")
-                },
-                LibraryTab(id: .albums) {
-                    AlbumBrowser()
-                } label: {
-                    Label("Albums", systemImage: "square.stack")
-                },
-                LibraryTab(id: .songs) {
-                    SongBrowser()
-                } label: {
-                    Label("Songs", systemImage: "music.note")
-                },
-                LibraryTab(id: .playlists) {
-                    PlaylistBrowser()
-                } label: {
-                    Label("Playlists", systemImage: "music.note.list")
-                },
-                LibraryTab(id: .extensions) {
-                    ExtensionBrowser()  // NOTE: This will go away
-                } label: {
-                    Label("Extensions", systemImage: "puzzlepiece.extension")
-                },
-            ])
+            LibraryTabView()
             QueueList()
-            .frame(minWidth: 100, idealWidth: 200, maxWidth: 250)
+                .frame(minWidth: 100, idealWidth: 200, maxWidth: 250)
         }
         .preferredColorScheme(.dark)
         .task {
