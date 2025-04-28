@@ -31,7 +31,7 @@ public final class AsyncSubscriber: Sendable {
     }
     
     private let _nextID: OSAllocatedUnfairLock<UInt64>
-    private let _tasks: OSAllocatedUnfairLock<[UInt64: @Sendable () -> Void]>
+    private let _tasks: OSAllocatedUnfairLock<[UInt64: Task<Void, any Error>]>
     
     public func activate<T: Sendable, E: Error>(consuming source: some (AsyncSequence<T, E> & Sendable),
                                                 with observer: @escaping @Sendable (T, inout Bool) async -> Void) {
@@ -53,18 +53,18 @@ public final class AsyncSubscriber: Sendable {
             }
         }
         _tasks.withLock { tasks in
-            tasks[ourID] = newTask.cancel
+            tasks[ourID] = newTask
         }
     }
     
     public func deactivateAll() {
-        let cancels = _tasks.withLock { tasks in
-            let cancels = Array(tasks.values)
+        let toCancel = _tasks.withLock { tasks in
+            let toCancel = Array(tasks.values)
             tasks.removeAll()
-            return cancels
+            return toCancel
         }
-        for cancel in cancels {
-            cancel()
+        for task in toCancel {
+            task.cancel()
         }
     }
 }

@@ -18,12 +18,16 @@
  */
 
 import Foundation
+import SwiftData
 
-public enum ListeningRoomHostPlayQueueAction: ListeningRoomXPCRequest {
-    public typealias Response = Bool
+public enum ListeningRoomHostPlayerAction: ListeningRoomXPCRequest {
+    public typealias Response = ListeningRoomPlayerStateChange
     
+    case syncState
+    case replaceQueue(newItemsIDs: [PersistentIdentifier], nextItemID: PersistentIdentifier?)
+    case play(item: PersistentIdentifier)
     case pause
     case resume
-    case previousTrack
-    case nextTrack
+    case skipPrevious
+    case skipNext
 }

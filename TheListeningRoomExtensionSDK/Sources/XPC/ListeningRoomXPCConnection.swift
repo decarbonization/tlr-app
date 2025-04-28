@@ -23,19 +23,12 @@ import os
 @Observable internal final class ListeningRoomXPCConnection: CustomStringConvertible, @unchecked Sendable {
     static let logger = Logger(subsystem: "io.github.decarbonization.TheListeningRoom", category: "XPCConnection")
     
+    static let placeholder = ListeningRoomXPCConnection(role: .placeholder, endpoints: [])
+    
     init(role: ListeningRoomXPCRole,
          endpoints: [any ListeningRoomXPCEndpoint] = []) {
         self.dispatcher = ListeningRoomXPCDispatcher(role: role,
                                                      endpoints: endpoints)
-        self.isPlaceholder = false
-        self.stateLock = .init()
-        self.withStateLock_connectionWaiters = []
-    }
-    
-    init(_placeholder: Void) {
-        self.dispatcher = ListeningRoomXPCDispatcher(role: .placeholder,
-                                                     endpoints: [])
-        self.isPlaceholder = true
         self.stateLock = .init()
         self.withStateLock_connectionWaiters = []
     }
@@ -54,7 +47,6 @@ import os
     }
     
     private let dispatcher: ListeningRoomXPCDispatcher
-    private let isPlaceholder: Bool
     private let stateLock: OSAllocatedUnfairLock<Void>
     private var withStateLock_connectionWaiters: [UnsafeContinuation<Void, any Error>]
     private var withStateLock_currentConnection: (any NSXPCConnectionLike)?
@@ -84,12 +76,11 @@ import os
     /// - returns: An active XPC connection.
     /// - throws: A `CocoaError` if the XPC connection could not be retrieved.
     private func xpcConnection(wait: Bool) async throws -> any NSXPCConnectionLike {
-        guard !isPlaceholder else {
+        guard dispatcher.role != .placeholder else {
             throw CocoaError(.xpcConnectionInvalid, userInfo: [
-                NSLocalizedDescriptionKey: "Cannot use placeholder connection",
+                NSLocalizedDescriptionKey: "Cannot communicate over placeholder",
             ])
         }
-        
         repeat {
             if let currentXPCConnection {
                 return currentXPCConnection
@@ -110,7 +101,7 @@ import os
     /// - parameter connection: An XPC connection to take ownership of.
     /// - returns: `true` if ownership was taken of the connection; `false` otherwise.
     @discardableResult func takeOwnership(of connection: NSXPCConnectionLike) -> Bool {
-        guard currentXPCConnection == nil && !isPlaceholder else {
+        guard currentXPCConnection == nil else {
             return false
         }
         
@@ -235,9 +226,6 @@ import os
     }
     
     var description: String {
-        guard !isPlaceholder else {
-            return "ListeningRoomXPCConnection(placeholder)"
-        }
         var currentConnectionDescription = "(unknown)"
         if stateLock.lockIfAvailable() {
             if let withStateLock_currentConnection {

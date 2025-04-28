@@ -24,8 +24,8 @@ import SwiftUI
 @main struct ExtensionTester: ListeningRoomExtension {
     var features: some ListeningRoomExtensionFeature {
         ListeningRoomSidebarSection(title: "Extension Tester") {
-            ListeningRoomExtensionFeatureLink(sceneID: "play-queue",
-                                              title: "Play Queue",
+            ListeningRoomExtensionFeatureLink(sceneID: "player",
+                                              title: "Player",
                                               systemImage: "music.note.list")
         }
         ListeningRoomFeatureSettings {
@@ -39,8 +39,8 @@ import SwiftUI
     }
     
     var body: some AppExtensionScene {
-        ListeningRoomExtensionScene(id: "play-queue") {
-            PlayQueueTesterView()
+        ListeningRoomExtensionScene(id: "player") {
+            PlayerTesterView()
         }
         ListeningRoomExtensionScene(id: "general-settings") {
             Label("General", systemImage: "gear")

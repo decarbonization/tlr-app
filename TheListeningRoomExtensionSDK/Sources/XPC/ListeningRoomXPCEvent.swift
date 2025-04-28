@@ -34,5 +34,5 @@ public protocol ListeningRoomXPCEventPublisher: Sendable {
     associatedtype Event: ListeningRoomXPCEvent
     associatedtype Events: AsyncSequence<Event, Never> & Sendable
     
-    func subscribe() -> Events
+    @MainActor func subscribe() -> Events
 }

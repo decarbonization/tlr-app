@@ -18,30 +18,41 @@
 
 import Foundation
 import TheListeningRoomExtensionSDK
+import SwiftData
 
-struct PlayQueueActionEndpoint: ListeningRoomXPCEndpoint {
-    let player: Player
+struct PlayerActionEndpoint: ListeningRoomXPCEndpoint {
+    init(_ player: Player) {
+        self.player = player
+    }
     
-    func callAsFunction(_ action: ListeningRoomHostPlayQueueAction) async throws -> Bool {
+    private let player: Player
+    
+    func callAsFunction(_ action: ListeningRoomHostPlayerAction) async throws -> ListeningRoomPlayerStateChange {
         switch action {
+        case .syncState:
+            break // just return
+        case .replaceQueue(let newItemsIDs, let nextItemID):
+            player.queue.replace(withContentsOf: newItemsIDs, pinning: nextItemID)
+        case .play(let itemID):
+            try await player.playItem(withID: itemID)
         case .pause:
-            guard player.playbackState == .playing else {
-                return false
-            }
             try await player.pause()
-            return true
         case .resume:
-            guard player.playbackState == .paused else {
-                return false
-            }
             try await player.resume()
-            return true
-        case .previousTrack:
+        case .skipPrevious:
             try await player.skipPrevious()
-            return true
-        case .nextTrack:
+        case .skipNext:
             try await player.skipNext()
-            return true
         }
+        return ListeningRoomPlayerStateChange(from: player)
     }
 }
+
+extension ListeningRoomPlayerStateChange {
+    @MainActor init(from player: Player) {
+        self.init(playbackState: player.playbackState,
+                  playingItemIndex: player.playingIndex,
+                  items: [PersistentIdentifier](player.queue.itemIDs))
+    }
+}
+

@@ -22,7 +22,7 @@ import os
 import SwiftData
 import SwiftUI
 
-@Observable public final class ListeningRoomPlayQueue: Sendable {
+@Observable public final class ListeningRoomPlayer: Sendable {
     internal init(connection: ListeningRoomXPCConnection) {
         self.connection = connection
         self.subscriber = AsyncSubscriber()
@@ -63,33 +63,32 @@ import SwiftUI
         state.items
     }
     
-    public func pause() async throws -> Bool {
-        try await connection.dispatch(ListeningRoomHostPlayQueueAction.pause)
+    public func replaceQueue(withContentsOf newItemsIDs: [PersistentIdentifier],
+                             pinning nextItemID: PersistentIdentifier? = nil) async throws {
+        state = try await connection.dispatch(ListeningRoomHostPlayerAction.replaceQueue(newItemsIDs: newItemsIDs, nextItemID: nextItemID))
     }
     
-    public func resume() async throws -> Bool {
-        try await connection.dispatch(ListeningRoomHostPlayQueueAction.resume)
+    public func playItem(withID itemID: PersistentIdentifier) async throws {
+        state = try await connection.dispatch(ListeningRoomHostPlayerAction.play(item: itemID))
     }
     
-    public func previousTrack() async throws -> Bool {
-        try await connection.dispatch(ListeningRoomHostPlayQueueAction.previousTrack)
+    public func pause() async throws {
+        state = try await connection.dispatch(ListeningRoomHostPlayerAction.pause)
     }
     
-    public func nextTrack() async throws -> Bool {
-        try await connection.dispatch(ListeningRoomHostPlayQueueAction.nextTrack)
+    public func resume() async throws {
+        state = try await connection.dispatch(ListeningRoomHostPlayerAction.resume)
     }
     
-    public func refresh() async throws {
-        let newState = try await connection.dispatch(ListeningRoomHostPlayQueueGetState())
-        _state.withLock { state in
-            state = newState
-        }
-        withMutation(keyPath: \.state) {
-            // Do nothing.
-        }
+    public func skipPrevious() async throws {
+        state = try await connection.dispatch(ListeningRoomHostPlayerAction.skipPrevious)
+    }
+    
+    public func skipNext() async throws {
+        state = try await connection.dispatch(ListeningRoomHostPlayerAction.skipNext)
     }
 }
 
 extension EnvironmentValues {
-    @Entry public var listeningRoomPlayQueue = ListeningRoomPlayQueue(connection: ListeningRoomXPCConnection(_placeholder: ()))
+    @Entry public var listeningRoomPlayer = ListeningRoomPlayer(connection: .placeholder)
 }

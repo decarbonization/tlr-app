@@ -20,34 +20,21 @@ import ExtensionKit
 import TheListeningRoomExtensionSDK
 import SwiftUI
 
-struct ExtensionHostView<Placeholder: View>: View {
+struct ExtensionHostView: View {
     init(process: ListeningRoomExtensionProcess,
-         sceneID: String,
-         @ViewBuilder placeholder: @escaping () -> Placeholder) {
+         sceneID: String) {
         self.process = process
         self.sceneID = sceneID
-        self.placeholder = placeholder
-    }
-    
-    init(process: ListeningRoomExtensionProcess,
-         sceneID: String)
-    where Placeholder == ProgressView<EmptyView, EmptyView> {
-        self.init(process: process,
-                  sceneID: sceneID,
-                  placeholder: { ProgressView<EmptyView, EmptyView>() })
     }
     
     private let process: ListeningRoomExtensionProcess
     private let sceneID: String
-    private let placeholder: () -> Placeholder
     @Environment(Player.self) private var player
     
     var body: some View {
         ListeningRoomExtensionHostView(process: process,
-                                       sceneID: sceneID,
-                                       placeholder: placeholder)
-        .listeningRoomHostEndpoint(PlayQueueActionEndpoint(player: player))
-        .listeningRoomHostEndpoint(PlayQueueGetStateEndpoint(player: player))
-        .listeningRoomHostEventPublisher(PlayerStateChangePublisher(player: player))
+                                       sceneID: sceneID)
+        .listeningRoomHostEndpoint(PlayerActionEndpoint(player))
+        .listeningRoomHostEventPublisher(PlayerStateChangePublisher(player))
     }
 }

@@ -36,7 +36,7 @@ internal final class ListeningRoomXPCDispatcher: NSObject, Sendable {
         self.events = AsyncChannel()
     }
     
-    private let role: ListeningRoomXPCRole
+    let role: ListeningRoomXPCRole
     private let _endpointsByName: OSAllocatedUnfairLock<[String: any ListeningRoomXPCEndpoint]>
     
     internal let events: AsyncChannel<(event: Data, name: String)>

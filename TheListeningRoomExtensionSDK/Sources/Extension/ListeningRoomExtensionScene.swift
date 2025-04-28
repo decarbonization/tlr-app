@@ -35,7 +35,7 @@ public struct ListeningRoomExtensionScene<Content: View>: AppExtensionScene {
     public var body: some AppExtensionScene {
         PrimitiveAppExtensionScene(id: id) {
             content()
-                .environment(\.listeningRoomPlayQueue, ListeningRoomPlayQueue(connection: hostView))
+                .environment(\.listeningRoomPlayer, ListeningRoomPlayer(connection: hostView))
         } onConnection: { @Sendable connection in
             hostView.takeOwnership(of: connection)
         }

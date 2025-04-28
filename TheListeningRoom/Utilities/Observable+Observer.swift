@@ -20,7 +20,7 @@ import Foundation
 import os
 
 extension Observable {
-    func observeChanges<R>(to property: KeyPath<Self, R>) -> some AsyncSequence<Void, Never> {
+    func observeChanges<each R>(to properties: repeat KeyPath<Self, each R>) -> some AsyncSequence<Void, Never> {
         AsyncStream { continuation in
             let terminated = OSAllocatedUnfairLock(initialState: false)
             continuation.onTermination = { _ in
@@ -28,23 +28,25 @@ extension Observable {
                     terminated = true
                 }
             }
-            @Sendable func observeNext() {
-                guard !terminated.withLock({ $0 }) else {
-                    return
-                }
-                withObservationTracking {
-                    withExtendedLifetime(self[keyPath: property]) {
-                        // Do nothing.
-                    }
-                } onChange: {
+            for property in repeat each properties {
+                @Sendable func observeNext() {
                     guard !terminated.withLock({ $0 }) else {
                         return
                     }
-                    continuation.yield()
-                    observeNext()
+                    withObservationTracking {
+                        withExtendedLifetime(self[keyPath: property]) {
+                            // Do nothing.
+                        }
+                    } onChange: {
+                        guard !terminated.withLock({ $0 }) else {
+                            return
+                        }
+                        continuation.yield()
+                        observeNext()
+                    }
                 }
+                observeNext()
             }
-            observeNext()
         }
     }
 }

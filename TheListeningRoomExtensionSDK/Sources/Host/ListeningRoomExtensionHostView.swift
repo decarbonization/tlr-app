@@ -22,23 +22,20 @@ import ExtensionKit
 import os
 import SwiftUI
 
-public struct ListeningRoomExtensionHostView<Placeholder: View>: View {
+public struct ListeningRoomExtensionHostView: View {
     public init(process: ListeningRoomExtensionProcess,
-                sceneID: String,
-                @ViewBuilder placeholder: @escaping () -> Placeholder) {
+                sceneID: String) {
         self.process = process
         self.sceneID = sceneID
-        self.placeholder = placeholder
     }
     
     private let process: ListeningRoomExtensionProcess
     private let sceneID: String
-    private let placeholder: () -> Placeholder
     
     public var body: some View {
         _ListeningRoomExtensionHostContent(process: process,
-                                           sceneID: sceneID,
-                                           placeholder: placeholder)
+                                           sceneID: sceneID)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
@@ -57,27 +54,29 @@ extension View {
 }
 
 extension EnvironmentValues {
-    @Entry internal var _listeningRoomHostEndpoints = [any ListeningRoomXPCEndpoint]()
-    @Entry internal var _listeningRoomHostEventPublishers = [any ListeningRoomXPCEventPublisher]()
+    @Entry fileprivate var _listeningRoomHostEndpoints = [any ListeningRoomXPCEndpoint]()
+    @Entry fileprivate var _listeningRoomHostEventPublishers = [any ListeningRoomXPCEventPublisher]()
 }
 
-private struct _ListeningRoomExtensionHostContent<Placeholder: View>: NSViewControllerRepresentable {
+private struct _ListeningRoomExtensionHostContent: NSViewControllerRepresentable {
     let process: ListeningRoomExtensionProcess
     let sceneID: String
-    let placeholder: () -> Placeholder
     
-    final class Coordinator: NSObject, EXHostViewControllerDelegate {
+    @MainActor final class Coordinator: NSObject, EXHostViewControllerDelegate {
         let extensionScene = ListeningRoomXPCConnection(role: .hostView)
         let subscriber = AsyncSubscriber()
         var publishers = [any ListeningRoomXPCEventPublisher]() {
-            willSet {
-                subscriber.deactivateAll()
-            }
             didSet {
+                guard hasPublishers(oldValue, changedWith: publishers) else {
+                    return
+                }
+                subscriber.deactivateAll()
                 func subscribe(to publisher: some ListeningRoomXPCEventPublisher) {
                     subscriber.activate(consuming: publisher.subscribe()) { [weak extensionScene] event, _ in
-                        Task {
+                        do {
                             try await extensionScene?.post(event, waitForConnection: false)
+                        } catch {
+                            
                         }
                     }
                 }
@@ -111,14 +110,8 @@ private struct _ListeningRoomExtensionHostContent<Placeholder: View>: NSViewCont
     }
     
     func makeNSViewController(context: Context) -> EXHostViewController {
-        context.coordinator.extensionScene.endpoints = context.environment._listeningRoomHostEndpoints
-        context.coordinator.publishers = context.environment._listeningRoomHostEventPublishers
-        
         let hostViewController = EXHostViewController()
         hostViewController.delegate = context.coordinator
-        hostViewController.placeholderView = NSHostingView(rootView: placeholder())
-        hostViewController.configuration = EXHostViewController.Configuration(appExtension: process.identity,
-                                                                              sceneID: sceneID)
         return hostViewController
     }
     
@@ -126,8 +119,16 @@ private struct _ListeningRoomExtensionHostContent<Placeholder: View>: NSViewCont
         context.coordinator.extensionScene.endpoints = context.environment._listeningRoomHostEndpoints
         context.coordinator.publishers = context.environment._listeningRoomHostEventPublishers
         
-        hostViewController.placeholderView = NSHostingView(rootView: placeholder())
-        hostViewController.configuration = EXHostViewController.Configuration(appExtension: process.identity,
-                                                                              sceneID: sceneID)
+        let oldConfiguration = hostViewController.configuration
+        if oldConfiguration?.appExtension != process.identity || oldConfiguration?.sceneID != sceneID {
+            hostViewController.configuration = EXHostViewController.Configuration(appExtension: process.identity,
+                                                                                  sceneID: sceneID)
+        }
+    }
+}
+
+private func hasPublishers(_ oldValue: [any ListeningRoomXPCEventPublisher], changedWith newValue: [any ListeningRoomXPCEventPublisher]) -> Bool {
+    oldValue.count != newValue.count || !oldValue.elementsEqual(newValue) { lhs, rhs in
+        type(of: lhs) == type(of: rhs)
     }
 }

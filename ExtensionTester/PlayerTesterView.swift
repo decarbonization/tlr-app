@@ -19,51 +19,51 @@
 import TheListeningRoomExtensionSDK
 import SwiftUI
 
-struct PlayQueueTesterView: View {
-    @Environment(\.listeningRoomPlayQueue) private var playQueue
+struct PlayerTesterView: View {
+    @Environment(\.listeningRoomPlayer) private var player
     
     var body: some View {
-        @Bindable var playQueue = playQueue
+        @Bindable var player = player
         VStack {
-            Label("Play Queue", systemImage: "music.note.list")
+            Label("Player", systemImage: "music.note.list")
                 .font(.largeTitle)
                 .foregroundStyle(.tertiary)
             HStack {
                 Button {
                     Task {
-                        try await playQueue.pause()
+                        try await player.pause()
                     }
                 } label: {
                     Label("Pause", systemImage: "pause.fill")
                 }
-                .disabled(playQueue.playbackState != .playing)
+                .disabled(player.playbackState != .playing)
                 
                 Button {
                     Task {
-                        try await playQueue.resume()
+                        try await player.resume()
                     }
                 } label: {
                     Label("Resume", systemImage: "play.fill")
                 }
-                .disabled(playQueue.playbackState != .paused)
+                .disabled(player.playbackState != .paused)
                 
                 Button {
                     Task {
-                        try await playQueue.previousTrack()
+                        try await player.skipPrevious()
                     }
                 } label: {
                     Label("Previous", systemImage: "backward.end.alt.fill")
                 }
-                .disabled(playQueue.playingItemIndex == nil)
+                .disabled(player.playingItemIndex == nil)
                 
                 Button {
                     Task {
-                        try await playQueue.nextTrack()
+                        try await player.skipNext()
                     }
                 } label: {
                     Label("Next", systemImage: "forward.end.alt.fill")
                 }
-                .disabled(playQueue.playingItemIndex == nil)
+                .disabled(player.playingItemIndex == nil)
             }
         }
     }
