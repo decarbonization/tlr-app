@@ -24,16 +24,19 @@ struct PlaybackTabView: View {
         
         static let nowPlaying = Self(rawValue: "nowPlaying")
         static let upNext = Self(rawValue: "upNext")
+        static let search = Self(rawValue: "search")
         static var allBuiltIn: [Self] {
             [
                 .nowPlaying,
                 .upNext,
+                .search,
             ]
         }
     }
     
     @AppStorage("SelectedPlaybackTab") private var selection = TabID.nowPlaying
     @Environment(Player.self) private var player
+    @Environment(\.modelContext) private var modelContext
     
     var body: some View {
         VStack(spacing: 0) {
@@ -44,6 +47,11 @@ struct PlaybackTabView: View {
                     NowPlaying()
                 case .upNext:
                     UpNextList()
+                case .search:
+                    SearchView()
+                        .searchSource(ArtistSearchSource(modelContainer: modelContext.container))
+                        .searchSource(AlbumSearchSource(modelContainer: modelContext.container))
+                        .searchSource(SongSearchSource(modelContainer: modelContext.container))
                 default:
                     EmptyView()
                 }
@@ -59,6 +67,8 @@ struct PlaybackTabView: View {
                             Label("Now Playing", systemImage: "play.circle.fill")
                         case .upNext:
                             Label("Up Next", systemImage: "music.note.list")
+                        case .search:
+                            Label("Search", systemImage: "magnifyingglass")
                         default:
                             EmptyView()
                         }

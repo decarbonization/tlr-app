@@ -18,18 +18,15 @@
 
 import TheListeningRoomExtensionSDK
 import SwiftUI
-import SwiftData
 
-extension ListeningRoomImage {
-    @MainActor func image(in modelContext: ModelContext) -> Image? {
-        switch self {
-        case .systemImage(let name):
-            return Image(systemName: name)
-        case .artwork(let artworkID):
-            guard let artwork = modelContext.model(for: artworkID) as? Artwork else {
-                return nil
-            }
-            return artwork.image
+extension View {
+    @ViewBuilder func searchSource(_ searchSource: some ListeningRoomSearchSource) -> some View {
+        transformEnvironment(\.searchSources) { searchSources in
+            searchSources.append(searchSource)
         }
     }
+}
+
+extension EnvironmentValues {
+    @Entry fileprivate(set) var searchSources = [any ListeningRoomSearchSource]()
 }

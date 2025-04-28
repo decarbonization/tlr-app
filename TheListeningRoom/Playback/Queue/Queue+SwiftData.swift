@@ -48,13 +48,13 @@ extension Queue<PersistentIdentifier, ModelContext> {
         }
         
         subscript(position: Int) -> Item {
-            context.registeredModel(for: ids[position])!
+            context.model(for: ids[position]) as! Item
         }
     }
     
     func item<Item: PersistentModel>(of modelType: Item.Type = Item.self,
                                      withID itemID: ItemID) -> Item? {
-        context.registeredModel(for: itemID)
+        context.model(for: itemID) as? Item
     }
     
     func items<Item: PersistentModel>(of modelType: Item.Type = Item.self) -> Items<Item> {
