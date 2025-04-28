@@ -26,7 +26,7 @@ struct ContentView: View {
     var body: some View {
         HSplitView {
             LibraryTabView()
-            QueueList()
+            PlaybackTabView()
                 .frame(minWidth: 100, idealWidth: 200, maxWidth: 250)
         }
         .preferredColorScheme(.dark)

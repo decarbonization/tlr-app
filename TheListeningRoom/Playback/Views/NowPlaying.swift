@@ -46,40 +46,34 @@ private struct _NowPlayingContent: View {
     @Environment(\.modelContext) private var modelContext
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Divider()
-            HStack(alignment: .center) {
-                Group {
-                    if let image = playingItem?.artwork?.image(in: modelContext) {
-                        image.resizable()
-                    } else {
-                        Color.gray
-                    }
-                }
-                .frame(width: 32, height: 32)
-                .clipShape(RoundedRectangle(cornerRadius: 3.0))
-                VStack(alignment: .leading) {
-                    Text(verbatim: playingItem?.title ?? "--")
-                        .lineLimit(2)
-                        .font(.headline)
-                        .foregroundStyle(.primary)
-                    Text(verbatim: playingItem?.artist ?? "--")
-                        .lineLimit(2)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+        VStack {
+            Group {
+                if let image = playingItem?.artwork?.image(in: modelContext) {
+                    image.resizable()
+                } else {
+                    Color.gray
                 }
             }
-            .padding(8)
+            .aspectRatio(1.0, contentMode: .fit)
+            .clipShape(RoundedRectangle(cornerRadius: 3.0))
+            Text(verbatim: playingItem?.title ?? "--")
+                .lineLimit(2)
+                .font(.headline)
+                .foregroundStyle(.primary)
+            Text(verbatim: playingItem?.artist ?? "--")
+                .lineLimit(2)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
             HStack {
                 Slider(value: $currentTime, in: 0 ... totalTime)
-                    .controlSize(.mini)
                     .tint(.orange)
                 Text(Duration.seconds(currentTime), format: Duration.TimeFormatStyle(pattern: .minuteSecond))
                     .font(.caption)
                     .foregroundStyle(.primary)
             }
-            .padding(.all.subtracting([.top]), 8)
+            PlaybackControls()
         }
+        .padding()
     }
 }
 
