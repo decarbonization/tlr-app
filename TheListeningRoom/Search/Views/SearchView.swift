@@ -29,11 +29,15 @@ struct SearchView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            TextField(text: $query) {
-                Text("Search")
+            HStack(alignment: .center) {
+                Image(systemName: "magnifyingglass")
+                    .foregroundStyle(.secondary)
+                TextField(text: $query) {
+                    Text("Search")
+                }
+                .textFieldStyle(.plain)
             }
-            .textFieldStyle(.roundedBorder)
-            .padding(2)
+            .padding(8)
             Divider()
             List(selection: $selection) {
                 ForEach(resultGroups) { resultGroup in
