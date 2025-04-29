@@ -213,7 +213,10 @@ import SwiftData
             }
         case .playingItemChanged:
             withMutation(keyPath: \.playingItem) {
-                MPNowPlayingInfoCenter.default().nowPlayingInfo = engine.playingItem?.mpItemProperties(resolveArtwork: nil)
+                let modelContext = queue.context
+                MPNowPlayingInfoCenter.default().nowPlayingInfo = engine.playingItem?.mpItemProperties(resolveArtwork: { image in
+                    image.mpMediaItemArtwork(in: modelContext)
+                })
             }
             if let playingItem = engine.playingItem {
                 playingIndex = queue.itemIDs.firstIndex(of: playingItem.id)
