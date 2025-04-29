@@ -57,7 +57,7 @@ struct PlaybackTabView: View {
                 }
             }
             Divider()
-            HStack(alignment: .center) {
+            HStack(alignment: .center, spacing: 8) {
                 ForEach(TabID.allBuiltIn, id: \.rawValue) { tabID in
                     Button {
                         selection = tabID
@@ -65,20 +65,21 @@ struct PlaybackTabView: View {
                         switch tabID {
                         case .nowPlaying:
                             Label("Now Playing", systemImage: "play.circle.fill")
+                                .labelStyle(.playbackTabLabel(isHighlighted: tabID == selection))
                         case .upNext:
                             Label("Up Next", systemImage: "music.note.list")
+                                .labelStyle(.playbackTabLabel(isHighlighted: tabID == selection))
                         case .search:
                             Label("Search", systemImage: "magnifyingglass")
+                                .labelStyle(.playbackTabLabel(isHighlighted: tabID == selection))
                         default:
                             EmptyView()
                         }
                     }
-                    .controlSize(.large)
                     .buttonStyle(.borderless)
-                    .foregroundStyle(tabID == selection ? AnyShapeStyle(.tint) : AnyShapeStyle(.secondary))
                 }
             }
-            .padding()
+            .padding(8)
         }
         .toolbar {
             Volume()
