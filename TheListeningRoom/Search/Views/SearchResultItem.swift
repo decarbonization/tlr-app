@@ -29,15 +29,12 @@ struct SearchResultItem: View {
     
     var body: some View {
         HStack {
-            Group {
-                if let image = result.artwork?.image(in: modelContext) {
-                    image.resizable()
-                } else {
-                    Color.gray
-                }
+            if let image = result.artwork?.image(in: modelContext) {
+                image
+                    .resizable()
+                    .frame(width: 32, height: 32)
+                    .clipShape(RoundedRectangle(cornerRadius: 3.0))
             }
-            .frame(width: 32, height: 32)
-            .clipShape(RoundedRectangle(cornerRadius: 3.0))
             VStack(alignment: .leading) {
                 if let primaryTitle = result.primaryTitle {
                     Text(verbatim: primaryTitle)
@@ -56,5 +53,6 @@ struct SearchResultItem: View {
                 }
             }
         }
+        .allowsHitTesting(false)
     }
 }

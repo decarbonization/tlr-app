@@ -46,6 +46,7 @@ extension Library {
     fileprivate func searchAlbums(with query: String) throws -> [ListeningRoomSearchResult] {
         let whatAlbums = FetchDescriptor<Album>(predicate: #Predicate {
             $0.title.localizedStandardContains(query)
+            || $0.artist?.name.localizedStandardContains(query) == true
         })
         let matchingAlbums = try modelContext.fetch(whatAlbums)
         return matchingAlbums.map { album in
