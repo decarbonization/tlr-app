@@ -51,7 +51,8 @@ extension Library {
         })
         let matchingSongs = try modelContext.fetch(whatSongs)
         return matchingSongs.map { song in
-            ListeningRoomSearchResult(itemIDs: [song.id],
+            ListeningRoomSearchResult(id: song.id,
+                                      itemIDs: [song.id],
                                       artwork: song.frontCoverArtwork.map { ListeningRoomImage.artwork(id: $0.id) },
                                       primaryTitle: song.title,
                                       secondaryTitle: song.album?.title,

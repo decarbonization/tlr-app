@@ -23,7 +23,7 @@ import SwiftUI
 struct SearchView: View {
     @State private var query = ""
     @State private var resultGroups = [ListeningRoomSearchResultGroup]()
-    @State private var selection = Set<[PersistentIdentifier]>()
+    @State private var selection = Set<PersistentIdentifier>()
     @Environment(\.searchSources) private var searchSources
     @Environment(Player.self) private var player
     
@@ -59,10 +59,12 @@ struct SearchView: View {
                     }
                 }
             }
-            .contextMenu(forSelectionType: [PersistentIdentifier].self) { selection in
-                ItemContextMenuContent(selection: Set(selection.lazy.flatMap { $0 }))
+            .contextMenu(forSelectionType: PersistentIdentifier.self) { selection in
+                ItemContextMenuContent(selection: selection)
             } primaryAction: { selection in
-                guard let songID = selection.first?.first else {
+                guard let resultID = selection.first,
+                      let result = resultGroups.lazy.compactMap({ $0.results.first(where: { $0.id == resultID }) }).first,
+                      let songID = result.itemIDs.first else {
                     return
                 }
                 Task {
@@ -82,7 +84,7 @@ struct SearchView: View {
                 return
             }
             do {
-                try await Task.sleep(for: .milliseconds(64))
+                try await Task.sleep(for: .milliseconds(100))
             } catch {
                 return
             }
