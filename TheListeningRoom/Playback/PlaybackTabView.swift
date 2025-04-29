@@ -34,6 +34,37 @@ struct PlaybackTabView: View {
         }
     }
     
+    private final class SelectingDropDelegate: DropDelegate {
+        init(tabID: TabID,
+             selection: Binding<TabID>) {
+            self.tabID = tabID
+            self._selection = selection
+        }
+        
+        private let tabID: TabID
+        @Binding private var selection: TabID
+        private var changeSelection: Task<Void, any Error>?
+        
+        func dropEntered(info: DropInfo) {
+            changeSelection = Task {
+                // Add a small amount of hysteresis so the UI doesn't feel
+                // like it's flapping in the wind as you drag something over it.
+                try await Task.sleep(for: .milliseconds(200))
+                if selection != tabID {
+                    selection = tabID
+                }
+            }
+        }
+        
+        func dropExited(info: DropInfo) {
+            changeSelection?.cancel()
+        }
+        
+        func performDrop(info: DropInfo) -> Bool {
+            false
+        }
+    }
+    
     @AppStorage("SelectedPlaybackTab") private var selection = TabID.nowPlaying
     @Environment(Player.self) private var player
     @Environment(\.modelContext) private var modelContext
@@ -77,6 +108,7 @@ struct PlaybackTabView: View {
                         }
                     }
                     .buttonStyle(.borderless)
+                    .onDrop(of: [.fileURL, .libraryItem], delegate: SelectingDropDelegate(tabID: tabID, selection: $selection))
                 }
             }
             .padding(8)
