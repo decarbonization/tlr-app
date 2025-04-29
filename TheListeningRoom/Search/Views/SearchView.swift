@@ -44,6 +44,13 @@ struct SearchView: View {
                     Section {
                         ForEach(resultGroup.results) { result in
                             SearchResultItem(result: result)
+                                .onDrag {
+                                    let itemProvider = NSItemProvider()
+                                    for itemID in result.itemIDs {
+                                        itemProvider.register(LibraryItem(id: itemID))
+                                    }
+                                    return itemProvider
+                                }
                         }
                     } header: {
                         if let title = resultGroup.title {
@@ -60,7 +67,7 @@ struct SearchView: View {
                 }
                 Task {
                     do {
-                        player.queue.replace(withContentsOf: resultGroups.lazy.flatMap { $0.results.lazy.flatMap { $0.items } }, pinning: songID)
+                        player.queue.replace(withContentsOf: resultGroups.lazy.flatMap { $0.results.lazy.flatMap { $0.itemIDs } }, pinning: songID)
                         try await player.playItem(withID: songID)
                     } catch {
                         TaskErrors.all.present(error)
