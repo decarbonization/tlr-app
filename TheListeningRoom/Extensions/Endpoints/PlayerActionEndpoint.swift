@@ -27,7 +27,7 @@ struct PlayerActionEndpoint: ListeningRoomXPCEndpoint {
     
     private let player: Player
     
-    func callAsFunction(_ action: ListeningRoomHostPlayerAction) async throws -> ListeningRoomPlayerStateChange {
+    func callAsFunction(_ action: ListeningRoomHostPlayerAction) async throws -> ListeningRoomPlayerState {
         switch action {
         case .syncState:
             break // just return
@@ -44,11 +44,11 @@ struct PlayerActionEndpoint: ListeningRoomXPCEndpoint {
         case .skipNext:
             try await player.skipNext()
         }
-        return ListeningRoomPlayerStateChange(from: player)
+        return ListeningRoomPlayerState(from: player)
     }
 }
 
-extension ListeningRoomPlayerStateChange {
+extension ListeningRoomPlayerState {
     @MainActor init(from player: Player) {
         self.init(playbackState: player.playbackState,
                   playingItemIndex: player.playingIndex,

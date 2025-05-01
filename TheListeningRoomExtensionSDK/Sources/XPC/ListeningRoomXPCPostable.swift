@@ -18,24 +18,22 @@
  */
 
 import Foundation
-import SwiftData
 
-public struct ListeningRoomPlayerStateChange: ListeningRoomXPCEvent, Codable, Sendable {
-    public static var empty: Self {
-        Self(playbackState: .stopped,
-             playingItemIndex: nil,
-             items: [])
+/// A value which can be posted from an extension to a host, or from a host to an extension.
+public protocol ListeningRoomXPCPostable: Codable, Sendable {
+    /// The unique name of the postable value, defaults to the qualified name of the type.
+    static var name: String { get }
+}
+
+extension ListeningRoomXPCPostable {
+    public static var name: String {
+        String(reflecting: type(of: self))
     }
+}
+
+public protocol ListeningRoomXPCPoster: Sendable {
+    associatedtype Value: ListeningRoomXPCPostable
+    associatedtype Values: AsyncSequence<Value, Never> & Sendable
     
-    public init(playbackState: ListeningRoomPlaybackState,
-                playingItemIndex: Int?,
-                items: [PersistentIdentifier]) {
-        self.playbackState = playbackState
-        self.playingItemIndex = playingItemIndex
-        self.items = items
-    }
-    
-    public var playbackState: ListeningRoomPlaybackState
-    public var playingItemIndex: Int?
-    public var items: [PersistentIdentifier]
+    @MainActor func activate() -> Values
 }

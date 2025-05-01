@@ -35,6 +35,6 @@ struct ExtensionHostView: View {
         ListeningRoomExtensionHostView(process: process,
                                        sceneID: sceneID)
         .listeningRoomHostEndpoint(PlayerActionEndpoint(player))
-        .listeningRoomHostEventPublisher(PlayerStateChangePublisher(player))
+        .listeningRoomHostPoster(PlayerStatePoster(player))
     }
 }

@@ -21,7 +21,7 @@ import Foundation
 import SwiftData
 
 public enum ListeningRoomHostPlayerAction: ListeningRoomXPCRequest {
-    public typealias Response = ListeningRoomPlayerStateChange
+    public typealias Response = ListeningRoomPlayerState
     
     case syncState
     case replaceQueue(newItemsIDs: [PersistentIdentifier], nextItemID: PersistentIdentifier?)

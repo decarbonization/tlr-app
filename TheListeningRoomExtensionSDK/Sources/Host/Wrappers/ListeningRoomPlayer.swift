@@ -27,16 +27,16 @@ import SwiftUI
         self.connection = connection
         self.subscriber = AsyncSubscriber()
         self._state = .init(initialState: .empty)
-        subscriber.activate(consuming: connection.receive(ListeningRoomPlayerStateChange.self)) { [weak self] newState, _ in
+        subscriber.activate(consuming: connection.posts(of: ListeningRoomPlayerState.self)) { [weak self] newState, _ in
             self?.state = newState
         }
     }
     
     private let connection: ListeningRoomXPCConnection
     private let subscriber: AsyncSubscriber
-    private let _state: OSAllocatedUnfairLock<ListeningRoomPlayerStateChange>
+    private let _state: OSAllocatedUnfairLock<ListeningRoomPlayerState>
     
-    private var state: ListeningRoomPlayerStateChange {
+    private var state: ListeningRoomPlayerState {
         get {
             access(keyPath: \.state)
             return _state.withLock { $0 }

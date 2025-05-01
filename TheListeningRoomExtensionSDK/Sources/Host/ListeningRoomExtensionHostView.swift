@@ -46,8 +46,8 @@ extension View {
         }
     }
     
-    @ViewBuilder public func listeningRoomHostEventPublisher(_ publisher: some ListeningRoomXPCEventPublisher) -> some View {
-        transformEnvironment(\._listeningRoomHostEventPublishers) { publishers in
+    @ViewBuilder public func listeningRoomHostPoster(_ publisher: some ListeningRoomXPCPoster) -> some View {
+        transformEnvironment(\._listeningRoomHostPosters) { publishers in
             publishers.append(publisher)
         }
     }
@@ -55,7 +55,7 @@ extension View {
 
 extension EnvironmentValues {
     @Entry fileprivate var _listeningRoomHostEndpoints = [any ListeningRoomXPCEndpoint]()
-    @Entry fileprivate var _listeningRoomHostEventPublishers = [any ListeningRoomXPCEventPublisher]()
+    @Entry fileprivate var _listeningRoomHostPosters = [any ListeningRoomXPCPoster]()
 }
 
 private struct _ListeningRoomExtensionHostContent: NSViewControllerRepresentable {
@@ -64,15 +64,15 @@ private struct _ListeningRoomExtensionHostContent: NSViewControllerRepresentable
     
     @MainActor final class Coordinator: NSObject, EXHostViewControllerDelegate {
         let extensionScene = ListeningRoomXPCConnection(role: .hostView)
-        let subscriber = AsyncSubscriber()
-        var publishers = [any ListeningRoomXPCEventPublisher]() {
+        let posterSubscriber = AsyncSubscriber()
+        var posters = [any ListeningRoomXPCPoster]() {
             didSet {
-                guard hasPublishers(oldValue, changedWith: publishers) else {
+                guard hasPostersChanged(oldValue, from: posters) else {
                     return
                 }
-                subscriber.deactivateAll()
-                func subscribe(to publisher: some ListeningRoomXPCEventPublisher) {
-                    subscriber.activate(consuming: publisher.subscribe()) { [weak extensionScene] event, _ in
+                posterSubscriber.deactivateAll()
+                func subscribe(to poster: some ListeningRoomXPCPoster) {
+                    posterSubscriber.activate(consuming: poster.activate()) { [weak extensionScene] event, _ in
                         do {
                             try await extensionScene?.post(event, waitForConnection: false)
                         } catch {
@@ -80,8 +80,8 @@ private struct _ListeningRoomExtensionHostContent: NSViewControllerRepresentable
                         }
                     }
                 }
-                for publisher in publishers {
-                    subscribe(to: publisher)
+                for poster in posters {
+                    subscribe(to: poster)
                 }
             }
         }
@@ -117,7 +117,7 @@ private struct _ListeningRoomExtensionHostContent: NSViewControllerRepresentable
     
     func updateNSViewController(_ hostViewController: EXHostViewController, context: Context) {
         context.coordinator.extensionScene.endpoints = context.environment._listeningRoomHostEndpoints
-        context.coordinator.publishers = context.environment._listeningRoomHostEventPublishers
+        context.coordinator.posters = context.environment._listeningRoomHostPosters
         
         let oldConfiguration = hostViewController.configuration
         if oldConfiguration?.appExtension != process.identity || oldConfiguration?.sceneID != sceneID {
@@ -127,7 +127,7 @@ private struct _ListeningRoomExtensionHostContent: NSViewControllerRepresentable
     }
 }
 
-private func hasPublishers(_ oldValue: [any ListeningRoomXPCEventPublisher], changedWith newValue: [any ListeningRoomXPCEventPublisher]) -> Bool {
+private func hasPostersChanged(_ oldValue: [any ListeningRoomXPCPoster], from newValue: [any ListeningRoomXPCPoster]) -> Bool {
     oldValue.count != newValue.count || !oldValue.elementsEqual(newValue) { lhs, rhs in
         type(of: lhs) == type(of: rhs)
     }

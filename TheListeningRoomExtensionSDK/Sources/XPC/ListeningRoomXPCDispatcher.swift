@@ -33,13 +33,13 @@ internal final class ListeningRoomXPCDispatcher: NSObject, Sendable {
             endpointsByName[name(of: endpoint)] = endpoint
         }
         self._endpointsByName = .init(initialState: endpointsByName)
-        self.events = AsyncChannel()
+        self.incomingPosts = AsyncChannel()
     }
     
     let role: ListeningRoomXPCRole
     private let _endpointsByName: OSAllocatedUnfairLock<[String: any ListeningRoomXPCEndpoint]>
     
-    internal let events: AsyncChannel<(event: Data, name: String)>
+    internal let incomingPosts: AsyncChannel<(event: Data, name: String)>
     
     var endpoints: [any ListeningRoomXPCEndpoint] {
         get {
@@ -90,7 +90,7 @@ extension ListeningRoomXPCDispatcher: ListeningRoomXPCDispatcherProtocol {
                         with name: String,
                         replyHandler: @escaping @Sendable ((any Error)?) -> Void) {
         Task {
-            await events.send((event, name))
+            await incomingPosts.send((event, name))
             replyHandler(nil)
         }
     }

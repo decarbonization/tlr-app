@@ -19,17 +19,17 @@
 import TheListeningRoomExtensionSDK
 import Foundation
 
-struct PlayerStateChangePublisher: ListeningRoomXPCEventPublisher {
+struct PlayerStatePoster: ListeningRoomXPCPoster {
     init(_ player: Player) {
         self.player = player
     }
     
     private let player: Player
     
-    func subscribe() -> some (AsyncSequence<ListeningRoomPlayerStateChange, Never> & Sendable) {
+    func activate() -> some (AsyncSequence<ListeningRoomPlayerState, Never> & Sendable) {
         player.observeChanges(to: \.playbackState, \.playingItem)
             .map { _ in
-                await ListeningRoomPlayerStateChange(from: player)
+                await ListeningRoomPlayerState(from: player)
             }
     }
 }

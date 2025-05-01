@@ -18,21 +18,24 @@
  */
 
 import Foundation
+import SwiftData
 
-public protocol ListeningRoomXPCEvent: Codable, Sendable {
-    /// The unique name of the event, defaults to the qualified name of the type.
-    static var name: String { get }
-}
-
-extension ListeningRoomXPCEvent {
-    public static var name: String {
-        String(reflecting: type(of: self))
+public struct ListeningRoomPlayerState: ListeningRoomXPCPostable, Codable, Sendable {
+    public static var empty: Self {
+        Self(playbackState: .stopped,
+             playingItemIndex: nil,
+             items: [])
     }
-}
-
-public protocol ListeningRoomXPCEventPublisher: Sendable {
-    associatedtype Event: ListeningRoomXPCEvent
-    associatedtype Events: AsyncSequence<Event, Never> & Sendable
     
-    @MainActor func subscribe() -> Events
+    public init(playbackState: ListeningRoomPlaybackState,
+                playingItemIndex: Int?,
+                items: [PersistentIdentifier]) {
+        self.playbackState = playbackState
+        self.playingItemIndex = playingItemIndex
+        self.items = items
+    }
+    
+    public var playbackState: ListeningRoomPlaybackState
+    public var playingItemIndex: Int?
+    public var items: [PersistentIdentifier]
 }

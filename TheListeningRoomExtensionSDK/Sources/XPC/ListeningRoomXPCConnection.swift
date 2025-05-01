@@ -175,7 +175,7 @@ import os
         }
     }
     
-    func post<E: ListeningRoomXPCEvent>(_ event: E, waitForConnection: Bool = true) async throws {
+    func post<E: ListeningRoomXPCPostable>(_ event: E, waitForConnection: Bool = true) async throws {
         let connection = try await xpcConnection(wait: waitForConnection)
         let event = try _encode(event)
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, any Error>) in
@@ -192,13 +192,13 @@ import os
         }
     }
     
-    func receive<E: ListeningRoomXPCEvent>(_ eventType: E.Type) -> some (AsyncSequence<E, any Error> & Sendable) {
-        dispatcher.events
+    func posts<T: ListeningRoomXPCPostable>(of postableType: T.Type) -> some (AsyncSequence<T, any Error> & Sendable) {
+        dispatcher.incomingPosts
             .filter {
-                $0.name == E.name
+                $0.name == T.name
             }
             .map {
-                try _decode(E.self, from: $0.event)
+                try _decode(T.self, from: $0.event)
             }
     }
     

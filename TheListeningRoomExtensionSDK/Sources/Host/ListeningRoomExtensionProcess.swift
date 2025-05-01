@@ -60,11 +60,11 @@ import Foundation
         }
     }
     
-    public func post(_ event: some ListeningRoomXPCEvent) async throws {
+    public func post(_ event: some ListeningRoomXPCPostable) async throws {
         try await extensionMain.post(event)
     }
     
-    public func receive<E: ListeningRoomXPCEvent>(_ eventType: E.Type) -> some AsyncSequence<E, any Error> {
-        extensionMain.receive(eventType)
+    public func receive<E: ListeningRoomXPCPostable>(_ eventType: E.Type) -> some AsyncSequence<E, any Error> {
+        extensionMain.posts(of: eventType)
     }
 }
