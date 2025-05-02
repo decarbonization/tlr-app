@@ -19,32 +19,32 @@
 
 import Foundation
 
-public protocol ListeningRoomExtensionFeature {
-    associatedtype Feature: ListeningRoomExtensionFeature
+public protocol ListeningRoomFeature {
+    associatedtype Feature: ListeningRoomFeature
     
     var feature: Feature { get }
     
     func _visit(_ visitor: inout some _ListeningRoomExtensionVisitor) -> Void
 }
 
-extension ListeningRoomExtensionFeature {
+extension ListeningRoomFeature {
     public func _visit(_ visitor: inout some _ListeningRoomExtensionVisitor) {
         visitor._visit(feature)
     }
 }
 
 public protocol _ListeningRoomExtensionVisitor {
-    mutating func _visit<Feature: ListeningRoomExtensionFeature>(_ feature: Feature) -> Void
+    mutating func _visit<Feature: ListeningRoomFeature>(_ feature: Feature) -> Void
 }
 
-extension Never: ListeningRoomExtensionFeature {
+extension Never: ListeningRoomFeature {
     public var feature: Never {
         fatalError()
     }
 }
 
-extension Optional: ListeningRoomExtensionFeature where Wrapped: ListeningRoomExtensionFeature {
-    public var feature: some ListeningRoomExtensionFeature {
+extension Optional: ListeningRoomFeature where Wrapped: ListeningRoomFeature {
+    public var feature: some ListeningRoomFeature {
         self
     }
     
@@ -55,22 +55,22 @@ extension Optional: ListeningRoomExtensionFeature where Wrapped: ListeningRoomEx
     }
 }
 
-extension ListeningRoomExtensionFeature {
-    internal func _collectAll<Feature: ListeningRoomExtensionFeature>(_ featureType: Feature.Type) -> [Feature] {
+extension ListeningRoomFeature {
+    internal func _collectAll<Feature: ListeningRoomFeature>(_ featureType: Feature.Type) -> [Feature] {
         var visitor = _CollectAllVisitor(featureType)
         _visit(&visitor)
         return visitor.results
     }
 }
 
-private struct _CollectAllVisitor<Feature: ListeningRoomExtensionFeature>: _ListeningRoomExtensionVisitor {
+private struct _CollectAllVisitor<Feature: ListeningRoomFeature>: _ListeningRoomExtensionVisitor {
     init(_ featureType: Feature.Type = Feature.self) {
         results = []
     }
     
     var results: [Feature]
     
-    mutating func _visit(_ feature: some ListeningRoomExtensionFeature) {
+    mutating func _visit(_ feature: some ListeningRoomFeature) {
         if let result = feature as? Feature {
             results.append(result)
         }

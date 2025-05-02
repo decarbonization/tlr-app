@@ -19,11 +19,11 @@
 
 import Foundation
 
-enum _ConditionalFeature<TrueContent: ListeningRoomExtensionFeature, FalseContent: ListeningRoomExtensionFeature>: ListeningRoomExtensionFeature {
+enum _ConditionalFeature<TrueContent: ListeningRoomFeature, FalseContent: ListeningRoomFeature>: ListeningRoomFeature {
     case trueContent(TrueContent)
     case falseContent(FalseContent)
     
-    var feature: some ListeningRoomExtensionFeature {
+    var feature: some ListeningRoomFeature {
         self
     }
     

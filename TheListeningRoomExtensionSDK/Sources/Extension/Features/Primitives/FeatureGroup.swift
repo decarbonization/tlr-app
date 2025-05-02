@@ -19,14 +19,14 @@
 
 import Foundation
 
-struct _FeatureGroup<each F: ListeningRoomExtensionFeature>: ListeningRoomExtensionFeature {
+struct _FeatureGroup<each F: ListeningRoomFeature>: ListeningRoomFeature {
     init(_ content: repeat (each F)) {
         self.content = (repeat each content)
     }
     
     private let content: (repeat each F)
     
-    var feature: some ListeningRoomExtensionFeature {
+    var feature: some ListeningRoomFeature {
         self
     }
     

@@ -19,11 +19,11 @@
 
 import Foundation
 
-struct _EmptyFeature: ListeningRoomExtensionFeature {
+struct _EmptyFeature: ListeningRoomFeature {
     init() {
     }
     
-    var feature: some ListeningRoomExtensionFeature {
+    var feature: some ListeningRoomFeature {
         self
     }
     

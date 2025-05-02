@@ -22,17 +22,17 @@ import ExtensionKit
 import SwiftUI
 
 @main struct ExtensionTester: ListeningRoomExtension {
-    var features: some ListeningRoomExtensionFeature {
+    var features: some ListeningRoomFeature {
         ListeningRoomSidebarSection(title: "Extension Tester") {
-            ListeningRoomExtensionFeatureLink(sceneID: "player",
+            ListeningRoomFeatureLink(sceneID: "player",
                                               title: "Player",
                                               systemImage: "music.note.list")
         }
         ListeningRoomFeatureSettings {
-            ListeningRoomExtensionFeatureLink(sceneID: "general-settings",
+            ListeningRoomFeatureLink(sceneID: "general-settings",
                                               title: "General",
                                               systemImage: "gear")
-            ListeningRoomExtensionFeatureLink(sceneID: "advanced-settings",
+            ListeningRoomFeatureLink(sceneID: "advanced-settings",
                                               title: "Advanced",
                                               systemImage: "gearshape.2")
         }

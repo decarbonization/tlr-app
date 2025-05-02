@@ -19,26 +19,26 @@
 
 import Foundation
 
-public struct ListeningRoomSidebarSection: ListeningRoomExtensionFeature, Codable, Sendable {
-    public init(@ListeningRoomExtensionFeatureBuilder title: () -> some ListeningRoomExtensionFeature,
-                @ListeningRoomExtensionFeatureBuilder items: () -> some ListeningRoomExtensionFeature) {
-        let textFeatures = title()._collectAll(ListeningRoomExtensionFeatureText.self)
+public struct ListeningRoomSidebarSection: ListeningRoomFeature, Codable, Sendable {
+    public init(@ListeningRoomFeatureBuilder title: () -> some ListeningRoomFeature,
+                @ListeningRoomFeatureBuilder items: () -> some ListeningRoomFeature) {
+        let textFeatures = title()._collectAll(ListeningRoomFeatureText.self)
         self._title = textFeatures.reduce("") { acc, next in acc + next._content }
         
-        let itemFeatures = items()._collectAll(ListeningRoomExtensionFeatureLink.self)
+        let itemFeatures = items()._collectAll(ListeningRoomFeatureLink.self)
         self._items = itemFeatures
     }
     
     public init(title: String,
-                @ListeningRoomExtensionFeatureBuilder items: () -> some ListeningRoomExtensionFeature) {
-        self.init(title: { ListeningRoomExtensionFeatureText(verbatim: title) },
+                @ListeningRoomFeatureBuilder items: () -> some ListeningRoomFeature) {
+        self.init(title: { ListeningRoomFeatureText(verbatim: title) },
                   items: items)
     }
     
     public let _title: String
-    public let _items: [ListeningRoomExtensionFeatureLink]
+    public let _items: [ListeningRoomFeatureLink]
     
-    public var feature: some ListeningRoomExtensionFeature {
+    public var feature: some ListeningRoomFeature {
         ListeningRoomExtensionTopLevelFeature.sidebarSection(self)
     }
 }

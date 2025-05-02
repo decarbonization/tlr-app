@@ -19,14 +19,14 @@
 
 import Foundation
 
-public struct ListeningRoomFeatureSettings: ListeningRoomExtensionFeature, Codable, Sendable {
-    public init(@ListeningRoomExtensionFeatureBuilder links: () -> some ListeningRoomExtensionFeature) {
-        self._links = links()._collectAll(ListeningRoomExtensionFeatureLink.self)
+public struct ListeningRoomFeatureSettings: ListeningRoomFeature, Codable, Sendable {
+    public init(@ListeningRoomFeatureBuilder links: () -> some ListeningRoomFeature) {
+        self._links = links()._collectAll(ListeningRoomFeatureLink.self)
     }
     
-    public var _links: [ListeningRoomExtensionFeatureLink]
+    public var _links: [ListeningRoomFeatureLink]
     
-    public var feature: some ListeningRoomExtensionFeature {
+    public var feature: some ListeningRoomFeature {
         ListeningRoomExtensionTopLevelFeature.settings(self)
     }
 }

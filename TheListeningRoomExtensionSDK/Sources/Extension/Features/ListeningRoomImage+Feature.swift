@@ -19,8 +19,8 @@
 
 import Foundation
 
-extension ListeningRoomImage: ListeningRoomExtensionFeature {
-    public var feature: some ListeningRoomExtensionFeature {
+extension ListeningRoomImage: ListeningRoomFeature {
+    public var feature: some ListeningRoomFeature {
         self
     }
 }

@@ -19,24 +19,24 @@
 
 import Foundation
 
-@resultBuilder public enum ListeningRoomExtensionFeatureBuilder {
-    public static func buildBlock() -> some ListeningRoomExtensionFeature {
+@resultBuilder public enum ListeningRoomFeatureBuilder {
+    public static func buildBlock() -> some ListeningRoomFeature {
         _EmptyFeature()
     }
     
-    public static func buildBlock<each F: ListeningRoomExtensionFeature>(_ content: repeat (each F)) -> some ListeningRoomExtensionFeature {
+    public static func buildBlock<each F: ListeningRoomFeature>(_ content: repeat (each F)) -> some ListeningRoomFeature {
         _FeatureGroup(repeat (each content))
     }
     
-    public static func buildEither<TrueContent: ListeningRoomExtensionFeature, FalseContent: ListeningRoomExtensionFeature>(first content: TrueContent) -> some ListeningRoomExtensionFeature {
+    public static func buildEither<TrueContent: ListeningRoomFeature, FalseContent: ListeningRoomFeature>(first content: TrueContent) -> some ListeningRoomFeature {
         _ConditionalFeature<TrueContent, FalseContent>.trueContent(content)
     }
     
-    public static func buildEither<TrueContent: ListeningRoomExtensionFeature, FalseContent: ListeningRoomExtensionFeature>(first content: FalseContent) -> some ListeningRoomExtensionFeature {
+    public static func buildEither<TrueContent: ListeningRoomFeature, FalseContent: ListeningRoomFeature>(first content: FalseContent) -> some ListeningRoomFeature {
         _ConditionalFeature<TrueContent, FalseContent>.falseContent(content)
     }
     
-    public static func buildIf(_ content: (some ListeningRoomExtensionFeature)?) -> (some ListeningRoomExtensionFeature)? {
+    public static func buildIf(_ content: (some ListeningRoomFeature)?) -> (some ListeningRoomFeature)? {
         content
     }
 }

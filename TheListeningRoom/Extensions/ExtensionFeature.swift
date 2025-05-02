@@ -19,7 +19,7 @@
 import Foundation
 import TheListeningRoomExtensionSDK
 
-@dynamicMemberLookup struct ExtensionFeature<Feature: ListeningRoomExtensionFeature>: Identifiable {
+@dynamicMemberLookup struct ExtensionFeature<Feature: ListeningRoomFeature>: Identifiable {
     init(id: String,
          process: ListeningRoomExtensionProcess,
          feature: Feature) {

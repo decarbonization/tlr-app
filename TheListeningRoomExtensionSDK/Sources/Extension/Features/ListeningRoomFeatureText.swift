@@ -19,11 +19,14 @@
 
 import Foundation
 
-public enum ListeningRoomExtensionTopLevelFeature: ListeningRoomExtensionFeature, Codable, Sendable {
-    case settings(ListeningRoomFeatureSettings)
-    case sidebarSection(ListeningRoomSidebarSection)
+public struct ListeningRoomFeatureText: ListeningRoomFeature, Codable, Sendable {
+    public init(verbatim content: String) {
+        self._content = content
+    }
     
-    public var feature: some ListeningRoomExtensionFeature {
+    public var _content: String
+    
+    public var feature: some ListeningRoomFeature {
         self
     }
 }

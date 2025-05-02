@@ -19,13 +19,13 @@
 
 import Foundation
 
-public struct ListeningRoomExtensionFeatureLink: ListeningRoomExtensionFeature, Codable, Sendable {
+public struct ListeningRoomFeatureLink: ListeningRoomFeature, Codable, Sendable {
     public init(sceneID: String,
-                @ListeningRoomExtensionFeatureBuilder title: () -> some ListeningRoomExtensionFeature,
-                @ListeningRoomExtensionFeatureBuilder image: () -> some ListeningRoomExtensionFeature) {
+                @ListeningRoomFeatureBuilder title: () -> some ListeningRoomFeature,
+                @ListeningRoomFeatureBuilder image: () -> some ListeningRoomFeature) {
         self._sceneID = sceneID
         
-        let titleFeatures = title()._collectAll(ListeningRoomExtensionFeatureText.self)
+        let titleFeatures = title()._collectAll(ListeningRoomFeatureText.self)
         self._title = titleFeatures.reduce("") { acc, next in acc + next._content }
         
         let imageFeatures = image()._collectAll(ListeningRoomImage.self)
@@ -36,14 +36,14 @@ public struct ListeningRoomExtensionFeatureLink: ListeningRoomExtensionFeature, 
                 title: String,
                 systemImage: String) {
         self.init(sceneID: sceneID,
-                  title: { ListeningRoomExtensionFeatureText(verbatim: title) },
+                  title: { ListeningRoomFeatureText(verbatim: title) },
                   image: { ListeningRoomImage.systemImage(systemImage) })
     }
     
     public init(sceneID: String,
                 title: String) {
         self.init(sceneID: sceneID,
-                  title: { ListeningRoomExtensionFeatureText(verbatim: title) },
+                  title: { ListeningRoomFeatureText(verbatim: title) },
                   image: { })
     }
     
@@ -51,7 +51,7 @@ public struct ListeningRoomExtensionFeatureLink: ListeningRoomExtensionFeature, 
     public var _title: String
     public var _icon: ListeningRoomImage?
     
-    public var feature: some ListeningRoomExtensionFeature {
+    public var feature: some ListeningRoomFeature {
         self
     }
 }
