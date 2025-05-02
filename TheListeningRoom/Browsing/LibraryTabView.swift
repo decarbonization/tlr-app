@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import SwiftData
 import SwiftUI
 
 struct LibraryTabView: View {
@@ -42,6 +43,7 @@ struct LibraryTabView: View {
     }
     
     @AppStorage("SelectedLibraryTab") private var selection = TabID.songs
+    @Environment(\.modelContext) private var modelContext
     
     var body: some View {
         TablessView(TabID.allBuiltIn,

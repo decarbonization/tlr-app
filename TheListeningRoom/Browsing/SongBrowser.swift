@@ -64,138 +64,151 @@ struct SongBrowser: View {
     }
     
     var body: some View {
-        QueryView(fetchDescriptor: $fetchDescriptor) { songs in
-            Table(selection: $selection, sortOrder: $fetchDescriptor.sortBy, columnCustomization: $columnCustomization) {
-                Group {
-                    TableColumn("Title", sortUsing: SortDescriptor(\Song.title)) { song in
-                        Text(verbatim: song.title ?? "")
-                    }
-                    .customizationID("title")
-                    
-                    TableColumn("Album", sortUsing: SortDescriptor(\Song.album?.title)) { song in
-                        Text(verbatim: song.album?.title ?? "")
-                    }
-                    .customizationID("album")
-                    
-                    TableColumn("Artist", sortUsing: SortDescriptor(\Song.album?.artist?.name)) { song in
-                        Text(verbatim: song.artist?.name ?? "")
-                    }
-                    .customizationID("artist")
-                    
-                    TableColumn("Time") { song in
-                        Text(song.duration, format: Duration.TimeFormatStyle(pattern: .minuteSecond))
-                    }
-                    .customizationID("duration")
-                }
-                
-                Group {
-                    TableColumn("Album Artist", sortUsing: SortDescriptor(\Song.albumArtist)) { song in
-                        Text(verbatim: song.albumArtist ?? "")
-                    }
-                    .customizationID("albumArtist")
-                    
-                    TableColumn("Composer", sortUsing: SortDescriptor(\Song.composer)) { song in
-                        Text(verbatim: song.composer ?? "")
-                    }
-                    .customizationID("composer")
-                    
-                    TableColumn("Genre", sortUsing: SortDescriptor(\Song.genre)) { song in
-                        Text(verbatim: song.genre ?? "")
-                    }
-                    .customizationID("genre")
-                    
-                    TableColumn("Grouping", sortUsing: SortDescriptor(\Song.grouping)) { song in
-                        Text(verbatim: song.grouping ?? "")
-                    }
-                    .customizationID("grouping")
-                }
-                
-                Group {
-                    TableColumn("Release Date", sortUsing: SortDescriptor(\Song.releaseDate)) { song in
-                        Text(verbatim: song.releaseDate ?? "")
-                    }
-                    .customizationID("releaseDate")
-                    
-                    TableColumn("Track#", sortUsing: SortDescriptor(\Song.trackNumber)) { song in
-                        Text(song.trackNumber ?? 0, format: .number)
-                    }
-                    .customizationID("trackNumber")
-                    
-                    TableColumn("Disc#", sortUsing: SortDescriptor(\Song.discNumber)) { song in
-                        Text(song.discNumber ?? 0, format: .number)
-                    }
-                    .customizationID("discNumber")
-                    
-                    TableColumn("BPM", sortUsing: SortDescriptor(\Song.bpm)) { song in
-                        Text(song.bpm ?? 0, format: .number)
-                    }
-                    .customizationID("bpm")
-                }
-                
-                Group {
-                    TableColumn("Date Added", sortUsing: SortDescriptor(\Song.creationDate)) { song in
-                        Text(song.creationDate, format: .dateTime)
-                    }
-                    .customizationID("creationDate")
-                    
-                    TableColumn("Date Modified", sortUsing: SortDescriptor(\Song.lastModified)) { song in
-                        Text(song.lastModified, format: .dateTime)
-                    }
-                    .customizationID("lastModified")
-                    
-                    TableColumn("Last Played", sortUsing: SortDescriptor(\Song.lastPlayed)) { song in
-                        if let lastPlayed = song.lastPlayed {
-                            Text(lastPlayed, format: .dateTime)
+        ScrollViewReader { scrollView in
+            QueryView(fetchDescriptor: $fetchDescriptor) { songs in
+                Table(selection: $selection, sortOrder: $fetchDescriptor.sortBy, columnCustomization: $columnCustomization) {
+                    Group {
+                        TableColumn("Title", sortUsing: SortDescriptor(\Song.title)) { song in
+                            Text(verbatim: song.title ?? "")
                         }
+                        .customizationID("title")
+                        
+                        TableColumn("Album", sortUsing: SortDescriptor(\Song.album?.title)) { song in
+                            Text(verbatim: song.album?.title ?? "")
+                        }
+                        .customizationID("album")
+                        
+                        TableColumn("Artist", sortUsing: SortDescriptor(\Song.album?.artist?.name)) { song in
+                            Text(verbatim: song.artist?.name ?? "")
+                        }
+                        .customizationID("artist")
+                        
+                        TableColumn("Time") { song in
+                            Text(song.duration, format: Duration.TimeFormatStyle(pattern: .minuteSecond))
+                        }
+                        .customizationID("duration")
                     }
-                    .customizationID("lastPlayed")
-                }
-                
-                Group {
-                    TableColumn("Rating", sortUsing: SortDescriptor(\Song.lastPlayed)) { song in
-                        switch ratingStyle {
-                        case .binary:
-                            if song.rating != nil && song.rating != 1 {
-                                Label("Like", systemImage: "hand.thumbsup")
-                                    .labelStyle(.iconOnly)
-                            } else if song.rating == 1 {
-                                Label("Dislike", systemImage: "hand.thumbsdown")
-                                    .labelStyle(.iconOnly)
-                            }
-                        case .stars:
-                            if let rating = song.rating {
-                                Text(String(repeating: "􀋃", count: Int(rating)) + String(repeating: "􀋂", count: 5 - Int(rating)))
-                                    .accessibilityLabel("\(rating) Stars")
+                    
+                    Group {
+                        TableColumn("Album Artist", sortUsing: SortDescriptor(\Song.albumArtist)) { song in
+                            Text(verbatim: song.albumArtist ?? "")
+                        }
+                        .customizationID("albumArtist")
+                        
+                        TableColumn("Composer", sortUsing: SortDescriptor(\Song.composer)) { song in
+                            Text(verbatim: song.composer ?? "")
+                        }
+                        .customizationID("composer")
+                        
+                        TableColumn("Genre", sortUsing: SortDescriptor(\Song.genre)) { song in
+                            Text(verbatim: song.genre ?? "")
+                        }
+                        .customizationID("genre")
+                        
+                        TableColumn("Grouping", sortUsing: SortDescriptor(\Song.grouping)) { song in
+                            Text(verbatim: song.grouping ?? "")
+                        }
+                        .customizationID("grouping")
+                    }
+                    
+                    Group {
+                        TableColumn("Release Date", sortUsing: SortDescriptor(\Song.releaseDate)) { song in
+                            Text(verbatim: song.releaseDate ?? "")
+                        }
+                        .customizationID("releaseDate")
+                        
+                        TableColumn("Track#", sortUsing: SortDescriptor(\Song.trackNumber)) { song in
+                            Text(song.trackNumber ?? 0, format: .number)
+                        }
+                        .customizationID("trackNumber")
+                        
+                        TableColumn("Disc#", sortUsing: SortDescriptor(\Song.discNumber)) { song in
+                            Text(song.discNumber ?? 0, format: .number)
+                        }
+                        .customizationID("discNumber")
+                        
+                        TableColumn("BPM", sortUsing: SortDescriptor(\Song.bpm)) { song in
+                            Text(song.bpm ?? 0, format: .number)
+                        }
+                        .customizationID("bpm")
+                    }
+                    
+                    Group {
+                        TableColumn("Date Added", sortUsing: SortDescriptor(\Song.creationDate)) { song in
+                            Text(song.creationDate, format: .dateTime)
+                        }
+                        .customizationID("creationDate")
+                        
+                        TableColumn("Date Modified", sortUsing: SortDescriptor(\Song.lastModified)) { song in
+                            Text(song.lastModified, format: .dateTime)
+                        }
+                        .customizationID("lastModified")
+                        
+                        TableColumn("Last Played", sortUsing: SortDescriptor(\Song.lastPlayed)) { song in
+                            if let lastPlayed = song.lastPlayed {
+                                Text(lastPlayed, format: .dateTime)
                             }
                         }
+                        .customizationID("lastPlayed")
                     }
-                    .customizationID("rating")
-                }
-            } rows: {
-                ForEach(songs) { song in
-                    TableRow(song)
-                        .draggable(LibraryItem(from: song))
-                }
-            }
-            .onDeleteCommand {
-                deleteSelection(selection)
-            }
-            .contextMenu(forSelectionType: PersistentIdentifier.self) { selection in
-                ItemContextMenuContent(selection: selection)
-            } primaryAction: { selection in
-                guard let songID = selection.first else {
-                    return
-                }
-                Task {
-                    do {
-                        player.queue.replace(withContentsOf: songs.lazy.map { $0.id }, pinning: songID)
-                        try await player.playItem(withID: songID)
-                    } catch {
-                        TaskErrors.all.present(error)
+                    
+                    Group {
+                        TableColumn("Rating", sortUsing: SortDescriptor(\Song.lastPlayed)) { song in
+                            switch ratingStyle {
+                            case .binary:
+                                if song.rating != nil && song.rating != 1 {
+                                    Label("Like", systemImage: "hand.thumbsup")
+                                        .labelStyle(.iconOnly)
+                                } else if song.rating == 1 {
+                                    Label("Dislike", systemImage: "hand.thumbsdown")
+                                        .labelStyle(.iconOnly)
+                                }
+                            case .stars:
+                                if let rating = song.rating {
+                                    Text(String(repeating: "􀋃", count: Int(rating)) + String(repeating: "􀋂", count: 5 - Int(rating)))
+                                        .accessibilityLabel("\(rating) Stars")
+                                }
+                            }
+                        }
+                        .customizationID("rating")
+                    }
+                } rows: {
+                    ForEach(songs) { song in
+                        TableRow(song)
+                            .draggable(LibraryItem(from: song))
                     }
                 }
+                .onDeleteCommand {
+                    deleteSelection(selection)
+                }
+                .contextMenu(forSelectionType: PersistentIdentifier.self) { selection in
+                    ItemContextMenuContent(selection: selection)
+                } primaryAction: { selection in
+                    guard let songID = selection.first else {
+                        return
+                    }
+                    Task {
+                        do {
+                            player.queue.replace(withContentsOf: songs.lazy.map { $0.id }, pinning: songID)
+                            try await player.playItem(withID: songID)
+                        } catch {
+                            TaskErrors.all.present(error)
+                        }
+                    }
+                }
+                .revealInLibrary { itemIDs in
+                    let newSelection = Set(
+                        itemIDs
+                            .lazy
+                            .filter { $0.entityName == Schema.entityName(for: Song.self) }
+                    )
+                    selection = newSelection
+                    if let firstItemID = newSelection.first {
+                        scrollView.scrollTo(firstItemID)
+                    }
+                }
+                .onDropOfImportableItems()
             }
-            .onDropOfImportableItems()
         }
     }
 }

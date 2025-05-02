@@ -39,52 +39,62 @@ struct AlbumBrowser: View {
     @Query var albums: [Album]
     
     var body: some View {
-        HSplitView {
-            List(selection: $selection) {
-                Text("All Songs")
-                    .tag(SelectedItem.all)
-                    .font(.body)
-                    .foregroundStyle(.primary)
-                    .allowsHitTesting(false)
-                
-                ForEach(albums) { album in
-                    HStack {
-                        Group {
-                            if let image = album.songs.first?.artwork.first?.image {
-                                image.resizable()
-                            } else {
-                                Color.gray
+        ScrollViewReader { scrollView in
+            HSplitView {
+                List(selection: $selection) {
+                    Text("All Songs")
+                        .tag(SelectedItem.all)
+                        .font(.body)
+                        .foregroundStyle(.primary)
+                        .allowsHitTesting(false)
+                    
+                    ForEach(albums) { album in
+                        HStack {
+                            Group {
+                                if let image = album.songs.first?.artwork.first?.image {
+                                    image.resizable()
+                                } else {
+                                    Color.gray
+                                }
                             }
+                            .frame(width: 64, height: 64)
+                            .clipShape(RoundedRectangle(cornerRadius: 3.0))
+                            Text(verbatim: album.title)
+                                .font(.body)
+                                .foregroundStyle(.primary)
                         }
-                        .frame(width: 64, height: 64)
-                        .clipShape(RoundedRectangle(cornerRadius: 3.0))
-                        Text(verbatim: album.title)
-                            .font(.body)
-                            .foregroundStyle(.primary)
+                        .tag(SelectedItem.album(album.id))
+                        .allowsHitTesting(false)
+                        .onDrag {
+                            let itemProvider = NSItemProvider()
+                            itemProvider.register(LibraryItem(from: album))
+                            return itemProvider
+                        }
+                        .contextMenu {
+                            ItemContextMenuContent(selection: [album.id])
+                        }
                     }
-                    .tag(SelectedItem.album(album.id))
-                    .allowsHitTesting(false)
-                    .onDrag {
-                        let itemProvider = NSItemProvider()
-                        itemProvider.register(LibraryItem(from: album))
-                        return itemProvider
-                    }
-                    .contextMenu {
-                        ItemContextMenuContent(selection: [album.id])
+                }
+                .frame(minWidth: 100, idealWidth: 150, maxWidth: 250)
+                
+                VStack(alignment: .leading, spacing: 0.0) {
+                    switch selection {
+                    case .all:
+                        SongBrowser()
+                    case .album(let albumID):
+                        SongBrowser(filter: #Predicate { $0.album?.persistentModelID == albumID })
                     }
                 }
             }
-            .frame(minWidth: 100, idealWidth: 150, maxWidth: 250)
-            
-            VStack(alignment: .leading, spacing: 0.0) {
-                switch selection {
-                case .all:
-                    SongBrowser()
-                case .album(let albumID):
-                    SongBrowser(filter: #Predicate { $0.album?.persistentModelID == albumID })
+            .revealInLibrary { itemIDs in
+                if let newSelectedID = itemIDs.lazy.filter({ $0.entityName == Schema.entityName(for: Artist.self) }).first {
+                    selection = .album(newSelectedID)
+                    scrollView.scrollTo(newSelectedID)
+                } else {
+                    selection = .all
                 }
             }
+            .onDropOfImportableItems()
         }
-        .onDropOfImportableItems()
     }
 }

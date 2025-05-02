@@ -29,41 +29,51 @@ struct ArtistBrowser: View {
     @Query(sort: \Artist.name) var artists: [Artist]
     
     var body: some View {
-        HSplitView {
-            List(selection: $selection) {
-                Text("All Songs")
-                    .tag(SelectedItem.all)
-                    .font(.body)
-                    .foregroundStyle(.primary)
-                    .allowsHitTesting(false)
-                
-                ForEach(artists) { artist in
-                    Text(verbatim: artist.name)
-                        .tag(SelectedItem.artist(artist.id))
+        ScrollViewReader { scrollView in
+            HSplitView {
+                List(selection: $selection) {
+                    Text("All Songs")
+                        .tag(SelectedItem.all)
                         .font(.body)
                         .foregroundStyle(.primary)
                         .allowsHitTesting(false)
-                        .onDrag {
-                            let itemProvider = NSItemProvider()
-                            itemProvider.register(LibraryItem(from: artist))
-                            return itemProvider
-                        }
-                        .contextMenu {
-                            ItemContextMenuContent(selection: [artist.id])
-                        }
+                    
+                    ForEach(artists) { artist in
+                        Text(verbatim: artist.name)
+                            .tag(SelectedItem.artist(artist.id))
+                            .font(.body)
+                            .foregroundStyle(.primary)
+                            .allowsHitTesting(false)
+                            .onDrag {
+                                let itemProvider = NSItemProvider()
+                                itemProvider.register(LibraryItem(from: artist))
+                                return itemProvider
+                            }
+                            .contextMenu {
+                                ItemContextMenuContent(selection: [artist.id])
+                            }
+                    }
+                }
+                .frame(minWidth: 100, idealWidth: 150, maxWidth: 250)
+                
+                VStack(alignment: .leading, spacing: 0.0) {
+                    switch selection {
+                    case .all:
+                        SongBrowser()
+                    case .artist(let artistID):
+                        AlbumBrowser(artistID: artistID)
+                    }
                 }
             }
-            .frame(minWidth: 100, idealWidth: 150, maxWidth: 250)
-            
-            VStack(alignment: .leading, spacing: 0.0) {
-                switch selection {
-                case .all:
-                    SongBrowser()
-                case .artist(let artistID):
-                    AlbumBrowser(artistID: artistID)
+            .revealInLibrary { itemIDs in
+                if let newSelectedID = itemIDs.lazy.filter({ $0.entityName == Schema.entityName(for: Artist.self) }).first {
+                    selection = .artist(newSelectedID)
+                    scrollView.scrollTo(newSelectedID)
+                } else {
+                    selection = .all
                 }
             }
+            .onDropOfImportableItems()
         }
-        .onDropOfImportableItems()
     }
 }

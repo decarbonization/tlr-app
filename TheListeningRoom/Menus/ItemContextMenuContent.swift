@@ -27,30 +27,37 @@ struct ItemContextMenuContent: View {
     private let selection: Set<PersistentIdentifier>
     @Environment(\.modelContext) private var modelContext
     @Environment(Player.self) private var player
+    @Environment(\.revealInLibrary) private var revealInLibrary
     
     var body: some View {
-        ItemAddToPlaylistMenu(selection: selection)
-        Divider()
-        Button("Play Next") {
-            guard let playingIndex = player.playingIndex else {
-                return
+        Group {
+            ItemAddToPlaylistMenu(selection: selection)
+            Divider()
+            Button("Play Next") {
+                guard let playingIndex = player.playingIndex else {
+                    return
+                }
+                insertInQueue(at: playingIndex)
             }
-            insertInQueue(at: playingIndex)
+            .disabled(player.playingIndex == nil)
+            Button("Play Last") {
+                insertInQueue(at: 0)
+            }
+            Divider()
+            ItemRatingMenu(selection: selection)
+            Divider()
+            Button("Show in Finder") {
+                revealSelectionInFinder()
+            }
+            Button("Reveal in Library") {
+                revealSelectionInLibrary()
+            }
+            Divider()
+            Button("Remove from Library") {
+                deleteSelection()
+            }
         }
-        .disabled(player.playingIndex == nil)
-        Button("Play Last") {
-            insertInQueue(at: 0)
-        }
-        Divider()
-        ItemRatingMenu(selection: selection)
-        Divider()
-        Button("Show in Finder") {
-            revealSelectionInFinder()
-        }
-        Divider()
-        Button("Remove from Library") {
-            deleteSelection()
-        }
+        .disabled(selection.isEmpty)
     }
     
     private func insertInQueue(at offset: Int) {
@@ -75,6 +82,13 @@ struct ItemContextMenuContent: View {
                 .map { $0.url }
         )
         NSWorkspace.shared.activateFileViewerSelecting(toReveal)
+    }
+    
+    private func revealSelectionInLibrary() {
+        guard !selection.isEmpty else {
+            return
+        }
+        revealInLibrary(selection)
     }
     
     private func deleteSelection() {

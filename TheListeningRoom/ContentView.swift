@@ -29,6 +29,7 @@ struct ContentView: View {
             PlaybackTabView()
                 .frame(minWidth: 100, idealWidth: 200, maxWidth: 250)
         }
+        .libraryRevealable()
         .preferredColorScheme(.dark)
         .task {
             for await urls in appDelegate.openURLs {
