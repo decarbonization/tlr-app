@@ -24,8 +24,8 @@ import SwiftData
 extension ListeningRoomImage {
     @MainActor func image(in modelContext: ModelContext) -> Image? {
         switch self {
-        case .systemImage(let name):
-            return Image(systemName: name)
+        case .image(let nsImage):
+            return Image(nsImage: nsImage)
         case .artwork(let artworkID):
             guard let artwork = modelContext.model(for: artworkID) as? Artwork else {
                 return nil
@@ -36,12 +36,9 @@ extension ListeningRoomImage {
     
     func mpMediaItemArtwork(in modelContext: ModelContext) -> MPMediaItemArtwork? {
         switch self {
-        case .systemImage(let name):
-            guard let symbolImage = NSImage(systemSymbolName: name, accessibilityDescription: nil) else {
-                return nil
-            }
-            return MPMediaItemArtwork(boundsSize: symbolImage.size) { size in
-                let image = symbolImage.copy() as! NSImage
+        case .image(let nsImage):
+            return MPMediaItemArtwork(boundsSize: nsImage.size) { size in
+                let image = nsImage.copy() as! NSImage
                 image.size = size
                 return image
             }

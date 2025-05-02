@@ -28,8 +28,8 @@ public struct ListeningRoomExtensionFeatureLink: ListeningRoomExtensionFeature, 
         let titleFeatures = title()._collectAll(ListeningRoomExtensionFeatureText.self)
         self._title = titleFeatures.reduce("") { acc, next in acc + next._content }
         
-        let imageFeatures = image()._collectAll(ListeningRoomExtensionFeatureImage.self)
-        self._image = imageFeatures.first?._representation
+        let imageFeatures = image()._collectAll(ListeningRoomImage.self)
+        self._icon = imageFeatures.first
     }
     
     public init(sceneID: String,
@@ -37,7 +37,7 @@ public struct ListeningRoomExtensionFeatureLink: ListeningRoomExtensionFeature, 
                 systemImage: String) {
         self.init(sceneID: sceneID,
                   title: { ListeningRoomExtensionFeatureText(verbatim: title) },
-                  image: { ListeningRoomExtensionFeatureImage(systemImage: systemImage) })
+                  image: { ListeningRoomImage.systemImage(systemImage) })
     }
     
     public init(sceneID: String,
@@ -49,7 +49,7 @@ public struct ListeningRoomExtensionFeatureLink: ListeningRoomExtensionFeature, 
     
     public var _sceneID: String
     public var _title: String
-    public var _image: ListeningRoomExtensionFeatureImage._Representation?
+    public var _icon: ListeningRoomImage?
     
     public var feature: some ListeningRoomExtensionFeature {
         self

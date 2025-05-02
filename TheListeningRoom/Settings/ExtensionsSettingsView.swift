@@ -51,6 +51,7 @@ struct ExtensionsSettingsView: View {
 
 private struct _ExtensionSettingsView: View {
     let settings: ExtensionFeature<ListeningRoomFeatureSettings>
+    @Environment(\.modelContext) private var modelContext
     
     var body: some View {
         TabView {
@@ -59,11 +60,10 @@ private struct _ExtensionSettingsView: View {
                     ExtensionHostView(process: settings.process,
                                       sceneID: link._sceneID)
                 } label: {
-                    switch link._image {
-                    case .systemImage(let name):
-                        Label(link._title, systemImage: name)
-                    case nil:
+                    Label {
                         Text(verbatim: link._title)
+                    } icon: {
+                        link._icon?.image(in: modelContext)
                     }
                 }
             }

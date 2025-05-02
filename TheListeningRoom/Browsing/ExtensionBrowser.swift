@@ -36,6 +36,7 @@ struct ExtensionBrowser: View {
     }
     
     @State private var selection: Extension?
+    @Environment(\.modelContext) private var modelContext
     
     var body: some View {
         HSplitView {
@@ -44,13 +45,10 @@ struct ExtensionBrowser: View {
                 ForEach(extensionManager.sidebarSections) { sidebarSection in
                     Section(sidebarSection._title) {
                         ForEach(sidebarSection._items, id: \._sceneID) { item in
-                            Group {
-                                switch item._image {
-                                case .systemImage(let name):
-                                    Label(item._title, systemImage: name)
-                                case nil:
-                                    Text(verbatim: item._title)
-                                }
+                            Label {
+                                Text(verbatim: item._title)
+                            } icon: {
+                                item._icon?.image(in: modelContext)
                             }
                             .tag(Extension(process: sidebarSection.process,
                                            sceneID: item._sceneID))

@@ -19,8 +19,46 @@
 
 import Foundation
 import SwiftData
+import SwiftUI
 
-public enum ListeningRoomImage: Codable, Sendable {
-    case systemImage(name: String)
+public enum ListeningRoomImage: Codable, @unchecked /* NSImage */ Sendable {
+    case image(NSImage)
     case artwork(id: PersistentIdentifier)
+    
+    public static func systemImage(_ name: String) -> Self {
+        .image(NSImage(systemSymbolName: name, accessibilityDescription: nil) ?? NSImage())
+    }
+    
+    private enum CodingKeys: String, CodingKey {
+        case image
+        case artwork
+    }
+    
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        if let imageData = try container.decodeIfPresent(Data.self, forKey: .image) {
+            guard let nsImage = try NSKeyedUnarchiver.unarchivedObject(ofClass: NSImage.self, from: imageData) else {
+                throw DecodingError.keyNotFound(CodingKeys.image, DecodingError.Context(codingPath: decoder.codingPath,
+                                                                                        debugDescription: "Image corrupt"))
+            }
+            self = .image(nsImage)
+        } else if let id = try container.decodeIfPresent(PersistentIdentifier.self, forKey: .artwork) {
+            self = .artwork(id: id)
+        } else {
+            throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: decoder.codingPath,
+                                                                    debugDescription: "Unknown image case"))
+        }
+    }
+    
+    public func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        switch self {
+        case .image(let nsImage):
+            let imageData = try NSKeyedArchiver.archivedData(withRootObject: nsImage,
+                                                             requiringSecureCoding: true)
+            try container.encode(imageData, forKey: .image)
+        case .artwork(let id):
+            try container.encode(id, forKey: .artwork)
+        }
+    }
 }
