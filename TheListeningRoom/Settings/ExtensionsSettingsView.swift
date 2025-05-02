@@ -27,7 +27,8 @@ struct ExtensionsSettingsView: View {
             List {
                 ForEach(extensionManager.settings) { settings in
                     NavigationLink {
-                        _ExtensionSettingsView(settings: settings)
+                        ExtensionHostView(process: settings.process,
+                                          sceneID: settings._sceneID)
                     } label: {
                         Label(settings.process.localizedName, systemImage: "puzzlepiece.extension")
                     }
@@ -46,30 +47,6 @@ struct ExtensionsSettingsView: View {
                 NoContentView("No Selection")
             }
         }
-    }
-}
-
-private struct _ExtensionSettingsView: View {
-    let settings: ExtensionFeature<ListeningRoomFeatureSettings>
-    @Environment(\.modelContext) private var modelContext
-    
-    var body: some View {
-        TabView {
-            ForEach(settings._links, id: \._sceneID) { link in
-                Tab {
-                    ExtensionHostView(process: settings.process,
-                                      sceneID: link._sceneID)
-                } label: {
-                    Label {
-                        Text(verbatim: link._title)
-                    } icon: {
-                        link._icon?.image(in: modelContext)
-                    }
-                }
-            }
-        }
-        .tabViewStyle(.tabBarOnly)
-        .padding(.all.subtracting(.top))
     }
 }
 

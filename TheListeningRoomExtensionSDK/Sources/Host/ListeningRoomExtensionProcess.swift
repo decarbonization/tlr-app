@@ -26,7 +26,7 @@ import Foundation
                 endpoints: [any ListeningRoomXPCEndpoint]) async throws {
         self.identity = identity
         self._interruptions = AsyncChannel()
-        let processConfiguration = AppExtensionProcess.Configuration(appExtensionIdentity: identity, onInterruption: { [_interruptions] in
+        let processConfiguration = AppExtensionProcess.Configuration(appExtensionIdentity: identity, onInterruption: { @Sendable [_interruptions] in
             Task {
                 await _interruptions.send(())
             }

@@ -20,11 +20,11 @@
 import Foundation
 
 public struct ListeningRoomFeatureSettings: ListeningRoomFeature, Codable, Sendable {
-    public init(@ListeningRoomFeatureBuilder links: () -> some ListeningRoomFeature) {
-        self._links = links()._collectAll(ListeningRoomFeatureLink.self)
+    public init(sceneID: String) {
+        self._sceneID = sceneID
     }
     
-    public var _links: [ListeningRoomFeatureLink]
+    public var _sceneID: String
     
     public var feature: some ListeningRoomFeature {
         ListeningRoomExtensionTopLevelFeature.settings(self)

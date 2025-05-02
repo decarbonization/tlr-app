@@ -28,27 +28,15 @@ import SwiftUI
                                               title: "Player",
                                               systemImage: "music.note.list")
         }
-        ListeningRoomFeatureSettings {
-            ListeningRoomFeatureLink(sceneID: "general-settings",
-                                              title: "General",
-                                              systemImage: "gear")
-            ListeningRoomFeatureLink(sceneID: "advanced-settings",
-                                              title: "Advanced",
-                                              systemImage: "gearshape.2")
-        }
+        ListeningRoomFeatureSettings(sceneID: "settings")
     }
     
     var body: some AppExtensionScene {
         ListeningRoomExtensionScene(id: "player") {
             PlayerTesterView()
         }
-        ListeningRoomExtensionScene(id: "general-settings") {
+        ListeningRoomExtensionScene(id: "settings") {
             Label("General", systemImage: "gear")
-                .font(.largeTitle)
-                .foregroundStyle(.tertiary)
-        }
-        ListeningRoomExtensionScene(id: "advanced-settings") {
-            Label("Advanced", systemImage: "gearshape.2")
                 .font(.largeTitle)
                 .foregroundStyle(.tertiary)
         }
