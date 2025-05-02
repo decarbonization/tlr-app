@@ -56,14 +56,16 @@ private struct _NowPlayingContent: View {
             }
             .aspectRatio(1.0, contentMode: .fit)
             .clipShape(RoundedRectangle(cornerRadius: 3.0))
-            Text(verbatim: playingItem?.title ?? "--")
-                .lineLimit(2)
-                .font(.headline)
-                .foregroundStyle(.primary)
-            Text(verbatim: playingItem?.artist ?? "--")
-                .lineLimit(2)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+            Marquee {
+                Text(verbatim: playingItem?.title ?? "--")
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+            }
+            Marquee {
+                Text(verbatim: playingItem?.artist ?? "--")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
             HStack {
                 Slider(value: $currentTime, in: 0 ... totalTime)
                     .tint(.orange)
