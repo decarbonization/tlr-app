@@ -60,9 +60,13 @@ struct ArtistBrowser: View {
                 VStack(alignment: .leading, spacing: 0.0) {
                     switch selection {
                     case .all:
-                        SongBrowser()
+                        SongBrowser(sortOrder: [SortDescriptor(\.artist?.name),
+                                                SortDescriptor(\.album?.title),
+                                                SortDescriptor(\.discNumber),
+                                                SortDescriptor(\.trackNumber)])
                     case .artist(let artistID):
                         AlbumBrowser(artistID: artistID)
+                            .id(artistID)
                     }
                 }
             }

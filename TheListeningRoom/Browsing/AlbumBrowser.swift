@@ -81,9 +81,12 @@ struct AlbumBrowser: View {
                 VStack(alignment: .leading, spacing: 0.0) {
                     switch selection {
                     case .all:
-                        SongBrowser()
+                        SongBrowser(filter: artistID.map { artistID in #Predicate { $0.artist?.persistentModelID == artistID } },
+                                    sortOrder: [SortDescriptor(\.album?.title), SortDescriptor(\.discNumber), SortDescriptor(\.trackNumber)])
                     case .album(let albumID):
-                        SongBrowser(filter: #Predicate { $0.album?.persistentModelID == albumID })
+                        SongBrowser(filter: #Predicate { $0.album?.persistentModelID == albumID },
+                                    sortOrder: [SortDescriptor(\.discNumber), SortDescriptor(\.trackNumber)])
+                            .id(albumID)
                     }
                 }
             }
