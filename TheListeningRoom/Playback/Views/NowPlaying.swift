@@ -47,6 +47,7 @@ private struct _NowPlayingContent: View {
     
     var body: some View {
         VStack {
+            Spacer()
             Group {
                 if let image = playingItem?.artwork?.image(in: modelContext) {
                     image.resizable()
@@ -66,6 +67,7 @@ private struct _NowPlayingContent: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
+            Spacer()
             HStack {
                 Slider(value: $currentTime, in: 0 ... totalTime)
                     .tint(.orange)
@@ -74,6 +76,9 @@ private struct _NowPlayingContent: View {
                     .foregroundStyle(.primary)
             }
             PlaybackControls()
+                .imageScale(.large)
+                .buttonStyle(.borderless)
+            Spacer()
         }
         .padding()
     }

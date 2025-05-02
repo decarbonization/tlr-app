@@ -24,6 +24,7 @@ struct PlaybackControls: View {
     
     var body: some View {
         HStack {
+            Spacer()
             Button {
                 Task {
                     do {
@@ -37,6 +38,7 @@ struct PlaybackControls: View {
             }
             .disabled(player.playingItem == nil)
             .keyboardShortcut(.leftArrow, modifiers: .command)
+            Spacer()
             Button {
                 Task {
                     switch player.playbackState {
@@ -71,6 +73,7 @@ struct PlaybackControls: View {
             }
             .disabled(player.queue.itemIDs.isEmpty)
             .keyboardShortcut(.space)
+            Spacer()
             Button {
                 Task {
                     do {
@@ -84,6 +87,7 @@ struct PlaybackControls: View {
             }
             .disabled(player.playingItem == nil)
             .keyboardShortcut(.rightArrow, modifiers: .command)
+            Spacer()
         }
         .labelStyle(.iconOnly)
     }
