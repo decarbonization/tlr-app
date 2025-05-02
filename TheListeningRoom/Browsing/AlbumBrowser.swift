@@ -67,7 +67,8 @@ struct AlbumBrowser: View {
                         .allowsHitTesting(false)
                         .onDrag {
                             let itemProvider = NSItemProvider()
-                            itemProvider.register(LibraryItem(from: album))
+                            let libraryItem = LibraryItem(from: album)
+                            itemProvider.register(libraryItem)
                             return itemProvider
                         }
                         .contextMenu {

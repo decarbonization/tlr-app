@@ -40,7 +40,8 @@ struct PlaylistBrowser: View {
                         .tag(playlist)
                         .onDrag {
                             let itemProvider = NSItemProvider()
-                            itemProvider.register(LibraryItem(from: playlist))
+                            let libraryItem = LibraryItem(from: playlist)
+                            itemProvider.register(libraryItem)
                             return itemProvider
                         }
                         .onDrop(of: [.libraryItem], isTargeted: nil) { providers in
