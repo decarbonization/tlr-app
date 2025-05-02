@@ -18,6 +18,7 @@
 
 import CoreGraphics
 import Foundation
+import SwiftUI
 
 struct RGBColor: Equatable, Codable {
     init(red: Double, green: Double, blue: Double, alpha: Double) {
@@ -50,5 +51,12 @@ struct RGBColor: Equatable, Codable {
                 green: green,
                 blue: blue,
                 alpha: alpha)
+    }
+    
+    var color: Color {
+        Color(red: red,
+              green: green,
+              blue: blue,
+              opacity: alpha)
     }
 }

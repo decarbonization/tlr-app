@@ -42,6 +42,7 @@ private struct _NowPlayingContent: View {
     
     private let playingItem: ListeningRoomPlayingItem?
     private let totalTime: TimeInterval
+    @State private var colors = [RGBColor]()
     @Binding private var currentTime: TimeInterval
     @Environment(\.modelContext) private var modelContext
     
@@ -57,20 +58,22 @@ private struct _NowPlayingContent: View {
             }
             .aspectRatio(1.0, contentMode: .fit)
             .clipShape(RoundedRectangle(cornerRadius: 3.0))
-            Marquee {
-                Text(verbatim: playingItem?.title ?? "--")
-                    .font(.headline)
-                    .foregroundStyle(.primary)
-            }
-            Marquee {
-                Text(verbatim: playingItem?.artist ?? "--")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+            VStack(spacing: 2) {
+                Marquee {
+                    Text(verbatim: playingItem?.title ?? "--")
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+                }
+                Marquee {
+                    Text(verbatim: playingItem?.artist ?? "--")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
             }
             Spacer()
             HStack {
                 Slider(value: $currentTime, in: 0 ... totalTime)
-                    .tint(.orange)
+                    .tint(colors.isEmpty ? .orange : colors[3].color)
                 Text(Duration.seconds(currentTime), format: Duration.TimeFormatStyle(pattern: .minuteSecond))
                     .font(.caption)
                     .foregroundStyle(.primary)
@@ -81,6 +84,17 @@ private struct _NowPlayingContent: View {
             Spacer()
         }
         .padding()
+        .task(id: playingItem?.id) {
+            colors = []
+            guard let artwork = playingItem?.artwork,
+            let artworkColors = await artwork.predominantColors(in: modelContext) else {
+                return
+            }
+            colors = artworkColors
+        }
+        .background(colors.isEmpty ? .clear : colors[0].color)
+        .foregroundStyle(colors.isEmpty ? Color.primary : colors[1].color,
+                         colors.isEmpty ? Color.secondary : colors[2].color)
     }
 }
 
