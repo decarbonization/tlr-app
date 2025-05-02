@@ -39,6 +39,6 @@ public struct ListeningRoomSidebarSection: ListeningRoomFeature, Codable, Sendab
     public let _items: [ListeningRoomFeatureLink]
     
     public var feature: some ListeningRoomFeature {
-        ListeningRoomExtensionTopLevelFeature.sidebarSection(self)
+        ListeningRoomTopLevelFeature.sidebarSection(self)
     }
 }

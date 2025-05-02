@@ -54,7 +54,7 @@ import Foundation
         _interruptions
     }
     
-    public var features: [ListeningRoomExtensionTopLevelFeature] {
+    public var features: [ListeningRoomTopLevelFeature] {
         get async throws {
             try await extensionMain.dispatch(.features)
         }

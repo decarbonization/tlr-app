@@ -27,6 +27,6 @@ public struct ListeningRoomFeatureSettings: ListeningRoomFeature, Codable, Senda
     public var _sceneID: String
     
     public var feature: some ListeningRoomFeature {
-        ListeningRoomExtensionTopLevelFeature.settings(self)
+        ListeningRoomTopLevelFeature.settings(self)
     }
 }
