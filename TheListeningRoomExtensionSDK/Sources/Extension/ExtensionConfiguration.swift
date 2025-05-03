@@ -19,15 +19,15 @@
 
 import ExtensionKit
 
-final class ListeningRoomExtensionConfiguration<E: ListeningRoomExtension>: AppExtensionConfiguration {
+internal final class ExtensionConfiguration<E: ListeningRoomExtension>: AppExtensionConfiguration {
     init(_ appExtension: E) {
         self.appExtension = appExtension
-        self.hostMain = ListeningRoomXPCConnection(role: .extensionMain,
-                                                   endpoints: [ListeningRoomExtensionGetFeaturesEndpoint(appExtension)])
+        self.hostMain = XPCConnection(role: .extensionMain,
+                                                   endpoints: [ExtensionGetFeaturesEndpoint(appExtension)])
     }
     
     private let appExtension: E
-    private let hostMain: ListeningRoomXPCConnection
+    private let hostMain: XPCConnection
     
     func accept(connection: NSXPCConnection) -> Bool {
         hostMain.takeOwnership(of: connection)

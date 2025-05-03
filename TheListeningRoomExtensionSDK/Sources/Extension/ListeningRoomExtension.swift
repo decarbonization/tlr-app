@@ -32,6 +32,6 @@ public protocol ListeningRoomExtension: AppExtension where Configuration == AppE
 
 extension ListeningRoomExtension {
     @MainActor public var configuration: Configuration {
-        AppExtensionSceneConfiguration(body, configuration: ListeningRoomExtensionConfiguration(self))
+        AppExtensionSceneConfiguration(body, configuration: ExtensionConfiguration(self))
     }
 }

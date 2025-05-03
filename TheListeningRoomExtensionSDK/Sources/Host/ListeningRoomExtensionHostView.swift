@@ -63,7 +63,7 @@ private struct _ListeningRoomExtensionHostContent: NSViewControllerRepresentable
     let sceneID: String
     
     @MainActor final class Coordinator: NSObject, EXHostViewControllerDelegate {
-        let extensionScene = ListeningRoomXPCConnection(role: .hostView)
+        let extensionScene = XPCConnection(role: .hostView)
         let posterSubscriber = AsyncSubscriber()
         var posters = [any ListeningRoomXPCPoster]() {
             didSet {

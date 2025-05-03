@@ -19,7 +19,7 @@
 
 import Foundation
 
-public enum ListeningRoomXPCRole: String, Sendable {
+internal enum XPCRole: String, Sendable {
     case placeholder
     case extensionMain
     case extensionScene

@@ -59,7 +59,7 @@ extension ListeningRoomImage {
         }
     }
     
-    @MainActor func colorPalette(in modelContext: ModelContext) async throws -> ColorPalette? {
+    @MainActor func colorPalette(in modelContext: ModelContext) async throws -> ListeningRoomColorPalette? {
         let artwork: Artwork?
         let imageData: Data?
         switch self {
@@ -76,7 +76,7 @@ extension ListeningRoomImage {
         if let existingColorPalette = artwork?.colorPalette {
             return existingColorPalette
         } else {
-            let newColorPalette = try await ColorPalette(analyze: imageData)
+            let newColorPalette = try await ListeningRoomColorPalette(analyze: imageData)
             artwork?.colorPalette = newColorPalette
             return newColorPalette
         }

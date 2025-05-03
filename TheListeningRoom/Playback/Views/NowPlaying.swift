@@ -42,7 +42,7 @@ private struct _NowPlayingContent: View {
     
     private let playingItem: ListeningRoomPlayingItem?
     private let totalTime: TimeInterval
-    @State private var colorPalette: ColorPalette?
+    @State private var colorPalette: ListeningRoomColorPalette?
     @Binding private var currentTime: TimeInterval
     @Environment(\.modelContext) private var modelContext
     

@@ -21,10 +21,10 @@
 import Foundation
 import Testing
 
-@Suite struct ListeningRoomXPCDispatcherTests {
+@Suite struct XPCDispatcherTests {
     @Test func noEndpointFound() async throws {
-        let subject = ListeningRoomXPCDispatcher(role: .placeholder,
-                                                 endpoints: [])
+        let subject = XPCDispatcher(role: .placeholder,
+                                    endpoints: [])
         await #expect(throws: CocoaError.self, performing: {
             try await withUnsafeThrowingContinuation { continuation in
                 subject._dispatch(Data(), to: "notFound") { data, error in
@@ -42,8 +42,8 @@ import Testing
     }
     
     @Test func dispatch() async throws {
-        let subject = ListeningRoomXPCDispatcher(role: .placeholder,
-                                                 endpoints: [SquareEndpoint()])
+        let subject = XPCDispatcher(role: .placeholder,
+                                    endpoints: [SquareEndpoint()])
         let request = try _encode(Square(value: 10))
         let responseData = try await withUnsafeThrowingContinuation { continuation in
             subject._dispatch(request, to: Square.endpoint) { data, error in

@@ -23,7 +23,7 @@ import SwiftData
 import SwiftUI
 
 @Observable public final class ListeningRoomPlayer: Sendable {
-    internal init(connection: ListeningRoomXPCConnection) {
+    internal init(connection: XPCConnection) {
         self.connection = connection
         self.subscriber = AsyncSubscriber()
         self._state = .init(initialState: .empty)
@@ -32,7 +32,7 @@ import SwiftUI
         }
     }
     
-    private let connection: ListeningRoomXPCConnection
+    private let connection: XPCConnection
     private let subscriber: AsyncSubscriber
     private let _state: OSAllocatedUnfairLock<ListeningRoomPlayerState>
     

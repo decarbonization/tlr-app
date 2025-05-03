@@ -19,27 +19,21 @@
 
 import Foundation
 
-public struct ListeningRoomExtensionGetFeatures: ListeningRoomXPCRequest {
-    public typealias Response = [ListeningRoomTopLevelFeature]
+internal struct ExtensionGetFeatures: ListeningRoomXPCRequest {
+    typealias Response = [ListeningRoomTopLevelFeature]
     
-    public init() {
+    init() {
     }
 }
 
-extension ListeningRoomXPCRequest where Self == ListeningRoomExtensionGetFeatures {
-    public static var features: Self {
-        Self()
-    }
-}
-
-internal struct ListeningRoomExtensionGetFeaturesEndpoint<E: ListeningRoomExtension>: ListeningRoomXPCEndpoint, @unchecked Sendable {
+internal struct ExtensionGetFeaturesEndpoint<E: ListeningRoomExtension>: ListeningRoomXPCEndpoint, @unchecked Sendable {
     init(_ appExtension: E) {
         self.appExtension = appExtension
     }
     
     private let appExtension: E
     
-    func callAsFunction(_ request: ListeningRoomExtensionGetFeatures) async throws -> [ListeningRoomTopLevelFeature] {
+    func callAsFunction(_ request: ExtensionGetFeatures) async throws -> [ListeningRoomTopLevelFeature] {
         appExtension.features._collectAll(ListeningRoomTopLevelFeature.self)
     }
 }

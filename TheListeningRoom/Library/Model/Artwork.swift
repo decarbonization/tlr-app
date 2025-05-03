@@ -49,7 +49,7 @@ extension AppSchemaV0 {
              payloadType: PayloadType,
              payload: Data,
              songs: [Song] = [],
-             colorPalette: ColorPalette? = nil) {
+             colorPalette: ListeningRoomColorPalette? = nil) {
             self.creationDate = Date()
             self.lastModified = Date()
             self.kind = kind
@@ -67,7 +67,7 @@ extension AppSchemaV0 {
         var payloadHash: String
         var payloadType: PayloadType
         var payload: Data
-        var colorPalette: ColorPalette?
+        var colorPalette: ListeningRoomColorPalette?
         @Relationship(inverse: \Song.artwork) var songs: [Song]
     }
 }

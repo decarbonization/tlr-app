@@ -32,7 +32,7 @@ import Foundation
             }
         })
         self.process = try await AppExtensionProcess(configuration: processConfiguration)
-        self.extensionMain = ListeningRoomXPCConnection(role: .hostMain,
+        self.extensionMain = XPCConnection(role: .hostMain,
                                                         endpoints: endpoints)
         extensionMain.takeOwnership(of: try process.makeXPCConnection())
     }
@@ -40,7 +40,7 @@ import Foundation
     internal let identity: AppExtensionIdentity
     internal let _interruptions: AsyncChannel<Void>
     internal let process: AppExtensionProcess
-    internal let extensionMain: ListeningRoomXPCConnection
+    internal let extensionMain: XPCConnection
     
     public nonisolated var id: String {
         identity.bundleIdentifier
@@ -56,7 +56,7 @@ import Foundation
     
     public var features: [ListeningRoomTopLevelFeature] {
         get async throws {
-            try await extensionMain.dispatch(.features)
+            try await extensionMain.dispatch(ExtensionGetFeatures())
         }
     }
     

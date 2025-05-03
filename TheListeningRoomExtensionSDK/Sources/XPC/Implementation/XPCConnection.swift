@@ -20,15 +20,15 @@
 import Foundation
 import os
 
-@Observable internal final class ListeningRoomXPCConnection: CustomStringConvertible, @unchecked Sendable {
+@Observable internal final class XPCConnection: CustomStringConvertible, @unchecked Sendable {
     static let logger = Logger(subsystem: "io.github.decarbonization.TheListeningRoom", category: "XPCConnection")
     
-    static let placeholder = ListeningRoomXPCConnection(role: .placeholder, endpoints: [])
+    static let placeholder = XPCConnection(role: .placeholder, endpoints: [])
     
-    init(role: ListeningRoomXPCRole,
+    init(role: XPCRole,
          endpoints: [any ListeningRoomXPCEndpoint] = []) {
-        self.dispatcher = ListeningRoomXPCDispatcher(role: role,
-                                                     endpoints: endpoints)
+        self.dispatcher = XPCDispatcher(role: role,
+                                        endpoints: endpoints)
         self.stateLock = .init()
         self.withStateLock_connectionWaiters = []
     }
@@ -46,7 +46,7 @@ import os
         }
     }
     
-    private let dispatcher: ListeningRoomXPCDispatcher
+    private let dispatcher: XPCDispatcher
     private let stateLock: OSAllocatedUnfairLock<Void>
     private var withStateLock_connectionWaiters: [UnsafeContinuation<Void, any Error>]
     private var withStateLock_currentConnection: (any NSXPCConnectionLike)?
@@ -105,9 +105,9 @@ import os
             return false
         }
         
-        connection.exportedInterface = NSXPCInterface(with: ListeningRoomXPCDispatcherProtocol.self)
+        connection.exportedInterface = NSXPCInterface(with: XPCDispatcherProtocol.self)
         connection.exportedObject = dispatcher
-        connection.remoteObjectInterface = NSXPCInterface(with: ListeningRoomXPCDispatcherProtocol.self)
+        connection.remoteObjectInterface = NSXPCInterface(with: XPCDispatcherProtocol.self)
         connection.interruptionHandler = { [weak self] in
             self?.xpcConnectionInterrupted()
         }
@@ -164,7 +164,7 @@ import os
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, any Error>) in
             let remoteDispatcher = connection.remoteObjectProxyWithErrorHandler { error in
                 continuation.resume(throwing: error)
-            } as! ListeningRoomXPCDispatcherProtocol
+            } as! XPCDispatcherProtocol
             remoteDispatcher._ping { error in
                 if let error {
                     continuation.resume(throwing: error)
@@ -181,7 +181,7 @@ import os
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, any Error>) in
             let remoteDispatcher = connection.remoteObjectProxyWithErrorHandler { error in
                 continuation.resume(throwing: error)
-            } as! ListeningRoomXPCDispatcherProtocol
+            } as! XPCDispatcherProtocol
             remoteDispatcher._post(event, with: E.name) { error in
                 if let error {
                     continuation.resume(throwing: error)
@@ -208,7 +208,7 @@ import os
         let response: Data = try await withCheckedThrowingContinuation { continuation in
             let remoteDispatcher = connection.remoteObjectProxyWithErrorHandler { error in
                 continuation.resume(throwing: error)
-            } as! ListeningRoomXPCDispatcherProtocol
+            } as! XPCDispatcherProtocol
             remoteDispatcher._dispatch(request, to: Req.endpoint) { data, error in
                 switch (data, error) {
                 case (let data?, nil):
@@ -235,11 +235,11 @@ import os
             }
             stateLock.unlock()
         }
-        return "ListeningRoomXPCConnection(\(currentConnectionDescription))"
+        return "XPCConnection(\(currentConnectionDescription))"
     }
 }
 
-/// Protocol over the interface of `NSXPCConnection` to make ``ListeningRoomXPCConnection`` testable.
+/// Protocol over the interface of `NSXPCConnection` to make ``XPCConnection`` testable.
 protocol NSXPCConnectionLike: AnyObject {
     var exportedInterface: NSXPCInterface? { get set }
     var exportedObject: Any? { get set }

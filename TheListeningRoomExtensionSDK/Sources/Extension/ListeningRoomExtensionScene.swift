@@ -29,7 +29,7 @@ public struct ListeningRoomExtensionScene<Content: View>: AppExtensionScene {
     
     private let id: String
     private let content: @MainActor () -> Content
-    private let hostView = ListeningRoomXPCConnection(role: .extensionScene,
+    private let hostView = XPCConnection(role: .extensionScene,
                                                       endpoints: [])
     
     public var body: some AppExtensionScene {

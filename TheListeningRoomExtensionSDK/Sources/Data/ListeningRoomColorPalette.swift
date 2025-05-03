@@ -21,7 +21,7 @@ private import CoreImage
 private import CoreImage.CIFilterBuiltins
 import Foundation
 
-public struct ColorPalette: Hashable, Codable, Sendable {
+public struct ListeningRoomColorPalette: Hashable, Codable, Sendable {
     public enum AnalysisError: LocalizedError {
         case invalidData
         case kMeansFailure

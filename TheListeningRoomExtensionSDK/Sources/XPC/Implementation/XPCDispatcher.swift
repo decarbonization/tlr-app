@@ -21,8 +21,8 @@ internal import AsyncAlgorithms
 import Foundation
 import os
 
-internal final class ListeningRoomXPCDispatcher: NSObject, Sendable {
-    init(role: ListeningRoomXPCRole,
+internal final class XPCDispatcher: NSObject, Sendable {
+    init(role: XPCRole,
          endpoints: [any ListeningRoomXPCEndpoint]) {
         self.role = role
         var endpointsByName = [String: any ListeningRoomXPCEndpoint]()
@@ -36,7 +36,7 @@ internal final class ListeningRoomXPCDispatcher: NSObject, Sendable {
         self.incomingPosts = AsyncChannel()
     }
     
-    let role: ListeningRoomXPCRole
+    let role: XPCRole
     private let _endpointsByName: OSAllocatedUnfairLock<[String: any ListeningRoomXPCEndpoint]>
     
     internal let incomingPosts: AsyncChannel<(event: Data, name: String)>
@@ -63,11 +63,11 @@ internal final class ListeningRoomXPCDispatcher: NSObject, Sendable {
     
     override var description: String {
         let endpointNames = _endpointsByName.withLockIfAvailable { $0.keys.joined(separator: ", ") } ?? "?"
-        return "ListeningRoomXPCDispatcher(role: \(role), endpoints: [\(endpointNames)])"
+        return "XPCDispatcher(role: \(role), endpoints: [\(endpointNames)])"
     }
 }
 
-@objc(_ListeningRoomXPCDispatcher) internal protocol ListeningRoomXPCDispatcherProtocol: NSObjectProtocol {
+@objc(_XPCDispatcher) internal protocol XPCDispatcherProtocol: NSObjectProtocol {
     func _ping(replyHandler: @escaping @Sendable ((any Error)?) -> Void) -> Void
     
     func _post(_ event: Data,
@@ -79,7 +79,7 @@ internal final class ListeningRoomXPCDispatcher: NSObject, Sendable {
                    replyHandler: @escaping @Sendable (Data?, (any Error)?) -> Void) -> Void
 }
 
-extension ListeningRoomXPCDispatcher: ListeningRoomXPCDispatcherProtocol {
+extension XPCDispatcher: XPCDispatcherProtocol {
     internal func _ping(replyHandler: @escaping @Sendable ((any Error)?) -> Void) {
         Task {
             replyHandler(nil)
