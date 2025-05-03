@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import TheListeningRoomExtensionSDK
 import SwiftData
 import SwiftUI
 
@@ -100,7 +101,7 @@ struct PlaylistList: View {
             .background(Color(white: 0.0, opacity: 0.1))
         }
         .onChange(of: accentColor) {
-            playlist.accentColor = RGBColor(cgColor: accentColor)
+            playlist.accentColor = ListeningRoomColor(cgColor: accentColor)
         }
         .accentColor(Color(cgColor: accentColor))
         .background(Color(cgColor: accentColor).brightness(-0.2))

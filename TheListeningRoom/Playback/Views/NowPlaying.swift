@@ -42,7 +42,7 @@ private struct _NowPlayingContent: View {
     
     private let playingItem: ListeningRoomPlayingItem?
     private let totalTime: TimeInterval
-    @State private var colors = [RGBColor]()
+    @State private var colorPalette: ColorPalette?
     @Binding private var currentTime: TimeInterval
     @Environment(\.modelContext) private var modelContext
     
@@ -73,7 +73,7 @@ private struct _NowPlayingContent: View {
             Spacer()
             HStack {
                 Slider(value: $currentTime, in: 0 ... totalTime)
-                    .tint(colors.isEmpty ? .orange : colors[3].color)
+                    .tint(colorPalette.map { Color($0.tertiary.cgColor) } ?? .orange)
                 Text(Duration.seconds(currentTime), format: Duration.TimeFormatStyle(pattern: .minuteSecond))
                     .font(.caption)
                     .foregroundStyle(.primary)
@@ -85,16 +85,22 @@ private struct _NowPlayingContent: View {
         }
         .padding()
         .task(id: playingItem?.id) {
-            colors = []
-            guard let artwork = playingItem?.artwork,
-            let artworkColors = await artwork.predominantColors(in: modelContext) else {
-                return
+            do {
+                guard let artworkImage = playingItem?.artwork,
+                      let artworkColorPalette = try await artworkImage.colorPalette(in: modelContext) else {
+                    colorPalette = nil
+                    return
+                }
+                withAnimation(.easeIn(duration: 0.1)) {
+                    colorPalette = artworkColorPalette
+                }
+            } catch {
+                TaskErrors.all.present(error)
             }
-            colors = artworkColors
         }
-        .background(colors.isEmpty ? .clear : colors[0].color)
-        .foregroundStyle(colors.isEmpty ? Color.primary : colors[1].color,
-                         colors.isEmpty ? Color.secondary : colors[2].color)
+        .background(colorPalette.map { Color($0.background.cgColor) } ?? .clear)
+        .foregroundStyle(colorPalette.map { Color($0.primary.cgColor) } ?? .primary,
+                         colorPalette.map { Color($0.secondary.cgColor) } ?? .secondary)
     }
 }
 

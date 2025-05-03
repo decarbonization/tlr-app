@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import TheListeningRoomExtensionSDK
 import CryptoKit
 import Foundation
 import SwiftData
@@ -47,7 +48,8 @@ extension AppSchemaV0 {
              payloadHash: String,
              payloadType: PayloadType,
              payload: Data,
-             songs: [Song] = []) {
+             songs: [Song] = [],
+             colorPalette: ColorPalette? = nil) {
             self.creationDate = Date()
             self.lastModified = Date()
             self.kind = kind
@@ -55,6 +57,7 @@ extension AppSchemaV0 {
             self.payloadType = payloadType
             self.payload = payload
             self.songs = songs
+            self.colorPalette = nil
         }
         
         private(set) var creationDate: Date
@@ -64,6 +67,7 @@ extension AppSchemaV0 {
         var payloadHash: String
         var payloadType: PayloadType
         var payload: Data
+        var colorPalette: ColorPalette?
         @Relationship(inverse: \Song.artwork) var songs: [Song]
     }
 }

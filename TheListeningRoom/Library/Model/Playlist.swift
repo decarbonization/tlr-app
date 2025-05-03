@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import TheListeningRoomExtensionSDK
 import Foundation
 import SwiftData
 
@@ -26,7 +27,7 @@ extension AppSchemaV0 {
     @Model final class Playlist: SongCollection {
         init(name: String,
              userDescription: String? = nil,
-             accentColor: RGBColor? = nil) {
+             accentColor: ListeningRoomColor? = nil) {
             self.name = name
             self.userDescription = userDescription
             self.accentColor = accentColor
@@ -35,7 +36,7 @@ extension AppSchemaV0 {
         
         var name: String
         var userDescription: String?
-        var accentColor: RGBColor?
+        var accentColor: ListeningRoomColor?
         @Relationship(deleteRule: .cascade) var playlistItems: [PlaylistItem]
         var songs: [Song] {
             get {
