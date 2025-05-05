@@ -19,17 +19,18 @@
 import Foundation
 import OrderedCollections
 import SwiftData
+import TheListeningRoomExtensionSDK
 
-extension Queue<PersistentIdentifier, ModelContext> {
-    struct ItemsByPersistentIdentifier<Item: PersistentModel>: RandomAccessCollection {
+extension Queue<ListeningRoomID, ModelContext> {
+    private struct ItemsByListeningRoomID<Item: PersistentModel & ExternallyIdentifiable>: RandomAccessCollection {
         init(context: ModelContext,
-             ids: OrderedSet<PersistentIdentifier>) {
+             ids: OrderedSet<ListeningRoomID>) {
             self.context = context
             self.ids = ids
         }
         
         private let context: ModelContext
-        private let ids: OrderedSet<PersistentIdentifier>
+        private let ids: OrderedSet<ListeningRoomID>
         
         var startIndex: Int {
             ids.startIndex
@@ -48,16 +49,16 @@ extension Queue<PersistentIdentifier, ModelContext> {
         }
         
         subscript(position: Int) -> Item {
-            context.model(for: ids[position]) as! Item
+            Item.model(for: ids[position].rawValue, in: context)!
         }
     }
     
-    func item<Item: PersistentModel>(of modelType: Item.Type = Item.self,
-                                     withID itemID: ItemID) -> Item? {
-        context.model(for: itemID) as? Item
+    func item<Item: PersistentModel & ExternallyIdentifiable>(of modelType: Item.Type = Item.self,
+                                                              withID itemID: ItemID) -> Item? {
+        Item.model(for: itemID.rawValue, in: context)
     }
     
-    func items<Item: PersistentModel>(of modelType: Item.Type = Item.self) -> ItemsByPersistentIdentifier<Item> {
-        ItemsByPersistentIdentifier(context: context, ids: itemIDs)
+    func items<Item: PersistentModel & ExternallyIdentifiable>(of modelType: Item.Type = Item.self) -> some RandomAccessCollection<Item> {
+        ItemsByListeningRoomID(context: context, ids: itemIDs)
     }
 }
