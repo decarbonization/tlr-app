@@ -23,6 +23,8 @@ typealias Song = LatestAppSchema.Song
 
 extension AppSchemaV0 {
     @Model final class Song: SongCollection {
+        #Index([\Song.externalID])
+        
         struct Flags: OptionSet, Codable, CustomDebugStringConvertible {
             var rawValue: UInt
             
@@ -49,6 +51,7 @@ extension AppSchemaV0 {
         init(url: URL,
              startTime: TimeInterval,
              endTime: TimeInterval) {
+            self.externalID = makeUniqueExternalID()
             self.creationDate = Date()
             self.lastModified = Date()
             self.url = url
@@ -59,6 +62,7 @@ extension AppSchemaV0 {
             self.playlistItems = []
         }
         
+        private(set) var externalID: String
         private(set) var creationDate: Date
         var lastModified: Date
         var lastPlayed: Date?

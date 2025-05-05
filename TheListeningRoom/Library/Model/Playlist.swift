@@ -28,11 +28,18 @@ extension AppSchemaV0 {
         init(name: String,
              userDescription: String? = nil,
              accentColor: ListeningRoomColor? = nil) {
+            self.externalID = makeUniqueExternalID()
+            self.creationDate = Date()
+            self.lastModified = Date()
             self.name = name
             self.userDescription = userDescription
             self.accentColor = accentColor
             self.playlistItems = []
         }
+        
+        private(set) var externalID: String
+        private(set) var creationDate: Date
+        var lastModified: Date
         
         var name: String
         var userDescription: String?

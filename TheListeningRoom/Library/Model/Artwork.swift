@@ -25,8 +25,8 @@ typealias Artwork = LatestAppSchema.Artwork
 
 extension AppSchemaV0 {
     @Model final class Artwork {
-        #Index([\Artwork.payloadHash])
-        #Unique([\Artwork.payloadHash])
+        #Index([\Artwork.payloadHash], [\Artwork.externalID])
+        #Unique([\Artwork.payloadHash], [\Artwork.externalID])
         
         enum Kind: UInt64, Codable {
             // TODO: Support more kinds
@@ -50,6 +50,7 @@ extension AppSchemaV0 {
              payload: Data,
              songs: [Song] = [],
              colorPalette: ListeningRoomColorPalette? = nil) {
+            self.externalID = makeUniqueExternalID()
             self.creationDate = Date()
             self.lastModified = Date()
             self.kind = kind
@@ -60,6 +61,7 @@ extension AppSchemaV0 {
             self.colorPalette = nil
         }
         
+        private(set) var externalID: String
         private(set) var creationDate: Date
         var lastModified: Date
         

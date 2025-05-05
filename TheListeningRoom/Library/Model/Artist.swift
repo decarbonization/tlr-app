@@ -29,6 +29,7 @@ extension AppSchemaV0 {
         init(name: String,
              albums: [Album] = [],
              songs: [Song] = []) {
+            self.externalID = makeUniqueExternalID()
             self.creationDate = Date()
             self.lastModified = Date()
             self.name = name
@@ -36,6 +37,7 @@ extension AppSchemaV0 {
             self.songs = songs
         }
         
+        private(set) var externalID: String
         private(set) var creationDate: Date
         var lastModified: Date
         
