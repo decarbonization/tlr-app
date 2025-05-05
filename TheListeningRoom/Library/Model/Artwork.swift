@@ -24,7 +24,7 @@ import SwiftData
 typealias Artwork = LatestAppSchema.Artwork
 
 extension AppSchemaV0 {
-    @Model final class Artwork {
+    @Model final class Artwork: ExternallyIdentifiable {
         #Index([\Artwork.payloadHash], [\Artwork.externalID])
         #Unique([\Artwork.payloadHash], [\Artwork.externalID])
         

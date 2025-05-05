@@ -22,7 +22,7 @@ import SwiftData
 typealias Album = LatestAppSchema.Album
 
 extension AppSchemaV0 {
-    @Model final class Album: SongCollection {
+    @Model final class Album: ExternallyIdentifiable, SongCollection {
         #Index([\Album.title])
         #Unique([\Album.title])
         

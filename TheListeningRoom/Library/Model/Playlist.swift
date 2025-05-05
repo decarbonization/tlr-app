@@ -24,7 +24,7 @@ typealias Playlist = LatestAppSchema.Playlist
 typealias PlaylistItem = LatestAppSchema.PlaylistItem
 
 extension AppSchemaV0 {
-    @Model final class Playlist: SongCollection {
+    @Model final class Playlist: ExternallyIdentifiable, SongCollection {
         init(name: String,
              userDescription: String? = nil,
              accentColor: ListeningRoomColor? = nil) {

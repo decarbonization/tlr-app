@@ -22,7 +22,7 @@ import SwiftData
 typealias Song = LatestAppSchema.Song
 
 extension AppSchemaV0 {
-    @Model final class Song: SongCollection {
+    @Model final class Song: ExternallyIdentifiable, SongCollection {
         #Index([\Song.externalID])
         
         struct Flags: OptionSet, Codable, CustomDebugStringConvertible {
