@@ -29,13 +29,6 @@ import TheListeningRoomExtensionSDK
     }
     
     init(process: ListeningRoomExtensionProcess,
-         feature: ListeningRoomSidebarSection) where Feature == ListeningRoomSidebarSection {
-        self.init(id: "\(process.id)-\(feature._title)-\(feature._items)",
-                  process: process,
-                  feature: feature)
-    }
-    
-    init(process: ListeningRoomExtensionProcess,
          feature: ListeningRoomFeatureSettings) where Feature == ListeningRoomFeatureSettings {
         self.init(id: "\(process.id)-settings",
                   process: process,

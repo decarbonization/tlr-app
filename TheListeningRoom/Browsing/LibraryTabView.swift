@@ -27,14 +27,12 @@ struct LibraryTabView: View {
         static let albums = Self(rawValue: "albums")
         static let songs = Self(rawValue: "songs")
         static let playlists = Self(rawValue: "playlists")
-        static let extensions = Self(rawValue: "extensions")
         static var allBuiltIn: [Self] {
             [
                 .artists,
                 .albums,
                 .songs,
                 .playlists,
-                .extensions,
             ]
         }
     }
@@ -57,8 +55,6 @@ struct LibraryTabView: View {
                 SongBrowser()
             case .playlists:
                 PlaylistBrowser()
-            case .extensions:
-                ExtensionBrowser()
             default:
                 EmptyView()
             }
@@ -77,8 +73,6 @@ struct LibraryTabView: View {
                             Label("Songs", systemImage: "music.note")
                         case .playlists:
                             Label("Playlists", systemImage: "music.note.list")
-                        case .extensions:
-                            Label("Extensions", systemImage: "puzzlepiece.extension")
                         default:
                             EmptyView()
                         }

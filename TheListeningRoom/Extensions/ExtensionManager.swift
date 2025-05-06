@@ -29,7 +29,6 @@ import os
     private init() {
         processes = []
         settings = []
-        sidebarSections = []
         Task.detached(priority: .background) { [weak self] in
             do {
                 let matches = try AppExtensionIdentity.matching(appExtensionPointIDs: "io.github.decarbonization.TheListeningRoom.uiextension")
@@ -47,7 +46,6 @@ import os
     
     private var processes: [ListeningRoomExtensionProcess]
     private(set) var settings: [ExtensionFeature<ListeningRoomFeatureSettings>]
-    private(set) var sidebarSections: [ExtensionFeature<ListeningRoomSidebarSection>]
     
     private func refresh(_ newIdentities: Set<AppExtensionIdentity>) async {
         let existingIDs = Set(processes.lazy.map { $0.id })
@@ -70,7 +68,6 @@ import os
         processes.append(contentsOf: toAdd)
         
         var newSettings = [ExtensionFeature<ListeningRoomFeatureSettings>]()
-        var newSidebarSections = [ExtensionFeature<ListeningRoomSidebarSection>]()
         for process in processes {
             do {
                 let features = try await process.features
@@ -78,16 +75,12 @@ import os
                     switch feature {
                     case .settings(let settings):
                         newSettings.append(ExtensionFeature(process: process, feature: settings))
-                    case .sidebarSection(let sidebarSection):
-                        newSidebarSections.append(ExtensionFeature(process: process, feature: sidebarSection))
                     }
                 }
             } catch {
                 Self.logger.error("*** Could not get features for \(process.id), reason: \(error)")
             }
         }
-        newSidebarSections.sort(by: { $0._title < $1._title })
         self.settings = newSettings
-        self.sidebarSections = newSidebarSections
     }
 }

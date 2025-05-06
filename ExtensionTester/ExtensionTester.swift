@@ -23,22 +23,12 @@ import SwiftUI
 
 @main struct ExtensionTester: ListeningRoomExtension {
     var features: some ListeningRoomFeature {
-        ListeningRoomSidebarSection(title: "Extension Tester") {
-            ListeningRoomFeatureLink(sceneID: "player",
-                                              title: "Player",
-                                              systemImage: "music.note.list")
-        }
         ListeningRoomFeatureSettings(sceneID: "settings")
     }
     
     var body: some AppExtensionScene {
-        ListeningRoomExtensionScene(id: "player") {
-            PlayerTesterView()
-        }
         ListeningRoomExtensionScene(id: "settings") {
-            Label("General", systemImage: "gear")
-                .font(.largeTitle)
-                .foregroundStyle(.tertiary)
+            PlayerTesterView()
         }
     }
 }
