@@ -25,6 +25,7 @@ struct SearchView: View {
     @State private var resultGroups = [ListeningRoomSearchResultGroup]()
     @State private var selection = Set<ListeningRoomID>()
     @Environment(\.searchSources) private var searchSources
+    @Environment(\.modelContext) private var modelContext
     @Environment(Player.self) private var player
     
     var body: some View {
@@ -46,8 +47,9 @@ struct SearchView: View {
                             SearchResultItem(result: result)
                                 .onDrag {
                                     let itemProvider = NSItemProvider()
-                                    for itemID in result.itemIDs {
-                                        // itemProvider.register(LibraryItem(id: itemID))
+                                    let libraryIDs = persistentModelIDs(for: result.itemIDs, in: modelContext)
+                                    for libraryID in libraryIDs {
+                                        itemProvider.register(LibraryItem(id: libraryID))
                                     }
                                     return itemProvider
                                 }
@@ -60,21 +62,22 @@ struct SearchView: View {
                 }
             }
             .contextMenu(forSelectionType: ListeningRoomID.self) { selection in
-                // ItemContextMenuContent(selection: selection)
+                ItemContextMenuContent(selection: Set(persistentModelIDs(for: selection, in: modelContext)))
             } primaryAction: { selection in
                 guard let resultID = selection.first,
                       let result = resultGroups.lazy.compactMap({ $0.results.first(where: { $0.id == resultID }) }).first,
-                      let songID = result.itemIDs.first else {
+                      let resultID = result.itemIDs.first,
+                      let songID = Song.persistentModelID(for: resultID, in: modelContext) else {
                     return
                 }
-                /*Task {
+                Task {
                     do {
-                        player.queue.replace(withContentsOf: resultGroups.lazy.flatMap { $0.results.lazy.flatMap { $0.itemIDs } }, pinning: songID)
+                        player.queue.replace(withContentsOf: resultGroups.lazy.flatMap { $0.results.lazy.flatMap { persistentModelIDs(for: $0.itemIDs, in: modelContext) } }, pinning: songID)
                         try await player.playItem(withID: songID)
                     } catch {
                         TaskErrors.all.present(error)
                     }
-                }*/
+                }
             }
         }
         .task(id: query) {

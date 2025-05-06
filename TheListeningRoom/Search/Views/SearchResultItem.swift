@@ -40,19 +40,21 @@ struct SearchResultItem: View {
                     Text(verbatim: primaryTitle)
                         .font(.body)
                         .foregroundStyle(.primary)
+                        .allowsHitTesting(false)
                 }
                 if let secondaryTitle = result.secondaryTitle {
                     Text(verbatim: secondaryTitle)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
+                        .allowsHitTesting(false)
                 }
                 if let tertiaryTitle = result.tertiaryTitle {
                     Text(verbatim: tertiaryTitle)
                         .font(.footnote)
                         .foregroundStyle(.tertiary)
+                        .allowsHitTesting(false)
                 }
             }
         }
-        .allowsHitTesting(false)
     }
 }

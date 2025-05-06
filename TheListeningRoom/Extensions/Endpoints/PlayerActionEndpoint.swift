@@ -56,6 +56,6 @@ extension ListeningRoomPlayerState {
     @MainActor init(from player: Player) {
         self.init(playbackState: player.playbackState,
                   playingItemIndex: player.playingIndex,
-                  items: /*[PersistentIdentifier](player.queue.itemIDs)*/[]) // TODO: this
+                  items: Song.listeningRoomIDs(for: player.queue.itemIDs, in: player.queue.context))
     }
 }

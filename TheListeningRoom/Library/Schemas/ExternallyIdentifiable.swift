@@ -46,6 +46,16 @@ extension ExternallyIdentifiable where Self: PersistentModel {
         return results[0]
     }
     
+    static func models(for ids: some Sequence<ListeningRoomID>, in modelContext: ModelContext) -> [Self] {
+        let validExternalIDs = Set(ids.lazy.filter { $0.entity == Self.externalEntity }.map { $0.value })
+        var whatModels = FetchDescriptor<Self>(predicate: #Predicate { validExternalIDs.contains($0.externalID) })
+        whatModels.includePendingChanges = true
+        guard let results = try? modelContext.fetch(whatModels) else {
+            return []
+        }
+        return results
+    }
+    
     static func persistentModelID(for id: ListeningRoomID, in modelContext: ModelContext) -> PersistentIdentifier? {
         guard id.entity == Self.externalEntity else {
             return nil
@@ -61,7 +71,51 @@ extension ExternallyIdentifiable where Self: PersistentModel {
         return results[0]
     }
     
+    static func persistentModelIDs(for ids: some Sequence<ListeningRoomID>, in modelContext: ModelContext) -> [PersistentIdentifier] {
+        let validExternalIDs = Set(ids.lazy.filter { $0.entity == Self.externalEntity }.map { $0.value })
+        var whatModels = FetchDescriptor<Self>(predicate: #Predicate { validExternalIDs.contains($0.externalID) })
+        whatModels.includePendingChanges = true
+        guard let results = try? modelContext.fetchIdentifiers(whatModels) else {
+            return []
+        }
+        return results
+    }
+    
+    static func listeningRoomIDs(for ids: some Sequence<PersistentIdentifier>, in modelContext: ModelContext) -> [ListeningRoomID] {
+        [ListeningRoomID](
+            ids.lazy
+            .compactMap { modelContext.model(for: $0) as? Self }
+            .map { $0.listeningRoomID }
+        )
+    }
+    
     var listeningRoomID: ListeningRoomID {
         ListeningRoomID(entity: Self.externalEntity, value: self.externalID)
     }
+}
+
+func persistentModelIDs(for ids: some Sequence<ListeningRoomID>, in modelContext: ModelContext) -> Set<PersistentIdentifier> {
+    var idsByEntity = [ListeningRoomID.Entity: Set<ListeningRoomID>]()
+    for id in ids {
+        idsByEntity[id.entity, default: []].insert(id)
+    }
+    
+    var persistentModelIDs = Set<PersistentIdentifier>()
+    for (entity, ids) in idsByEntity {
+        switch entity {
+        case .song:
+            persistentModelIDs.formUnion(Song.persistentModelIDs(for: ids, in: modelContext))
+        case .album:
+            persistentModelIDs.formUnion(Album.persistentModelIDs(for: ids, in: modelContext))
+        case .artist:
+            persistentModelIDs.formUnion(Artist.persistentModelIDs(for: ids, in: modelContext))
+        case .artwork:
+            persistentModelIDs.formUnion(Artwork.persistentModelIDs(for: ids, in: modelContext))
+        case .playlist:
+            persistentModelIDs.formUnion(Playlist.persistentModelIDs(for: ids, in: modelContext))
+        default:
+            fatalError()
+        }
+    }
+    return persistentModelIDs
 }
