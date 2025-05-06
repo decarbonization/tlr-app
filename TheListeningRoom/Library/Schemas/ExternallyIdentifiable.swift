@@ -18,13 +18,20 @@
 
 import Foundation
 import SwiftData
+import TheListeningRoomExtensionSDK
 
-protocol ExternallyIdentifiable {
+protocol ExternallyIdentifiable: PersistentModel {
+    static func makeUniqueExternalID() -> String
     var externalID: String { get }
 }
 
 extension ExternallyIdentifiable where Self: PersistentModel {
-    static func model(for externalID: String, in modelContext: ModelContext) -> Self? {
+    static func makeUniqueExternalID() -> String {
+        "TLR:\(UUID().uuidString.replacingOccurrences(of: "-", with: ""))"
+    }
+    
+    static func model(for id: ListeningRoomID, in modelContext: ModelContext) -> Self? {
+        let externalID = id.rawValue
         var whatModel = FetchDescriptor<Self>(predicate: #Predicate { $0.externalID == externalID })
         whatModel.fetchLimit = 1
         whatModel.includePendingChanges = true
@@ -35,7 +42,8 @@ extension ExternallyIdentifiable where Self: PersistentModel {
         return results[0]
     }
     
-    static func persistentModelID(for externalID: String, in modelContext: ModelContext) -> PersistentIdentifier? {
+    static func persistentModelID(for id: ListeningRoomID, in modelContext: ModelContext) -> PersistentIdentifier? {
+        let externalID = id.rawValue
         var whatModel = FetchDescriptor<Self>(predicate: #Predicate { $0.externalID == externalID })
         whatModel.fetchLimit = 1
         whatModel.includePendingChanges = true

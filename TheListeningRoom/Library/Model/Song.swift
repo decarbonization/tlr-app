@@ -22,7 +22,7 @@ import SwiftData
 typealias Song = LatestAppSchema.Song
 
 extension AppSchemaV0 {
-    @Model final class Song: ExternallyIdentifiable, SongCollection {
+    @Model final class Song: ExternallyIdentifiable, SongCollection, TimeStamped {
         #Index([\Song.externalID])
         
         struct Flags: OptionSet, Codable, CustomDebugStringConvertible {
@@ -51,7 +51,7 @@ extension AppSchemaV0 {
         init(url: URL,
              startTime: TimeInterval,
              endTime: TimeInterval) {
-            self.externalID = makeUniqueExternalID()
+            self.externalID = Self.makeUniqueExternalID()
             self.creationDate = Date()
             self.lastModified = Date()
             self.url = url

@@ -22,14 +22,14 @@ import SwiftData
 typealias Artist = LatestAppSchema.Artist
 
 extension AppSchemaV0 {
-    @Model final class Artist: ExternallyIdentifiable, SongCollection {
+    @Model final class Artist: ExternallyIdentifiable, SongCollection, TimeStamped {
         #Index([\Artist.name])
         #Unique([\Artist.name])
         
         init(name: String,
              albums: [Album] = [],
              songs: [Song] = []) {
-            self.externalID = makeUniqueExternalID()
+            self.externalID = Self.makeUniqueExternalID()
             self.creationDate = Date()
             self.lastModified = Date()
             self.name = name

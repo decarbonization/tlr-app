@@ -65,7 +65,7 @@ struct ItemContextMenuContent: View {
             return
         }
         let toAdd = selection.lazy
-            .compactMap { modelContext.model(for: $0) as? SongCollection }
+            .compactMap { modelContext.model(for: $0) as? any SongCollection }
             .flatMap { $0.sortedSongs }
             .map { $0.id }
         player.queue.append(contentsOf: toAdd)
@@ -77,7 +77,7 @@ struct ItemContextMenuContent: View {
         }
         let toReveal = [URL](
             selection.lazy
-                .compactMap { modelContext.model(for: $0) as? SongCollection }
+                .compactMap { modelContext.model(for: $0) as? any SongCollection }
                 .flatMap { $0.sortedSongs }
                 .map { $0.url }
         )
@@ -97,7 +97,7 @@ struct ItemContextMenuContent: View {
         }
         let toDelete = Set<PersistentIdentifier>(
             selection.lazy
-                .compactMap { modelContext.model(for: $0) as? SongCollection }
+                .compactMap { modelContext.model(for: $0) as? any SongCollection }
                 .flatMap { $0.sortedSongs }
                 .map { $0.id }
         )

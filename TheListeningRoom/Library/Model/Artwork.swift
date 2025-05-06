@@ -24,7 +24,7 @@ import SwiftData
 typealias Artwork = LatestAppSchema.Artwork
 
 extension AppSchemaV0 {
-    @Model final class Artwork: ExternallyIdentifiable {
+    @Model final class Artwork: ExternallyIdentifiable, TimeStamped {
         #Index([\Artwork.payloadHash], [\Artwork.externalID])
         #Unique([\Artwork.payloadHash], [\Artwork.externalID])
         
@@ -50,7 +50,7 @@ extension AppSchemaV0 {
              payload: Data,
              songs: [Song] = [],
              colorPalette: ListeningRoomColorPalette? = nil) {
-            self.externalID = makeUniqueExternalID()
+            self.externalID = Self.makeUniqueExternalID()
             self.creationDate = Date()
             self.lastModified = Date()
             self.kind = kind

@@ -24,11 +24,11 @@ typealias Playlist = LatestAppSchema.Playlist
 typealias PlaylistItem = LatestAppSchema.PlaylistItem
 
 extension AppSchemaV0 {
-    @Model final class Playlist: ExternallyIdentifiable, SongCollection {
+    @Model final class Playlist: ExternallyIdentifiable, SongCollection, TimeStamped {
         init(name: String,
              userDescription: String? = nil,
              accentColor: ListeningRoomColor? = nil) {
-            self.externalID = makeUniqueExternalID()
+            self.externalID = Self.makeUniqueExternalID()
             self.creationDate = Date()
             self.lastModified = Date()
             self.name = name

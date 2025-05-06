@@ -43,7 +43,7 @@ struct ItemAddToPlaylistMenu: View {
     
     private func add(to playlist: Playlist) {
         let toAdd = selection.lazy
-            .compactMap { modelContext.model(for: $0) as? SongCollection }
+            .compactMap { modelContext.model(for: $0) as? any SongCollection }
             .flatMap { $0.sortedSongs }
         playlist.songs.append(contentsOf: toAdd)
     }

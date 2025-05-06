@@ -17,7 +17,8 @@
  */
 
 import Foundation
+import SwiftData
 
-protocol SongCollection {
+protocol SongCollection: PersistentModel {
     var sortedSongs: [Song] { get }
 }

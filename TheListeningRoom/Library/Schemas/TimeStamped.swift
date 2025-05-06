@@ -17,11 +17,9 @@
  */
 
 import Foundation
-import Testing
-@testable import TheListeningRoom
+import SwiftData
 
-@Suite struct _ModelsTests {
-    @Test func makeUniqueExternalIDIncludesPrefix() {
-        #expect(makeUniqueExternalID().hasPrefix("TLR:"))
-    }
+protocol TimeStamped: PersistentModel {
+    var creationDate: Date { get }
+    var lastModified: Date { get set }
 }

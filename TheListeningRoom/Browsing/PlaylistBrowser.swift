@@ -48,7 +48,7 @@ struct PlaylistBrowser: View {
                             Task(priority: .userInitiated) {
                                 let itemResults = await loadAll(LibraryItem.self, from: providers)
                                 let collectionsResults = mapResults(itemResults) { libraryItem in
-                                    guard let song = libraryItem.model(from: modelContext, as: SongCollection.self) else {
+                                    guard let song = libraryItem.model(from: modelContext, as: (any SongCollection).self) else {
                                         throw CocoaError(.persistentStoreUnsupportedRequestType, userInfo: [
                                             NSLocalizedDescriptionKey: "Could not load songs from \(libraryItem)",
                                         ])

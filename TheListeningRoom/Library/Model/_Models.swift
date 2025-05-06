@@ -56,10 +56,6 @@ struct LibraryItem: Identifiable, Equatable, Transferable {
     }
 }
 
-func makeUniqueExternalID() -> String {
-    "TLR:\(UUID().uuidString.replacingOccurrences(of: "-", with: ""))"
-}
-
 func makeAppModelContainer() -> ModelContainer {
     let appSchema = Schema(versionedSchema: LatestAppSchema.self)
     let appLibraryURL = UserDefaults.standard.url(forKey: "TheListeningRoom_libraryURL")
