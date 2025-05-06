@@ -18,7 +18,6 @@
  */
 
 import Foundation
-import SwiftData
 
 public struct ListeningRoomSearchResult: Identifiable, Codable, Sendable {
     public init(id: ListeningRoomID,

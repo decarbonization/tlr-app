@@ -18,7 +18,6 @@
  */
 
 import Foundation
-import SwiftData
 import SwiftUI
 
 public enum ListeningRoomImage: Codable, @unchecked /* NSImage */ Sendable {

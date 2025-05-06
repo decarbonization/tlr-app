@@ -19,7 +19,6 @@
 
 import Foundation
 import MediaPlayer
-import SwiftData
 
 public struct ListeningRoomPlayingItem: Identifiable, Codable, Sendable {
     public enum Kind: Codable, Sendable {

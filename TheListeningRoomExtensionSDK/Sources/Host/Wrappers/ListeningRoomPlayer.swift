@@ -19,7 +19,6 @@
 
 import Foundation
 import os
-import SwiftData
 import SwiftUI
 
 @Observable public final class ListeningRoomPlayer: Sendable {

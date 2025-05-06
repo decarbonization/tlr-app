@@ -18,7 +18,6 @@
  */
 
 import Foundation
-import SwiftData
 
 public enum ListeningRoomHostPlayerAction: ListeningRoomXPCRequest {
     public typealias Response = ListeningRoomPlayerState

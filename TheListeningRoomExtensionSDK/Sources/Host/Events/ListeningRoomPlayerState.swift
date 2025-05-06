@@ -18,7 +18,6 @@
  */
 
 import Foundation
-import SwiftData
 
 public struct ListeningRoomPlayerState: ListeningRoomXPCPostable, Codable, Sendable {
     public static var empty: Self {
