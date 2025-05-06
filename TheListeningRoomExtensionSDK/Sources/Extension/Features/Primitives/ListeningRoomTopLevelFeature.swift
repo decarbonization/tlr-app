@@ -21,6 +21,7 @@ import Foundation
 
 public enum ListeningRoomTopLevelFeature: ListeningRoomFeature, Codable, Sendable {
     case settings(ListeningRoomFeatureSettings)
+    case tabItem(ListeningRoomFeatureTabItem)
     
     public var feature: some ListeningRoomFeature {
         self

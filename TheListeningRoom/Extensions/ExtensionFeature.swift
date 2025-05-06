@@ -29,6 +29,13 @@ import TheListeningRoomExtensionSDK
     }
     
     init(process: ListeningRoomExtensionProcess,
+         feature: ListeningRoomFeatureTabItem) where Feature == ListeningRoomFeatureTabItem {
+        self.init(id: "\(process.id)-\(feature._sceneID)-tab",
+                  process: process,
+                  feature: feature)
+    }
+    
+    init(process: ListeningRoomExtensionProcess,
          feature: ListeningRoomFeatureSettings) where Feature == ListeningRoomFeatureSettings {
         self.init(id: "\(process.id)-settings",
                   process: process,

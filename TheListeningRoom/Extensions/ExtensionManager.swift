@@ -29,6 +29,7 @@ import os
     private init() {
         processes = []
         settings = []
+        tabItems = []
         Task.detached(priority: .background) { [weak self] in
             do {
                 let matches = try AppExtensionIdentity.matching(appExtensionPointIDs: "io.github.decarbonization.TheListeningRoom.uiextension")
@@ -46,6 +47,7 @@ import os
     
     private var processes: [ListeningRoomExtensionProcess]
     private(set) var settings: [ExtensionFeature<ListeningRoomFeatureSettings>]
+    private(set) var tabItems: [ExtensionFeature<ListeningRoomFeatureTabItem>]
     
     private func refresh(_ newIdentities: Set<AppExtensionIdentity>) async {
         let existingIDs = Set(processes.lazy.map { $0.id })
@@ -68,6 +70,7 @@ import os
         processes.append(contentsOf: toAdd)
         
         var newSettings = [ExtensionFeature<ListeningRoomFeatureSettings>]()
+        var newTabItems = [ExtensionFeature<ListeningRoomFeatureTabItem>]()
         for process in processes {
             do {
                 let features = try await process.features
@@ -75,12 +78,16 @@ import os
                     switch feature {
                     case .settings(let settings):
                         newSettings.append(ExtensionFeature(process: process, feature: settings))
+                    case .tabItem(let tabItem):
+                        newTabItems.append(ExtensionFeature(process: process, feature: tabItem))
                     }
                 }
             } catch {
                 Self.logger.error("*** Could not get features for \(process.id), reason: \(error)")
             }
         }
+        newTabItems.sort(by: { $0._title < $1._title })
         self.settings = newSettings
+        self.tabItems = newTabItems
     }
 }
