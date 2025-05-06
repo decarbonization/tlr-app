@@ -23,7 +23,7 @@ import SwiftUI
 
 public enum ListeningRoomImage: Codable, @unchecked /* NSImage */ Sendable {
     case image(NSImage)
-    case artwork(id: PersistentIdentifier)
+    case artwork(id: ListeningRoomID)
     
     public static func systemImage(_ name: String) -> Self {
         .image(NSImage(systemSymbolName: name, accessibilityDescription: nil) ?? NSImage())
@@ -42,7 +42,7 @@ public enum ListeningRoomImage: Codable, @unchecked /* NSImage */ Sendable {
                                                                                         debugDescription: "Image corrupt"))
             }
             self = .image(nsImage)
-        } else if let id = try container.decodeIfPresent(PersistentIdentifier.self, forKey: .artwork) {
+        } else if let id = try container.decodeIfPresent(ListeningRoomID.self, forKey: .artwork) {
             self = .artwork(id: id)
         } else {
             throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: decoder.codingPath,

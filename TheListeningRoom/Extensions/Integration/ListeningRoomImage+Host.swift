@@ -29,7 +29,7 @@ extension ListeningRoomImage {
         case .image(let nsImage):
             return Image(nsImage: nsImage)
         case .artwork(let artworkID):
-            guard let artwork = modelContext.model(for: artworkID) as? Artwork else {
+            guard let artwork = Artwork.model(for: artworkID, in: modelContext) else {
                 return nil
             }
             return artwork.image
@@ -45,7 +45,7 @@ extension ListeningRoomImage {
                 return image
             }
         case .artwork(let artworkID):
-            guard let artwork = modelContext.model(for: artworkID) as? Artwork else {
+            guard let artwork = Artwork.model(for: artworkID, in: modelContext) else {
                 return nil
             }
             guard let artworkImage = NSImage(data: artwork.payload) else {
@@ -67,7 +67,7 @@ extension ListeningRoomImage {
             artwork = nil
             imageData = nsImage.tiffRepresentation
         case .artwork(let artworkID):
-            artwork = modelContext.model(for: artworkID) as? Artwork
+            artwork = Artwork.model(for: artworkID, in: modelContext)
             imageData = artwork?.payload
         }
         guard let imageData else {

@@ -25,6 +25,8 @@ typealias PlaylistItem = LatestAppSchema.PlaylistItem
 
 extension AppSchemaV0 {
     @Model final class Playlist: ExternallyIdentifiable, SongCollection, TimeStamped {
+        static let externalEntity = ListeningRoomID.Entity.playlist
+        
         init(name: String,
              userDescription: String? = nil,
              accentColor: ListeningRoomColor? = nil) {

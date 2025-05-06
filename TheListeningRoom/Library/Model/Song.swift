@@ -18,6 +18,7 @@
 
 import Foundation
 import SwiftData
+import TheListeningRoomExtensionSDK
 
 typealias Song = LatestAppSchema.Song
 
@@ -47,6 +48,8 @@ extension AppSchemaV0 {
                 return "Flags(\(fields))"
             }
         }
+        
+        static let externalEntity = ListeningRoomID.Entity.song
         
         init(url: URL,
              startTime: TimeInterval,

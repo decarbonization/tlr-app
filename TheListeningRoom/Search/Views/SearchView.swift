@@ -23,7 +23,7 @@ import SwiftUI
 struct SearchView: View {
     @State private var query = ""
     @State private var resultGroups = [ListeningRoomSearchResultGroup]()
-    @State private var selection = Set<PersistentIdentifier>()
+    @State private var selection = Set<ListeningRoomID>()
     @Environment(\.searchSources) private var searchSources
     @Environment(Player.self) private var player
     
@@ -47,7 +47,7 @@ struct SearchView: View {
                                 .onDrag {
                                     let itemProvider = NSItemProvider()
                                     for itemID in result.itemIDs {
-                                        itemProvider.register(LibraryItem(id: itemID))
+                                        // itemProvider.register(LibraryItem(id: itemID))
                                     }
                                     return itemProvider
                                 }
@@ -59,22 +59,22 @@ struct SearchView: View {
                     }
                 }
             }
-            .contextMenu(forSelectionType: PersistentIdentifier.self) { selection in
-                ItemContextMenuContent(selection: selection)
+            .contextMenu(forSelectionType: ListeningRoomID.self) { selection in
+                // ItemContextMenuContent(selection: selection)
             } primaryAction: { selection in
                 guard let resultID = selection.first,
                       let result = resultGroups.lazy.compactMap({ $0.results.first(where: { $0.id == resultID }) }).first,
                       let songID = result.itemIDs.first else {
                     return
                 }
-                Task {
+                /*Task {
                     do {
                         player.queue.replace(withContentsOf: resultGroups.lazy.flatMap { $0.results.lazy.flatMap { $0.itemIDs } }, pinning: songID)
                         try await player.playItem(withID: songID)
                     } catch {
                         TaskErrors.all.present(error)
                     }
-                }
+                }*/
             }
         }
         .task(id: query) {

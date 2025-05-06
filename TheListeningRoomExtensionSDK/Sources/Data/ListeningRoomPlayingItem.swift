@@ -33,7 +33,7 @@ public struct ListeningRoomPlayingItem: Identifiable, Codable, Sendable {
         }
     }
     
-    public init(id: PersistentIdentifier,
+    public init(id: ListeningRoomID,
                 kind: Kind,
                 startTime: TimeInterval,
                 endTime: TimeInterval,
@@ -75,7 +75,7 @@ public struct ListeningRoomPlayingItem: Identifiable, Codable, Sendable {
         self.bpm = bpm
     }
     
-    public var id: PersistentIdentifier
+    public var id: ListeningRoomID
     public var kind: Kind
     public var startTime: TimeInterval
     public var endTime: TimeInterval

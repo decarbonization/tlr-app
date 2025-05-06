@@ -22,6 +22,7 @@ import TheListeningRoomExtensionSDK
 
 protocol ExternallyIdentifiable: PersistentModel {
     static func makeUniqueExternalID() -> String
+    static var externalEntity: ListeningRoomID.Entity { get }
     var externalID: String { get }
 }
 
@@ -31,7 +32,10 @@ extension ExternallyIdentifiable where Self: PersistentModel {
     }
     
     static func model(for id: ListeningRoomID, in modelContext: ModelContext) -> Self? {
-        let externalID = id.rawValue
+        guard id.entity == Self.externalEntity else {
+            return nil
+        }
+        let externalID = id.value
         var whatModel = FetchDescriptor<Self>(predicate: #Predicate { $0.externalID == externalID })
         whatModel.fetchLimit = 1
         whatModel.includePendingChanges = true
@@ -43,7 +47,10 @@ extension ExternallyIdentifiable where Self: PersistentModel {
     }
     
     static func persistentModelID(for id: ListeningRoomID, in modelContext: ModelContext) -> PersistentIdentifier? {
-        let externalID = id.rawValue
+        guard id.entity == Self.externalEntity else {
+            return nil
+        }
+        let externalID = id.value
         var whatModel = FetchDescriptor<Self>(predicate: #Predicate { $0.externalID == externalID })
         whatModel.fetchLimit = 1
         whatModel.includePendingChanges = true
@@ -52,5 +59,9 @@ extension ExternallyIdentifiable where Self: PersistentModel {
             return nil
         }
         return results[0]
+    }
+    
+    var listeningRoomID: ListeningRoomID {
+        ListeningRoomID(entity: Self.externalEntity, value: self.externalID)
     }
 }

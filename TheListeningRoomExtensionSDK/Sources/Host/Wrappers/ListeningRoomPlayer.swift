@@ -59,16 +59,16 @@ import SwiftUI
         state.playingItemIndex
     }
     
-    public var items: [PersistentIdentifier] {
+    public var items: [ListeningRoomID] {
         state.items
     }
     
-    public func replaceQueue(withContentsOf newItemsIDs: [PersistentIdentifier],
-                             pinning nextItemID: PersistentIdentifier? = nil) async throws {
+    public func replaceQueue(withContentsOf newItemsIDs: [ListeningRoomID],
+                             pinning nextItemID: ListeningRoomID? = nil) async throws {
         state = try await connection.dispatch(ListeningRoomHostPlayerAction.replaceQueue(newItemsIDs: newItemsIDs, nextItemID: nextItemID))
     }
     
-    public func playItem(withID itemID: PersistentIdentifier) async throws {
+    public func playItem(withID itemID: ListeningRoomID) async throws {
         state = try await connection.dispatch(ListeningRoomHostPlayerAction.play(item: itemID))
     }
     

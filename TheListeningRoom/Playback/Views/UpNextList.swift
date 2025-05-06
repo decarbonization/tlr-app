@@ -19,11 +19,12 @@
 import SwiftData
 import SwiftUI
 import UniformTypeIdentifiers
+import TheListeningRoomExtensionSDK
 
 struct UpNextList: View {
     @Environment(Player.self) private var player
     @Environment(\.modelContext) private var modelContext
-    @State private var selectedItems = Set<PersistentIdentifier>()
+    @State private var selectedItems = Set<ListeningRoomID>()
     
     private func insert(contentsOf providers: [NSItemProvider], at offset: Int) {
         Task(priority: .userInitiated) {
@@ -54,7 +55,7 @@ struct UpNextList: View {
             ScrollViewReader { proxy in
                 List(selection: $selectedItems) {
                     ForEach(player.queue.items(of: Song.self).indexed, id: \.element.id) { (item, index) in
-                        QueueItem(isPlaying: player.playingItem?.id == item.id,
+                        QueueItem(isPlaying: player.playingItem?.id == item.listeningRoomID,
                                   isHistory: index < player.playingIndex ?? 0,
                                   item: item)
                     }

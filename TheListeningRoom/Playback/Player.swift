@@ -186,7 +186,8 @@ import SwiftData
             return
         }
         if let playingItem = referenceItem ?? engine.playingItem,
-           let newItemID = queue.previousItemID(preceding: playingItem.id) {
+           let playingItemID = Song.persistentModelID(for: playingItem.id, in: queue.context),
+           let newItemID = queue.previousItemID(preceding: playingItemID) {
             try await playItem(withID: newItemID)
         } else {
             try await stop()
@@ -198,7 +199,8 @@ import SwiftData
             return
         }
         if let playingItem = referenceItem ?? engine.playingItem,
-           let newItemID = queue.nextItemID(following: playingItem.id) {
+           let playingItemID = Song.persistentModelID(for: playingItem.id, in: queue.context),
+           let newItemID = queue.nextItemID(following: playingItemID) {
             try await playItem(withID: newItemID)
         } else {
             try await stop()
@@ -218,8 +220,9 @@ import SwiftData
                     image.mpMediaItemArtwork(in: modelContext)
                 })
             }
-            if let playingItem = engine.playingItem {
-                playingIndex = queue.itemIDs.firstIndex(of: playingItem.id)
+            if let playingItem = engine.playingItem,
+                let playingItemID = Song.persistentModelID(for: playingItem.id, in: queue.context) {
+                playingIndex = queue.itemIDs.firstIndex(of: playingItemID)
             } else {
                 playingIndex = nil
             }
@@ -243,7 +246,8 @@ import SwiftData
         guard let playingItem = engine.playingItem else {
             return
         }
-        if !queue.itemIDs.contains(playingItem.id) {
+        if let playingItemID = Song.persistentModelID(for: playingItem.id, in: queue.context),
+           !queue.itemIDs.contains(playingItemID) {
             do {
                 try await stop()
             } catch {

@@ -24,8 +24,8 @@ public enum ListeningRoomHostPlayerAction: ListeningRoomXPCRequest {
     public typealias Response = ListeningRoomPlayerState
     
     case syncState
-    case replaceQueue(newItemsIDs: [PersistentIdentifier], nextItemID: PersistentIdentifier?)
-    case play(item: PersistentIdentifier)
+    case replaceQueue(newItemsIDs: [ListeningRoomID], nextItemID: ListeningRoomID?)
+    case play(item: ListeningRoomID)
     case pause
     case resume
     case skipPrevious

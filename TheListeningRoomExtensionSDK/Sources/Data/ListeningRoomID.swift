@@ -19,24 +19,21 @@
 
 import Foundation
 
-@frozen public struct ListeningRoomID: RawRepresentable, Hashable, Codable, Sendable {
-    @inlinable public init(_ rawValue: String) {
-        self.rawValue = rawValue
+public struct ListeningRoomID: Hashable, Codable, Sendable {
+    public enum Entity: Hashable, Codable, Sendable {
+        case song
+        case album
+        case artist
+        case artwork
+        case playlist
+        case custom(name: String)
     }
     
-    @inlinable public init(rawValue: String) {
-        self.rawValue = rawValue
+    public init(entity: Entity, value: String) {
+        self.entity = entity
+        self.value = value
     }
     
-    public var rawValue: String
-    
-    @inlinable public init(from decoder: any Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        rawValue = try container.decode(String.self)
-    }
-    
-    @inlinable public func encode(to encoder: any Encoder) throws {
-        var container = encoder.singleValueContainer()
-        try container.encode(rawValue)
-    }
+    public var entity: Entity
+    public var value: String
 }

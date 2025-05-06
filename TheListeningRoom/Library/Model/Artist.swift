@@ -18,6 +18,7 @@
 
 import Foundation
 import SwiftData
+import TheListeningRoomExtensionSDK
 
 typealias Artist = LatestAppSchema.Artist
 
@@ -25,6 +26,8 @@ extension AppSchemaV0 {
     @Model final class Artist: ExternallyIdentifiable, SongCollection, TimeStamped {
         #Index([\Artist.name])
         #Unique([\Artist.name])
+        
+        static let externalEntity = ListeningRoomID.Entity.artist
         
         init(name: String,
              albums: [Album] = [],

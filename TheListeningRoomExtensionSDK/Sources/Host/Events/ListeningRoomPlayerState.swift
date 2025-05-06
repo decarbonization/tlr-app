@@ -29,7 +29,7 @@ public struct ListeningRoomPlayerState: ListeningRoomXPCPostable, Codable, Senda
     
     public init(playbackState: ListeningRoomPlaybackState,
                 playingItemIndex: Int?,
-                items: [PersistentIdentifier]) {
+                items: [ListeningRoomID]) {
         self.playbackState = playbackState
         self.playingItemIndex = playingItemIndex
         self.items = items
@@ -37,5 +37,5 @@ public struct ListeningRoomPlayerState: ListeningRoomXPCPostable, Codable, Senda
     
     public var playbackState: ListeningRoomPlaybackState
     public var playingItemIndex: Int?
-    public var items: [PersistentIdentifier]
+    public var items: [ListeningRoomID]
 }

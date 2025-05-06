@@ -28,6 +28,8 @@ extension AppSchemaV0 {
         #Index([\Artwork.payloadHash], [\Artwork.externalID])
         #Unique([\Artwork.payloadHash], [\Artwork.externalID])
         
+        static let externalEntity = ListeningRoomID.Entity.artwork
+        
         enum Kind: UInt64, Codable {
             // TODO: Support more kinds
             case frontCover

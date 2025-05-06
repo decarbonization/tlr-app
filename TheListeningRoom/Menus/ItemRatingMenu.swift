@@ -52,7 +52,7 @@ struct ItemRatingMenu: View {
     
     private func updateRatings(to newRating: Float?) {
         for itemID in selection {
-            guard let collection = modelContext.model(for: itemID) as? SongCollection else {
+            guard let collection = modelContext.model(for: itemID) as? any SongCollection else {
                 continue
             }
             for song in collection.sortedSongs {

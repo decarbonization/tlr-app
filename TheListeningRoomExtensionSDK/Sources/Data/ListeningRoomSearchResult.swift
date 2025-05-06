@@ -21,22 +21,22 @@ import Foundation
 import SwiftData
 
 public struct ListeningRoomSearchResult: Identifiable, Codable, Sendable {
-    public init(id: PersistentIdentifier,
-                itemIDs: some Sequence<PersistentIdentifier>,
+    public init(id: ListeningRoomID,
+                itemIDs: some Sequence<ListeningRoomID>,
                 artwork: ListeningRoomImage? = nil,
                 primaryTitle: String? = nil,
                 secondaryTitle: String? = nil,
                 tertiaryTitle: String? = nil) {
         self.id = id
-        self.itemIDs = [PersistentIdentifier](itemIDs)
+        self.itemIDs = [ListeningRoomID](itemIDs)
         self.artwork = artwork
         self.primaryTitle = primaryTitle
         self.secondaryTitle = secondaryTitle
         self.tertiaryTitle = tertiaryTitle
     }
     
-    public let id: PersistentIdentifier
-    public var itemIDs: [PersistentIdentifier]
+    public let id: ListeningRoomID
+    public var itemIDs: [ListeningRoomID]
     public var artwork: ListeningRoomImage?
     public var primaryTitle: String?
     public var secondaryTitle: String?
