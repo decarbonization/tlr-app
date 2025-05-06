@@ -34,6 +34,9 @@ public struct ListeningRoomID: Hashable, Codable, Sendable {
         self.value = value
     }
     
+    /// The entity for the associated model.
     public var entity: Entity
+    
+    /// The value which uniquely identifies the model.
     public var value: String
 }
