@@ -23,8 +23,9 @@ import TheListeningRoomExtensionSDK
 typealias Song = LatestAppSchema.Song
 
 extension AppSchemaV0 {
-    @Model final class Song: ExternallyIdentifiable, SongCollection, TimeStamped {
-        #Index([\Song.externalID])
+    @Model final class Song: ExtensionAccessibleModel, SongCollection, TimeStamped {
+        #Index([\Song.extensionID])
+        #Unique([\Song.extensionID])
         
         struct Flags: OptionSet, Codable, CustomDebugStringConvertible {
             var rawValue: UInt
@@ -49,12 +50,12 @@ extension AppSchemaV0 {
             }
         }
         
-        static let externalEntity = ListeningRoomID.Entity.song
+        static let extensionEntity = ListeningRoomID.Entity.song
         
         init(url: URL,
              startTime: TimeInterval,
              endTime: TimeInterval) {
-            self.externalID = Self.makeUniqueExternalID()
+            self.extensionID = Self.nextExtensionID
             self.creationDate = Date()
             self.lastModified = Date()
             self.url = url
@@ -65,7 +66,7 @@ extension AppSchemaV0 {
             self.playlistItems = []
         }
         
-        private(set) var externalID: String
+        private(set) var extensionID: String
         private(set) var creationDate: Date
         var lastModified: Date
         var lastPlayed: Date?

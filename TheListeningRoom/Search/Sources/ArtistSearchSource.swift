@@ -49,8 +49,8 @@ extension Library {
         })
         let matchingArtists = try modelContext.fetch(whatArtists)
         return matchingArtists.map { artist in
-            ListeningRoomSearchResult(id: artist.listeningRoomID,
-                                      itemIDs: artist.sortedSongs.map { $0.listeningRoomID },
+            ListeningRoomSearchResult(id: artist.extensionID,
+                                      itemIDs: artist.sortedSongs.map { $0.extensionID },
                                       primaryTitle: artist.name)
         }
     }

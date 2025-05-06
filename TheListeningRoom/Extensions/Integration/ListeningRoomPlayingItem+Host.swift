@@ -21,12 +21,12 @@ import Foundation
 
 extension ListeningRoomPlayingItem {
     init(_ song: Song) {
-        self.init(id: song.listeningRoomID,
+        self.init(id: song.extensionID,
                   kind: .song,
                   startTime: song.startTime,
                   endTime: song.endTime,
                   assetURL: (try? song.currentURL()) ?? song.url,
-                  artwork: song.frontCoverArtwork.map { ListeningRoomImage.artwork(id: $0.listeningRoomID) },
+                  artwork: song.frontCoverArtwork.map { ListeningRoomImage.artwork(id: $0.extensionID) },
                   title: song.title,
                   artist: song.artist?.name,
                   albumTitle: song.album?.title,

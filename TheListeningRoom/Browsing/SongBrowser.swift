@@ -70,7 +70,7 @@ struct SongBrowser: View {
                     Group {
                         TableColumn("Title", sortUsing: SortDescriptor(\Song.title)) { song in
                             HStack(alignment: .firstTextBaseline, spacing: 4.0) {
-                                let isPlayingItem = song.listeningRoomID == player.playingItem?.id
+                                let isPlayingItem = song.extensionID == player.playingItem?.id
                                 Image(systemName: "speaker.wave.2")
                                     .opacity(isPlayingItem ? 1 : 0)
                                     .accessibilityLabel(Text(isPlayingItem ? "Now Playing" : ""))

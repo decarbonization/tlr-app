@@ -27,6 +27,23 @@ public struct ListeningRoomID: Hashable, Codable, Sendable {
         case artwork
         case playlist
         case custom(name: String)
+        
+        public var name: String {
+            switch self {
+            case .song:
+                return "song"
+            case .album:
+                return "album"
+            case .artist:
+                return "artist"
+            case .artwork:
+                return "artwork"
+            case .playlist:
+                return "playlist"
+            case .custom(let name):
+                return name
+            }
+        }
     }
     
     public init(entity: Entity, value: String) {

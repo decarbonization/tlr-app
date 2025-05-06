@@ -23,16 +23,16 @@ import TheListeningRoomExtensionSDK
 typealias Artist = LatestAppSchema.Artist
 
 extension AppSchemaV0 {
-    @Model final class Artist: ExternallyIdentifiable, SongCollection, TimeStamped {
-        #Index([\Artist.name])
-        #Unique([\Artist.name])
+    @Model final class Artist: ExtensionAccessibleModel, SongCollection, TimeStamped {
+        #Index([\Artist.name], [\Artist.extensionID])
+        #Unique([\Artist.name], [\Artist.extensionID])
         
-        static let externalEntity = ListeningRoomID.Entity.artist
+        static let extensionEntity = ListeningRoomID.Entity.artist
         
         init(name: String,
              albums: [Album] = [],
              songs: [Song] = []) {
-            self.externalID = Self.makeUniqueExternalID()
+            self.extensionID = Self.nextExtensionID
             self.creationDate = Date()
             self.lastModified = Date()
             self.name = name
@@ -40,7 +40,7 @@ extension AppSchemaV0 {
             self.songs = songs
         }
         
-        private(set) var externalID: String
+        private(set) var extensionID: String
         private(set) var creationDate: Date
         var lastModified: Date
         

@@ -24,13 +24,16 @@ typealias Playlist = LatestAppSchema.Playlist
 typealias PlaylistItem = LatestAppSchema.PlaylistItem
 
 extension AppSchemaV0 {
-    @Model final class Playlist: ExternallyIdentifiable, SongCollection, TimeStamped {
-        static let externalEntity = ListeningRoomID.Entity.playlist
+    @Model final class Playlist: ExtensionAccessibleModel, SongCollection, TimeStamped {
+        #Index([\Playlist.extensionID])
+        #Unique([\Playlist.extensionID])
+        
+        static let extensionEntity = ListeningRoomID.Entity.playlist
         
         init(name: String,
              userDescription: String? = nil,
              accentColor: ListeningRoomColor? = nil) {
-            self.externalID = Self.makeUniqueExternalID()
+            self.extensionID = Self.nextExtensionID
             self.creationDate = Date()
             self.lastModified = Date()
             self.name = name
@@ -39,7 +42,7 @@ extension AppSchemaV0 {
             self.playlistItems = []
         }
         
-        private(set) var externalID: String
+        private(set) var extensionID: String
         private(set) var creationDate: Date
         var lastModified: Date
         

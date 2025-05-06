@@ -32,7 +32,7 @@ struct PlayerActionEndpoint: ListeningRoomXPCEndpoint {
         case .syncState:
             break // just return
         case .replaceQueue(let newItemsIDs, let nextItemID):
-            player.queue.replace(withContentsOf: newItemsIDs.lazy.compactMap { Song.persistentModelID(for: $0, in: player.queue.context) },
+            player.queue.replace(withContentsOf: persistentModelIDs(for: newItemsIDs, in: player.queue.context),
                                  pinning: nextItemID.flatMap { Song.persistentModelID(for: $0, in: player.queue.context) })
         case .play(let itemID):
             guard let itemID = Song.persistentModelID(for: itemID, in: player.queue.context) else {
@@ -56,6 +56,6 @@ extension ListeningRoomPlayerState {
     @MainActor init(from player: Player) {
         self.init(playbackState: player.playbackState,
                   playingItemIndex: player.playingIndex,
-                  items: Song.listeningRoomIDs(for: player.queue.itemIDs, in: player.queue.context))
+                  items: extensionIDs(for: player.queue.itemIDs, in: player.queue.context))
     }
 }

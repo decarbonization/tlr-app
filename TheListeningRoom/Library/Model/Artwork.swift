@@ -24,11 +24,11 @@ import SwiftData
 typealias Artwork = LatestAppSchema.Artwork
 
 extension AppSchemaV0 {
-    @Model final class Artwork: ExternallyIdentifiable, TimeStamped {
-        #Index([\Artwork.payloadHash], [\Artwork.externalID])
-        #Unique([\Artwork.payloadHash], [\Artwork.externalID])
+    @Model final class Artwork: ExtensionAccessibleModel, TimeStamped {
+        #Index([\Artwork.payloadHash], [\Artwork.extensionID])
+        #Unique([\Artwork.payloadHash], [\Artwork.extensionID])
         
-        static let externalEntity = ListeningRoomID.Entity.artwork
+        static let extensionEntity = ListeningRoomID.Entity.artwork
         
         enum Kind: UInt64, Codable {
             // TODO: Support more kinds
@@ -52,7 +52,7 @@ extension AppSchemaV0 {
              payload: Data,
              songs: [Song] = [],
              colorPalette: ListeningRoomColorPalette? = nil) {
-            self.externalID = Self.makeUniqueExternalID()
+            self.extensionID = Self.nextExtensionID
             self.creationDate = Date()
             self.lastModified = Date()
             self.kind = kind
@@ -63,7 +63,7 @@ extension AppSchemaV0 {
             self.colorPalette = nil
         }
         
-        private(set) var externalID: String
+        private(set) var extensionID: String
         private(set) var creationDate: Date
         var lastModified: Date
         

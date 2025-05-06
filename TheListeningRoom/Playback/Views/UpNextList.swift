@@ -55,7 +55,7 @@ struct UpNextList: View {
             ScrollViewReader { proxy in
                 List(selection: $selectedItems) {
                     ForEach(player.queue.items(of: Song.self).indexed, id: \.element.id) { (item, index) in
-                        QueueItem(isPlaying: player.playingItem?.id == item.listeningRoomID,
+                        QueueItem(isPlaying: player.playingItem?.id == item.extensionID,
                                   isHistory: index < player.playingIndex ?? 0,
                                   item: item)
                     }
