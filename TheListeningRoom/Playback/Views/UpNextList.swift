@@ -24,7 +24,7 @@ import TheListeningRoomExtensionSDK
 struct UpNextList: View {
     @Environment(Player.self) private var player
     @Environment(\.modelContext) private var modelContext
-    @State private var selectedItems = Set<ListeningRoomID>()
+    @State private var selectedItems = Set<PersistentIdentifier>()
     
     private func insert(contentsOf providers: [NSItemProvider], at offset: Int) {
         Task(priority: .userInitiated) {
