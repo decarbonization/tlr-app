@@ -17,28 +17,9 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import ExtensionKit
-import SwiftUI
+import Foundation
 
-public struct ListeningRoomExtensionScene<Content: View>: AppExtensionScene {
-    public init(id: String,
-                @ViewBuilder content: @escaping @MainActor () -> Content) {
-        self.id = id
-        self.content = content
-    }
-    
-    private let id: String
-    private let content: @MainActor () -> Content
-    private let hostView = XPCConnection(role: .extensionScene,
-                                         endpoints: [])
-    
-    public var body: some AppExtensionScene {
-        PrimitiveAppExtensionScene(id: id) {
-            content()
-                .environment(\.listeningRoomNotificationCenter, ListeningRoomHostNotificationCenter(connection: hostView))
-                .environment(\.listeningRoomPlayer, ListeningRoomHostPlayer(connection: hostView))
-        } onConnection: { @Sendable connection in
-            hostView.takeOwnership(of: connection)
-        }
-    }
+public protocol ListeningRoomNotificationCenter: AnyObject, Sendable {
+    func present(_ notification: ListeningRoomNotification) async throws -> Void
+    func dismiss(_ notificationID: ListeningRoomNotification.ID) async throws -> Void
 }

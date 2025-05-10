@@ -21,7 +21,7 @@ import Foundation
 import os
 import SwiftUI
 
-@Observable public final class ListeningRoomPlayer: Sendable {
+@Observable public final class ListeningRoomHostPlayer: Sendable {
     internal init(connection: XPCConnection) {
         self.connection = connection
         self.subscriber = AsyncSubscriber()
@@ -89,5 +89,5 @@ import SwiftUI
 }
 
 extension EnvironmentValues {
-    @Entry public var listeningRoomPlayer = ListeningRoomPlayer(connection: .placeholder)
+    @Entry public var listeningRoomPlayer = ListeningRoomHostPlayer(connection: .placeholder)
 }
