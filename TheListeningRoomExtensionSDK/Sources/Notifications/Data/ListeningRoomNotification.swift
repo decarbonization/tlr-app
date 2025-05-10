@@ -40,6 +40,53 @@ import os
         public var id: String
     }
     
+    public enum Progress: Equatable, Codable, Sendable {
+        case indeterminate
+        case determinate(totalUnitCount: UInt64, completedUnitCount: UInt64)
+        
+        public var isIndeterminate: Bool {
+            switch self {
+            case .indeterminate:
+                return true
+            case .determinate(_, _):
+                return false
+            }
+        }
+        
+        public var isFinished: Bool {
+            guard case .determinate(let totalUnitCount, let completedUnitCount) = self else {
+                return false
+            }
+            return completedUnitCount == totalUnitCount
+        }
+        
+        public var fractionCompleted: Double {
+            guard case .determinate(let totalUnitCount, let completedUnitCount) = self else {
+                return 0.0
+            }
+            return Double(completedUnitCount) / Double(totalUnitCount)
+        }
+    }
+    
+    public struct Action: Identifiable, Equatable, Codable, Sendable {
+        public enum Role: Hashable, Codable, Sendable {
+            case cancel
+            case destructive
+        }
+        
+        public init(id: ListeningRoomActionID,
+                    title: String,
+                    role: Role? = nil) {
+            self.id = id
+            self.title = title
+            self.role = role
+        }
+        
+        public var id: ListeningRoomActionID
+        public var title: String
+        public var role: Role?
+    }
+    
     private enum CodingKeys: String, CodingKey {
         case id
         case storage
@@ -49,16 +96,22 @@ import os
         var title: String
         var details: String?
         var icon: ListeningRoomImage?
+        var progress: Progress?
+        var actions: [Action]
     }
     
     public init(id: ID,
                 title: String,
                 details: String? = nil,
-                icon: ListeningRoomImage? = nil) {
+                icon: ListeningRoomImage? = nil,
+                progress: Progress?,
+                actions: [Action] = []) {
         self.id = id
         self._storage = .init(initialState: Storage(title: title,
                                                     details: details,
-                                                    icon: icon))
+                                                    icon: icon,
+                                                    progress: progress,
+                                                    actions: actions))
     }
     
     public init(from decoder: any Decoder) throws {
@@ -116,5 +169,21 @@ import os
         }
     }
     
-    // TODO: Add progress
+    @ObservationTracked public var progress: Progress? {
+        get {
+            _access(\.progress)
+        }
+        set {
+            _assign(newValue, to: \.progress)
+        }
+    }
+    
+    @ObservationTracked public var actions: [Action] {
+        get {
+            _access(\.actions)
+        }
+        set {
+            _assign(newValue, to: \.actions)
+        }
+    }
 }
