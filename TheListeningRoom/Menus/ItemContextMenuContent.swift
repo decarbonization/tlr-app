@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import TheListeningRoomExtensionSDK
 import SwiftData
 import SwiftUI
 
@@ -104,7 +105,7 @@ struct ItemContextMenuContent: View {
         Library.performChanges(inContainerOf: modelContext) { library in
             try await library.deleteSongs(withIDs: toDelete)
         } catching: { error in
-            TaskErrors.all.present(error)
+            await AppNotificationCenter.global.present(ListeningRoomNotification(presenting: error))
         }
     }
 }

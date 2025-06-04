@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import TheListeningRoomExtensionSDK
 import SwiftData
 import SwiftUI
 import UniformTypeIdentifiers
@@ -54,9 +55,11 @@ private struct ImportDropDelegate: DropDelegate {
             let itemResults = await loadAll(URL.self, from: itemProviders)
             Library.performChanges(inContainerOf: modelContext) { library in
                 let addResults = await library.findAndAddSongs(fromContentsOf: itemResults)
-                TaskErrors.all.present(addResults)
+                for case .failure(let error) in addResults {
+                    await AppNotificationCenter.global.present(ListeningRoomNotification(presenting: error))
+                }
             } catching: { error in
-                TaskErrors.all.present(error)
+                await AppNotificationCenter.global.present(ListeningRoomNotification(presenting: error))
             }
         }
         

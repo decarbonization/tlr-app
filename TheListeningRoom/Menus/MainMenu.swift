@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import TheListeningRoomExtensionSDK
 import SwiftData
 import SwiftUI
 
@@ -40,9 +41,11 @@ struct MainMenu: Commands {
                 Library.performChanges(inContainerOf: modelContext) { library in
                     let urls = try result.get()
                     let addResults = await library.findAndAddSongs(fromContentsOf: urls.map { .success($0) })
-                    TaskErrors.all.present(addResults)
+                    for case .failure(let error) in addResults {
+                        await AppNotificationCenter.global.present(ListeningRoomNotification(presenting: error))
+                    }
                 } catching: { error in
-                    TaskErrors.all.present(error)
+                    await AppNotificationCenter.global.present(ListeningRoomNotification(presenting: error))
                 }
             }
         }
@@ -58,7 +61,7 @@ struct MainMenu: Commands {
                     do {
                         try await player.skipPrevious()
                     } catch {
-                        TaskErrors.all.present(error)
+                        AppNotificationCenter.global.present(ListeningRoomNotification(presenting: error))
                     }
                 }
             } label: {
@@ -77,7 +80,7 @@ struct MainMenu: Commands {
                             }
                             try await player.playItem(withID: firstItem)
                         } catch {
-                            TaskErrors.all.present(error)
+                            AppNotificationCenter.global.present(ListeningRoomNotification(presenting: error))
                         }
                     case .paused:
                         try await player.resume()
@@ -107,7 +110,7 @@ struct MainMenu: Commands {
                     do {
                         try await player.skipNext()
                     } catch {
-                        TaskErrors.all.present(error)
+                        AppNotificationCenter.global.present(ListeningRoomNotification(presenting: error))
                     }
                 }
             } label: {

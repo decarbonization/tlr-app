@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import TheListeningRoomExtensionSDK
 import SwiftData
 import SwiftUI
 
@@ -59,7 +60,7 @@ struct SongBrowser: View {
         Library.performChanges(inContainerOf: modelContext) { library in
             try await library.deleteSongs(withIDs: selection)
         } catching: { error in
-            TaskErrors.all.present(error)
+            await AppNotificationCenter.global.present(ListeningRoomNotification(presenting: error))
         }
     }
     
@@ -198,7 +199,7 @@ struct SongBrowser: View {
                             player.queue.replace(withContentsOf: songs.lazy.map { $0.id }, pinning: songID)
                             try await player.playItem(withID: songID)
                         } catch {
-                            TaskErrors.all.present(error)
+                            AppNotificationCenter.global.present(ListeningRoomNotification(presenting: error))
                         }
                     }
                 }

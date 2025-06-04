@@ -40,7 +40,9 @@ struct UpNextList: View {
             let (collections, errors) = extractResults(collectionsResults)
             let allSongs = collections.flatMap { $0.sortedSongs }
             player.queue.insert(contentsOf: allSongs.lazy.map { $0.id }, at: offset)
-            TaskErrors.all.present(errors)
+            for error in errors {
+                AppNotificationCenter.global.present(ListeningRoomNotification(presenting: error))
+            }
         }
     }
     
@@ -81,7 +83,7 @@ struct UpNextList: View {
                         do {
                             try await player.playItem(withID: songID)
                         } catch {
-                            TaskErrors.all.present(error)
+                            AppNotificationCenter.global.present(ListeningRoomNotification(presenting: error))
                         }
                     }
                 }

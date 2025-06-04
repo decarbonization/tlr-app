@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import TheListeningRoomExtensionSDK
 import SwiftUI
 
 struct AsyncButton<Label: View>: View {
@@ -43,7 +44,7 @@ struct AsyncButton<Label: View>: View {
                 do {
                     try await action()
                 } catch {
-                    TaskErrors.all.present(error)
+                    AppNotificationCenter.global.present(ListeningRoomNotification(presenting: error))
                 }
             }
         } label: {

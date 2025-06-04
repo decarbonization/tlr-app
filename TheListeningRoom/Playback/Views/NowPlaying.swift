@@ -95,7 +95,7 @@ private struct _NowPlayingContent: View {
                     colorPalette = artworkColorPalette
                 }
             } catch {
-                TaskErrors.all.present(error)
+                AppNotificationCenter.global.present(ListeningRoomNotification(presenting: error))
             }
         }
         .background(colorPalette.map { Color($0.background.cgColor) } ?? .clear)

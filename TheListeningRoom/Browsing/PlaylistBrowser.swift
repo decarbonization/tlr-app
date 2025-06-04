@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import TheListeningRoomExtensionSDK
 import SwiftData
 import SwiftUI
 import UniformTypeIdentifiers
@@ -58,7 +59,9 @@ struct PlaylistBrowser: View {
                                 let (collections, errors) = extractResults(collectionsResults)
                                 let allSongs = collections.flatMap { $0.sortedSongs }
                                 playlist.songs.append(contentsOf: allSongs)
-                                TaskErrors.all.present(errors)
+                                for error in errors {
+                                    AppNotificationCenter.global.present(ListeningRoomNotification(presenting: error))
+                                }
                             }
                             return providers.contains(where: { $0.hasItemConformingToTypeIdentifier(UTType.libraryItem.identifier) })
                         }

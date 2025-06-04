@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import TheListeningRoomExtensionSDK
 import SwiftData
 import SwiftUI
 
@@ -35,9 +36,11 @@ struct ContentView: View {
             for await urls in appDelegate.openURLs {
                 Library.performChanges(inContainerOf: modelContext) { library in
                     let addResults = await library.findAndAddSongs(fromContentsOf: urls.map { .success($0) })
-                    TaskErrors.all.present(addResults)
+                    for case .failure(let error) in addResults {
+                        await AppNotificationCenter.global.present(ListeningRoomNotification(presenting: error))
+                    }
                 } catching: { error in
-                    TaskErrors.all.present(error)
+                    await AppNotificationCenter.global.present(ListeningRoomNotification(presenting: error))
                 }
             }
         }

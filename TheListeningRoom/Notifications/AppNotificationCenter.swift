@@ -20,48 +20,41 @@ import Foundation
 import os
 import TheListeningRoomExtensionSDK
 
-@Observable final class AppNotificationCenter: ListeningRoomNotificationCenter {
+@Observable @MainActor final class AppNotificationCenter: ListeningRoomNotificationCenter {
     private struct State {
-        var presented = [ListeningRoomNotification.ID: ListeningRoomNotification]()
-        var ordering = [ListeningRoomNotification.ID]()
+        
     }
     
     static let global = AppNotificationCenter()
     
     init() {
-        _state = .init(initialState: State())
     }
     
-    private let _state: OSAllocatedUnfairLock<State>
+    private var presentedByID = [ListeningRoomNotification.ID: ListeningRoomNotification]()
+    private var presentationOrder = [ListeningRoomNotification.ID]()
     
     var presented: [ListeningRoomNotification] {
         access(keyPath: \.presented)
-        return _state.withLock { state in
-            state.ordering.compactMap { state.presented[$0] }
-        }
+        return presentationOrder.compactMap { presentedByID[$0] }
     }
     
     @MainActor func present(_ notification: ListeningRoomNotification) {
         withMutation(keyPath: \.presented) {
-            _state.withLock { state in
-                let needsToAddOrdering = state.presented[notification.id] == nil
-                state.presented[notification.id] = notification
-                if needsToAddOrdering {
-                    state.ordering.append(notification.id)
-                }
+            let needsToAddOrdering = presentedByID[notification.id] == nil
+            presentedByID[notification.id] = notification
+            if needsToAddOrdering {
+                presentationOrder.append(notification.id)
             }
         }
     }
     
     @MainActor func dismiss(_ notificationID: ListeningRoomNotification.ID) {
         withMutation(keyPath: \.presented) {
-            _state.withLock { state in
-                if state.presented.removeValue(forKey: notificationID) != nil {
-                    guard let toRemove = state.ordering.firstIndex(of: notificationID) else {
-                        return
-                    }
-                    state.ordering.remove(at: toRemove)
+            if presentedByID.removeValue(forKey: notificationID) != nil {
+                guard let toRemove = presentationOrder.firstIndex(of: notificationID) else {
+                    return
                 }
+                presentationOrder.remove(at: toRemove)
             }
         }
     }

@@ -36,6 +36,10 @@ import os
                       id: id)
         }
         
+        public static var unique: Self {
+            Self(UUID().uuidString)
+        }
+        
         public var bundleID: String
         public var id: String
     }
@@ -104,7 +108,7 @@ import os
                 title: String,
                 details: String? = nil,
                 icon: ListeningRoomImage? = nil,
-                progress: Progress?,
+                progress: Progress? = nil,
                 actions: [Action] = []) {
         self.id = id
         self._storage = .init(initialState: Storage(title: title,
@@ -185,5 +189,15 @@ import os
         set {
             _assign(newValue, to: \.actions)
         }
+    }
+}
+
+extension ListeningRoomNotification {
+    public convenience init(presenting error: any Error,
+                            actions: [Action] = []) {
+        self.init(id: .unique,
+                  title: NSLocalizedString("Error", comment: ""),
+                  details: error.localizedDescription,
+                  actions: actions)
     }
 }

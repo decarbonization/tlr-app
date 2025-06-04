@@ -75,7 +75,7 @@ struct SearchView: View {
                         player.queue.replace(withContentsOf: resultGroups.lazy.flatMap { $0.results.lazy.flatMap { persistentModelIDs(for: $0.itemIDs, in: modelContext) } }, pinning: songID)
                         try await player.playItem(withID: songID)
                     } catch {
-                        TaskErrors.all.present(error)
+                        AppNotificationCenter.global.present(ListeningRoomNotification(presenting: error))
                     }
                 }
             }

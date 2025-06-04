@@ -54,7 +54,7 @@ struct PlaylistList: View {
                                     try await player.playItem(withID: firstSong.id)
                                 }
                             } catch {
-                                TaskErrors.all.present(error)
+                                AppNotificationCenter.global.present(ListeningRoomNotification(presenting: error))
                             }
                         }
                     } label: {
@@ -92,7 +92,7 @@ struct PlaylistList: View {
                         player.queue.replace(withContentsOf: playlist.songs.lazy.map { $0.id })
                         try await player.playItem(withID: songID)
                     } catch {
-                        TaskErrors.all.present(error)
+                        AppNotificationCenter.global.present(ListeningRoomNotification(presenting: error))
                     }
                 }
             }

@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import TheListeningRoomExtensionSDK
 import SwiftUI
 import SFBAudioEngine
 
@@ -30,7 +31,7 @@ struct PlaybackControls: View {
                     do {
                         try await player.skipPrevious()
                     } catch {
-                        TaskErrors.all.present(error)
+                        AppNotificationCenter.global.present(ListeningRoomNotification(presenting: error))
                     }
                 }
             } label: {
@@ -49,7 +50,7 @@ struct PlaybackControls: View {
                             }
                             try await player.playItem(withID: firstItem)
                         } catch {
-                            TaskErrors.all.present(error)
+                            AppNotificationCenter.global.present(ListeningRoomNotification(presenting: error))
                         }
                     case .paused:
                         try await player.resume()
@@ -79,7 +80,7 @@ struct PlaybackControls: View {
                     do {
                         try await player.skipNext()
                     } catch {
-                        TaskErrors.all.present(error)
+                        AppNotificationCenter.global.present(ListeningRoomNotification(presenting: error))
                     }
                 }
             } label: {
