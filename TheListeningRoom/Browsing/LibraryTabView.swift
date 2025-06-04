@@ -83,6 +83,7 @@ struct LibraryTabView: View {
             .labelStyle(.titleAndIcon)
             .pickerStyle(.segmented)
             Spacer()
+            NotificationsButton()
         }
     }
 }

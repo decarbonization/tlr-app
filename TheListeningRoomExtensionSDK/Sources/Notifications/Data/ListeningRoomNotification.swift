@@ -64,9 +64,9 @@ import os
             return completedUnitCount == totalUnitCount
         }
         
-        public var fractionCompleted: Double {
+        public var fractionCompleted: Double? {
             guard case .determinate(let totalUnitCount, let completedUnitCount) = self else {
-                return 0.0
+                return nil
             }
             return Double(completedUnitCount) / Double(totalUnitCount)
         }
