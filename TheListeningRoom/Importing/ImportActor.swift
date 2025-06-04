@@ -16,14 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import SwiftUI
+import Foundation
 
-struct TaskList: View {
-    var body: some View {
-        List(Tasks.all.inProgress, id: \.self) { progress in
-            ProgressView(progress)
-                .padding()
-        }
-        .progressViewStyle(.linear)
-    }
+@globalActor actor ImportActor: GlobalActor {
+    static let shared = ImportActor()
 }

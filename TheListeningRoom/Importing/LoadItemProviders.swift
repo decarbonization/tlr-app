@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import TheListeningRoomExtensionSDK
 import CoreTransferable
 import Foundation
 import os
@@ -23,23 +24,24 @@ import os
 @MainActor func loadAll<T: Transferable>(_ transferableType: T.Type = T.self,
                                          from itemProviders: [NSItemProvider]) async -> [Result<T, any Error>] {
     await withUnsafeContinuation { continuation in
-        let overallProgress = Progress(totalUnitCount: Int64(itemProviders.count))
-        overallProgress.localizedDescription = NSLocalizedString("Loading…", comment: "")
-        Tasks.all.begin(overallProgress)
+        let loadingNotification = ListeningRoomNotification(id: .unique,
+                                                            title: NSLocalizedString("Loading…", comment: ""),
+                                                            progress: .determinate(totalUnitCount: UInt64(itemProviders.count), completedUnitCount: 0))
+        AppNotificationCenter.global.present(loadingNotification)
         let group = DispatchGroup()
         let results = OSAllocatedUnfairLock(initialState: [Result<T, any Error>]())
         for itemProvider in itemProviders {
             group.enter()
-            let progress = itemProvider.loadTransferable(type: transferableType) { result in
+            _ = itemProvider.loadTransferable(type: transferableType) { result in
+                loadingNotification.progress?.advance()
                 results.withLock { results in
                     results.append(result)
                 }
                 group.leave()
             }
-            overallProgress.addChild(progress, withPendingUnitCount: 1)
         }
         group.notify(queue: .main) {
-            Tasks.all.end(overallProgress)
+            AppNotificationCenter.global.dismiss(loadingNotification.id)
             continuation.resume(returning: results.withLock { $0 })
         }
     }

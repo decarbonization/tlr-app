@@ -70,6 +70,18 @@ import os
             }
             return Double(completedUnitCount) / Double(totalUnitCount)
         }
+        
+        public mutating func advance(by unitCount: UInt64 = 1) {
+            guard case .determinate(let totalUnitCount, let completedUnitCount) = self else {
+                return
+            }
+            let newCompletedUnitCount = completedUnitCount + unitCount
+            if newCompletedUnitCount <= totalUnitCount {
+                self = .determinate(totalUnitCount: totalUnitCount, completedUnitCount: newCompletedUnitCount)
+            } else {
+                self = .determinate(totalUnitCount: totalUnitCount, completedUnitCount: totalUnitCount)
+            }
+        }
     }
     
     public struct Action: Identifiable, Equatable, Codable, Sendable {

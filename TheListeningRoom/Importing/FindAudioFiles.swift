@@ -16,29 +16,30 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import TheListeningRoomExtensionSDK
 import Foundation
 import SFBAudioEngine
 
-func findAudioFiles(fromContentsOf itemResults: [Result<URL, any Error>]) async -> [Result<URL, any Error>] {
-    let discoveringProgress = Progress(totalUnitCount: Int64(itemResults.count))
-    discoveringProgress.localizedDescription = NSLocalizedString("Discovering…", comment: "")
-    Tasks.all.begin(discoveringProgress)
+@ImportActor func findAudioFiles(fromContentsOf itemResults: [Result<URL, any Error>]) async -> [Result<URL, any Error>] {
+    let discoveringNotification = ListeningRoomNotification(id: .unique,
+                                                            title: NSLocalizedString("Discovering…", comment: ""),
+                                                            progress: .determinate(totalUnitCount: UInt64(itemResults.count), completedUnitCount: 0))
+    await AppNotificationCenter.global.present(discoveringNotification)
     var fileResults = [Result<URL, any Error>]()
     for itemResult in itemResults {
         defer {
-            discoveringProgress.completedUnitCount += 1
+            discoveringNotification.progress?.advance()
         }
         switch itemResult {
         case .success(let url):
-            discoveringProgress.localizedAdditionalDescription = url.lastPathComponent
+            discoveringNotification.details = url.lastPathComponent
             fileResults.append(contentsOf: findAudioFiles(at: url))
         case .failure(let error):
-            discoveringProgress.localizedAdditionalDescription = error.localizedDescription
+            discoveringNotification.details = error.localizedDescription
             fileResults.append(.failure(error))
         }
-        
     }
-    Tasks.all.end(discoveringProgress)
+    await AppNotificationCenter.global.dismiss(discoveringNotification.id)
     return fileResults
 }
 

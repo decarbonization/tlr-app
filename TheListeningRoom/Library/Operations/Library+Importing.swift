@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import TheListeningRoomExtensionSDK
 import Foundation
 @preconcurrency import class Foundation.NSItemProvider
 
@@ -23,20 +24,18 @@ extension Library {
     func findAndAddSongs(fromContentsOf urlResults: [Result<URL, any Error>]) async -> [Result<Song, any Error>] {
         let fileResults = await findAudioFiles(fromContentsOf: urlResults)
         
-        let progress = Progress(totalUnitCount: Int64(fileResults.count))
-        progress.localizedDescription = NSLocalizedString("Importing Songs…", comment: "")
-        Tasks.all.begin(progress)
-        defer {
-            Tasks.all.end(progress)
-        }
+        let importingNotification = ListeningRoomNotification(id: .unique,
+                                                                title: NSLocalizedString("Importing Songs…", comment: ""),
+                                                                progress: .determinate(totalUnitCount: UInt64(fileResults.count), completedUnitCount: 0))
+        await AppNotificationCenter.global.present(importingNotification)
         var addResults = [Result<Song, any Error>]()
         for fileResult in fileResults {
             defer {
-                progress.completedUnitCount += 1
+                importingNotification.progress?.advance()
             }
             switch fileResult {
             case .success(let fileURL):
-                progress.localizedAdditionalDescription = fileURL.lastPathComponent
+                importingNotification.details = fileURL.lastPathComponent
                 do {
                     try addSong(fileURL)
                 } catch {
@@ -44,10 +43,11 @@ extension Library {
                     addResults.append(.failure(error))
                 }
             case .failure(let error):
-                progress.localizedAdditionalDescription = error.localizedDescription
+                importingNotification.details = error.localizedDescription
                 addResults.append(.failure(error))
             }
         }
+        await AppNotificationCenter.global.dismiss(importingNotification.id)
         return addResults
     }
 }
