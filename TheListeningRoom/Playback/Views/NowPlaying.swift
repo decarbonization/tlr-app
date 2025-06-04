@@ -65,7 +65,7 @@ private struct _NowPlayingContent: View {
                         .foregroundStyle(.primary)
                 }
                 Marquee {
-                    Text(verbatim: playingItem?.artist ?? "--")
+                    Text(verbatim: "\(playingItem?.albumTitle ?? "--") by \(playingItem?.artist ?? "--")")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
